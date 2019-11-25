@@ -89,23 +89,22 @@ proc list_dir*() =
     if not conf().just_files:
       if dirs.len > 0:
         print_title("Directories", dirs.len)
-        if conf().list: log ""
+        if conf().list and not conf().no_spacing: log ""
         show_files(dirs)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len)
-        if conf().list: log ""
+        if conf().list and not conf().no_spacing: log ""
         show_files(dirlinks)
-
   
   proc do_files() =
     if not conf().just_dirs:
       if files.len > 0:
         print_title("Files", files.len)
-        if conf().list: log ""
+        if conf().list and not conf().no_spacing: log ""
         show_files(files)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len)
-        if conf().list: log ""
+        if conf().list and not conf().no_spacing: log ""
         show_files(filelinks)
   
   proc do_all() =
