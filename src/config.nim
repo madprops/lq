@@ -25,7 +25,7 @@ proc get_config*() =
   let just_files = use_arg(name="files", kind="flag", help="Just show files")
   let absolute = use_arg(name="absolute", kind="flag", help="Use absolute paths")
   let no_colors = use_arg(name="no-colors", kind="flag", help="Don't color paths")
-  let filter = use_arg(name="filter", kind="value", help="Filter the list")
+  let filter = use_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=\\\\d+")
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
   let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'")
   let list = use_arg(name="list", kind="flag", help="Show in a vertical list")

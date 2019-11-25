@@ -1,6 +1,7 @@
 import utils
 import config
 import os
+import nre
 import strformat
 import strutils
 import algorithm
@@ -59,7 +60,6 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
     if not conf().list:
       let clen = file.path.len + prefix.len + scount.len
       let tots = slen + clen
-      var print = false
       # Add to line
       if tots <= limit:
         add_to_line(s, clen)
@@ -82,12 +82,23 @@ proc list_dir*() =
   var filelinks: seq[tuple[kind: PathComponent, path: string]]
   var files: seq[tuple[kind: PathComponent, path: string]]
   let do_filter = conf().filter != ""
-  let filter = if do_filter: conf().filter.toLower() else: ""
+  let do_regex_filter = conf().filter.startsWith("re:")
+  var filter = ""
+  var res: Regex
+  if do_regex_filter:
+    res = re(conf().filter.replace(re"^re\:", ""))
+  else: filter = conf().filter.toLower()
   
   for file in walkDir(conf().path, relative=(not conf().absolute)):
+    # Filter
     if do_filter:
-      if not file.path.toLower().contains(filter):
-        continue
+      if do_regex_filter:
+        let m = file.path.find(res)
+        if m.isNone: continue
+      else:
+        if not file.path.toLower().contains(filter):
+          continue
+    # Add to proper list
     case file.kind
     of pcDir: 
       dirs.add(file)
