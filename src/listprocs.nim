@@ -106,10 +106,11 @@ proc list_dir*() =
     of pcLinkToFile: filelinks.add(file)
     of pcFile: files.add(file)
   
-  dirs = dirs.sortedByIt(it.path.toLower())
-  dirlinks = dirlinks.sortedByIt(it.path.toLower())
-  files = files.sortedByIt(it.path.toLower())
-  filelinks = filelinks.sortedByIt(it.path.toLower())
+  proc sort_lists() =
+    dirs = dirs.sortedByIt(it.path.toLower())
+    dirlinks = dirlinks.sortedByIt(it.path.toLower())
+    files = files.sortedByIt(it.path.toLower())
+    filelinks = filelinks.sortedByIt(it.path.toLower())
 
   proc do_dirs() =
     if not conf().just_files:
@@ -153,6 +154,7 @@ proc list_dir*() =
     else: do_all()
   
   else:
+    sort_lists()
     if not conf().reverse:
       do_dirs()
       do_files()
