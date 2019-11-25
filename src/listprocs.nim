@@ -109,10 +109,18 @@ proc list_dir*() =
         show_files(filelinks)
   
   proc do_all() =
-    show_files(dirs & dirlinks & files & filelinks)
+    var all = dirs & dirlinks & files & filelinks
+    if conf().mix:
+      show_files(all.sortedByIt(it.path.toLower()))
+    else:
+      show_files(all)
   
   proc do_all_reverse() =
-    show_files(files & filelinks & dirs & dirlinks)
+    var all = files & filelinks & dirs & dirlinks
+    if conf().mix:
+      show_files(all.sortedByIt(it.path.toLower()))
+    else:
+      show_files(all)
   
   if conf().fluid:
     if conf().reverse:

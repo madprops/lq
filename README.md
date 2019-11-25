@@ -10,6 +10,9 @@ Similar to what ls does, except it doesn't have all of its features.
 ### Salad Mode
 ![](http://i.imgur.com/I9xXxrg.jpg)
 
+### Blender Mode
+![](http://i.imgur.com/CTlYLxe.jpg)
+
 ### List Mode
 ![](http://i.imgur.com/gDbc3ag.jpg)
 

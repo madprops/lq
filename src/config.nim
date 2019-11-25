@@ -15,6 +15,7 @@ type Config* = ref object
   reverse*: bool
   no_spacing*: bool
   fluid*: bool
+  mix*: bool
 
 var oconf*: Config
 
@@ -33,9 +34,11 @@ proc get_config*() =
   let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories")
   let no_spacing = use_arg(name="no-spacing", kind="flag", help="Make it less comfy")
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections")
+  let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything")
 
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all")
+  let blender = use_arg(name="blender", kind="flag", help="Preset to really mix all")
   
   add_header("List directories")
   parse_args()
@@ -54,11 +57,18 @@ proc get_config*() =
     no_titles:no_titles.used,
     reverse:reverse.used,
     no_spacing:no_spacing.used,
+    fluid:fluid.used,
+    mix:mix.used,
   )
 
   if salad.used:
     oconf.no_titles = true
     oconf.fluid = true
+  
+  elif blender.used:
+    oconf.no_titles = true
+    oconf.fluid = true
+    oconf.mix = true
 
 proc conf*(): Config =
   return oconf
