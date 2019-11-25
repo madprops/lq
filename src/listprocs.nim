@@ -22,7 +22,20 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
   var slen = 0
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
-  var xp = if conf().no_spacing: 1 else: 3
+  var xp = if conf().no_spacing: 1 else: 2
+  let limit = if conf().no_spacing: termwidth else: (termwidth - 4)
+
+  proc print_line() =
+    log sline.strip(leading=false, trailing=true)
+    sline = if conf().no_spacing: "" else: "\n  "
+    slen = 0
+  
+  proc add_to_line(s:string, clen:int) =
+    if conf().no_spacing:
+      sline.add(&"{s} ")
+    else:
+      sline.add(&"{s}  ")
+    slen += clen + xp
 
   for file in files:
     var scount = ""
@@ -40,20 +53,23 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
 
     let color = get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
+    # Formatted item
     let s = &"{color}{prefix}{file.path}{get_ansi(ansi_reset)}{scount}"
 
     if not conf().list:
-      let clen = file.path.len + prefix.len + scount.len + xp
-      if slen + clen > termwidth:
-        log sline
-        sline = if conf().no_spacing: "" else: "\n  "
-        slen = 0
-      else:
-        if conf().no_spacing:
-          sline.add(&"{s} ")
-        else:
-          sline.add(&"{s}  ")
-        slen += clen
+      let clen = file.path.len + prefix.len + scount.len
+      let tots = slen + clen
+      var print = false
+      # Add to line
+      if tots <= limit:
+        add_to_line(s, clen)
+      if tots == limit:
+        print_line()
+      # Line overflow
+      elif tots > limit:
+        print_line()
+        add_to_line(s, clen)
+    # List item
     else: log s
       
   if slen > 0:
