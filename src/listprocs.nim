@@ -19,7 +19,6 @@ proc get_prefix(kind:PathComponent): string =
   of pcFile, pcLinkToFile: "[F] "
 
 proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
-
   var slen = 0
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
@@ -134,5 +133,4 @@ proc list_dir*() =
       do_files()
       do_dirs()
   
-  if not conf().no_spacing:
-    log ""
+  if not conf().no_spacing: log ""
