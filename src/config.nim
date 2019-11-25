@@ -13,6 +13,8 @@ type Config* = ref object
   dircount*: bool
   no_titles*: bool
   reverse*: bool
+  no_spacing*: bool
+  fluid*: bool
 
 var oconf*: Config
 
@@ -29,6 +31,11 @@ proc get_config*() =
   let dircount = use_arg(name="count", kind="flag", help="Count items inside directories")
   let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'")
   let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories")
+  let no_spacing = use_arg(name="no-spacing", kind="flag", help="Make it less comfy")
+  let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections")
+
+  # Presets
+  let salad = use_arg(name="salad", kind="flag", help="Preset to mix all")
   
   add_header("List directories")
   parse_args()
@@ -46,7 +53,12 @@ proc get_config*() =
     dircount:dircount.used,
     no_titles:no_titles.used,
     reverse:reverse.used,
+    no_spacing:no_spacing.used,
   )
+
+  if salad.used:
+    oconf.no_titles = true
+    oconf.fluid = true
 
 proc conf*(): Config =
   return oconf

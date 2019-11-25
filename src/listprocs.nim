@@ -6,14 +6,24 @@ import strutils
 import algorithm
 import terminal
 
-proc show_files*(files:seq[tuple[kind: PathComponent, path: string]],
-  color:string, prefix:string) =
+proc get_color(kind:PathComponent): string =
+  case kind
+  of pcDir: get_ansi("blue")
+  of pcLinkToDir: get_ansi("cyan")
+  of pcFile: ""
+  of pcLinkToFile: get_ansi("green")
+
+proc get_prefix(kind:PathComponent): string =
+  case kind
+  of pcDir, pcLinkToDir: "[D] "
+  of pcFile, pcLinkToFile: "[F] "
+
+proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
 
   var slen = 0
   let termwidth = terminalWidth()
-  let cs = ccolor(color)
-  var prfx = if conf().prefix: prefix else: ""
-  var sline = "\n  "
+  var sline = if conf().no_spacing: "" else: "\n  "
+  var xp = if conf().no_spacing: 2 else: 4
 
   for file in files:
     var scount = ""
@@ -29,16 +39,21 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]],
         &" ({ni})"
       else: ""
 
-    let s = &"{cs}{prfx}{file.path}{get_ansi(ansi_reset)}{scount}"
+    let color = get_color(file.kind)
+    var prefix = if conf().prefix: get_prefix(file.kind) else: ""
+    let s = &"{color}{prefix}{file.path}{get_ansi(ansi_reset)}{scount}"
 
     if not conf().list:
-      let clen = file.path.len + prfx.len + scount.len + 4
+      let clen = file.path.len + prefix.len + scount.len + xp
       if slen + clen > termwidth:
         log sline
-        sline = "\n  "
+        sline = if conf().no_spacing: "" else: "\n  "
         slen = 0
       else:
-        sline.add(&"{s}  ")
+        if conf().no_spacing:
+          sline.add(&"{s} ")
+        else:
+          sline.add(&"{s}  ")
         slen += clen
     else: log s
       
@@ -75,11 +90,11 @@ proc list_dir*() =
       if dirs.len > 0:
         print_title("Directories", dirs.len)
         if conf().list: log ""
-        show_files(dirs, "blue", "[D] ")
+        show_files(dirs)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len)
         if conf().list: log ""
-        show_files(dirlinks, "cyan", "[D] ")
+        show_files(dirlinks)
 
   
   proc do_files() =
@@ -87,17 +102,30 @@ proc list_dir*() =
       if files.len > 0:
         print_title("Files", files.len)
         if conf().list: log ""
-        show_files(files, "", "[F] ")
+        show_files(files)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len)
         if conf().list: log ""
-        show_files(filelinks, "green", "[F] ")
-    
-  if not conf().reverse:
-    do_dirs()
-    do_files()
-  else:
-    do_files()
-    do_dirs()
+        show_files(filelinks)
   
-  log ""
+  proc do_all() =
+    show_files(dirs & dirlinks & files & filelinks)
+  
+  proc do_all_reverse() =
+    show_files(files & filelinks & dirs & dirlinks)
+  
+  if conf().fluid:
+    if conf().reverse:
+      do_all_reverse()
+    else: do_all()
+  
+  else:
+    if not conf().reverse:
+      do_dirs()
+      do_files()
+    else:
+      do_files()
+      do_dirs()
+  
+  if not conf().no_spacing:
+    log ""
