@@ -1,6 +1,6 @@
 import nap
 
-type Config* = object
+type Config* = ref object
   path*: string
   just_dirs*: bool
   just_files*: bool
@@ -10,8 +10,9 @@ type Config* = object
   dev*: bool
   list*: bool
   prefix*: bool
+  dircount*: bool
 
-var conf*: Config
+var oconf*: Config
 
 proc get_config*() =
   let path = use_arg(name="path", kind="argument", help="Path to a directory")
@@ -23,11 +24,12 @@ proc get_config*() =
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
   let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like [F]")
   let list = use_arg(name="list", kind="flag", help="Show in a vertical list")
+  let dircount = use_arg(name="count", kind="flag", help="Count items inside directories")
   
   add_header("List directories")
   parse_args()
   
-  conf = Config(
+  oconf = Config(
     path:path.value, 
     just_dirs:just_dirs.used, 
     just_files:just_files.used,
@@ -37,4 +39,8 @@ proc get_config*() =
     dev:dev.used,
     list:list.used,
     prefix:prefix.used,
+    dircount:dircount.used
   )
+
+proc conf*(): Config =
+  return oconf

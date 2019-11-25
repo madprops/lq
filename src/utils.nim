@@ -11,6 +11,7 @@ type AnsiKind* = enum
   ansi_blue
   ansi_magenta
   ansi_bright
+  ansi_underscore
   ansi_reset
 
 proc get_ansi*(kind:string): string =
@@ -21,6 +22,7 @@ proc get_ansi*(kind:string): string =
   of "blue": ansiForegroundColorCode(fgBlue)
   of "magenta": ansiForegroundColorCode(fgMagenta)
   of "bright": ansiStyleCode(styleBright)
+  of "underscore": ansiStyleCode(styleUnderscore)
   of "reset": ansiResetCode
   else: ""
 
@@ -32,22 +34,23 @@ proc get_ansi*(kind:AnsiKind): string =
   of ansi_blue: get_ansi("blue")
   of ansi_magenta: get_ansi("magenta")
   of ansi_bright: get_ansi("bright")
+  of ansi_underscore: get_ansi("underscore")
   of ansi_reset: get_ansi("reset")
 
 proc log*(s:string) =
   echo s
 
 proc ccolor*(color:string): string =
-  if conf.no_colors: "" else: get_ansi(color)
+  if conf().no_colors: "" else: get_ansi(color)
 
 proc ccolor*(color:AnsiKind): string =
-  if conf.no_colors: "" else: get_ansi(color)
+  if conf().no_colors: "" else: get_ansi(color)
 
 proc fix_path*(path:string): string =
   var path = expandTilde(path)
   normalizePath(path)
   if not path.startsWith("/"):
-    path = if conf.dev:
+    path = if conf().dev:
       getCurrentDir().parentDir().joinPath(path)
       else: getCurrentDir().joinPath(path)
   return path
