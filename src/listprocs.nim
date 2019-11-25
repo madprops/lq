@@ -22,7 +22,7 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
   var slen = 0
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
-  var xp = if conf().no_spacing: 2 else: 4
+  var xp = if conf().no_spacing: 1 else: 3
 
   for file in files:
     var scount = ""
