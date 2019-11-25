@@ -135,6 +135,7 @@ proc list_dir*() =
         show_files(filelinks)
   
   proc do_all() =
+    if not conf().mix: sort_lists()
     var all = dirs & dirlinks & files & filelinks
     if conf().mix:
       show_files(all.sortedByIt(it.path.toLower()))
@@ -142,6 +143,7 @@ proc list_dir*() =
       show_files(all)
   
   proc do_all_reverse() =
+    if not conf().mix: sort_lists()
     var all = files & filelinks & dirs & dirlinks
     if conf().mix:
       show_files(all.sortedByIt(it.path.toLower()))
