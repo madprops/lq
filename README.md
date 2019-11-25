@@ -6,4 +6,4 @@ It has a category based view and a vertical list view if `--list` is used.
 
 ![](http://i.imgur.com/75LZU8e.jpg)
 
-### [Help](https://madprops.github.io/lq/)
+### [Documentation](https://madprops.github.io/lq/)
