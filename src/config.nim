@@ -11,6 +11,8 @@ type Config* = ref object
   list*: bool
   prefix*: bool
   dircount*: bool
+  no_titles*: bool
+  reverse*: bool
 
 var oconf*: Config
 
@@ -22,9 +24,11 @@ proc get_config*() =
   let no_colors = use_arg(name="no-colors", kind="flag", help="Don't color paths")
   let filter = use_arg(name="filter", kind="value", help="Filter the list")
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
-  let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like [F]")
+  let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'")
   let list = use_arg(name="list", kind="flag", help="Show in a vertical list")
   let dircount = use_arg(name="count", kind="flag", help="Count items inside directories")
+  let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'")
+  let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories")
   
   add_header("List directories")
   parse_args()
@@ -39,7 +43,9 @@ proc get_config*() =
     dev:dev.used,
     list:list.used,
     prefix:prefix.used,
-    dircount:dircount.used
+    dircount:dircount.used,
+    no_titles:no_titles.used,
+    reverse:reverse.used,
   )
 
 proc conf*(): Config =

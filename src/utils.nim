@@ -56,4 +56,5 @@ proc fix_path*(path:string): string =
   return path
 
 proc print_title*(title:string, n:int) =
+  if conf().no_titles: return
   log(&"\n{get_ansi(ansi_magenta)}{get_ansi(ansi_bright)}{title}{get_ansi(ansi_reset)} ({n})")

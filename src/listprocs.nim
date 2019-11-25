@@ -70,27 +70,34 @@ proc list_dir*() =
   files = files.sortedByIt(it.path.toLower())
   filelinks = filelinks.sortedByIt(it.path.toLower())
 
-  let ntotal = dirs.len + dirlinks.len + files.len + filelinks.len
-  log(&"\n*** {get_ansi(ansi_bright)}{conf().path} ({ntotal}){get_ansi(ansi_reset)} ***")
+  proc do_dirs() =
+    if not conf().just_files:
+      if dirs.len > 0:
+        print_title("Directories", dirs.len)
+        if conf().list: log ""
+        show_files(dirs, "blue", "[D] ")
+      if dirlinks.len > 0:
+        print_title("Directory Links", dirlinks.len)
+        if conf().list: log ""
+        show_files(dirlinks, "cyan", "[D] ")
+
   
-  if not conf().just_files:
-    if dirs.len > 0:
-      print_title("Directories", dirs.len)
-      if conf().list: log ""
-      show_files(dirs, "blue", "[D] ")
-    if dirlinks.len > 0:
-      print_title("Directory Links", dirlinks.len)
-      if conf().list: log ""
-      show_files(dirlinks, "cyan", "[D] ")
+  proc do_files() =
+    if not conf().just_dirs:
+      if files.len > 0:
+        print_title("Files", files.len)
+        if conf().list: log ""
+        show_files(files, "", "[F] ")
+      if filelinks.len > 0:
+        print_title("File Links", filelinks.len)
+        if conf().list: log ""
+        show_files(filelinks, "green", "[F] ")
     
-  if not conf().just_dirs:
-    if files.len > 0:
-      print_title("Files", files.len)
-      if conf().list: log ""
-      show_files(files, "", "[F] ")
-    if filelinks.len > 0:
-      print_title("File Links", filelinks.len)
-      if conf().list: log ""
-      show_files(filelinks, "green", "[F] ")
+  if not conf().reverse:
+    do_dirs()
+    do_files()
+  else:
+    do_files()
+    do_dirs()
   
   log ""
