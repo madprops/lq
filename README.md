@@ -27,7 +27,7 @@ Show items in a vertical list.
 ![](http://i.imgur.com/gDbc3ag.jpg)
 
 ## Using --abc
-Categorize by letters.
+Categorize results by letters.
 
 ![](http://i.imgur.com/7m9adHl.jpg)
 
