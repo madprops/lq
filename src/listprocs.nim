@@ -70,7 +70,11 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
     let c = if abci > -1:
       abc[abci]
     else: '@'
-    log &"  {format_abc(c)}"
+
+    let sp = if conf().no_spacing: ""
+      else: "  "
+
+    log &"{sp}{format_abc(c)}"
   
   proc print_line() =
     if use_abc and abc_started and not conf().fluid:
@@ -94,7 +98,7 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
       let ib = abc.find(sc)
       if ib == -1:
         if not abc_started:
-          log ""
+          if not conf().no_spacing: log ""
           abc_started = true
       else:
         if ib != abci:
@@ -108,7 +112,8 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
           else:
             if slen > 0:
               print_line()
-            log ""
+            if not conf().no_spacing:
+              log ""
 
           abci = ib
 
