@@ -34,4 +34,4 @@ Just add re: to the filter.
 Of course you can just use a non regex string to do so.
 ![](http://i.imgur.com/1qxwL1f.jpg)
 
-### [Documentation](https://madprops.github.io/lq/)
+### [All available flags](https://madprops.github.io/lq/)
