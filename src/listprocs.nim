@@ -11,7 +11,11 @@ proc get_file_size(file:tuple[kind: PathComponent, path: string]): string =
   case file.kind
   of pcFile, pcLinkToFile:
     let path = fix_path_2(file.path)
-    let info = getFileInfo(path)
+    var info: FileInfo
+    try:
+      info = getFileInfo(path)
+    except:
+      return ""
     let fsize: float64 = float(info.size)
     let divider = 1024.0
     let kb: float64 = fsize / divider
