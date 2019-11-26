@@ -18,6 +18,7 @@ type Config* = ref object
   mix*: bool
   abc*: bool
   size*: bool
+  sizesort*: bool
 
 var oconf*: Config
 
@@ -39,6 +40,7 @@ proc get_config*() =
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything")
   let abc = use_arg(name="abc", kind="flag", help="Categorize with letters")
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
+  let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size")
 
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -65,6 +67,7 @@ proc get_config*() =
     mix:mix.used,
     abc:abc.used,
     size:size.used,
+    sizesort:sizesort.used,
   )
 
   if salad.used:

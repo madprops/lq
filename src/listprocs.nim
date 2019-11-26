@@ -7,17 +7,23 @@ import strutils
 import algorithm
 import terminal
 
-proc get_file_size(file:tuple[kind: PathComponent, path: string]): string =
+type QFile = object
+  kind: PathComponent
+  path: string
+  size: int64
+
+proc get_file_size(path:string): int64 =
+  try:
+    var path = fix_path_2(path)
+    return getFileInfo(path).size
+  except:
+    return 0
+
+proc format_file_size(file:QFile): string =
   case file.kind
   of pcFile, pcLinkToFile:
-    let path = fix_path_2(file.path)
-    var info: FileInfo
-    try:
-      info = getFileInfo(path)
-    except:
-      return ""
-    let fsize: float64 = float(info.size)
-    let divider = 1024.0
+    let fsize = float(file.size)
+    let divider: float64 = 1024.0
     let kb: float64 = fsize / divider
     let mb: float64 = kb / divider
     let gb: float64 = mb / divider
@@ -40,7 +46,7 @@ proc get_prefix(kind:PathComponent): string =
   of pcDir, pcLinkToDir: "[D] "
   of pcFile, pcLinkToFile: "[F] "
 
-proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
+proc show_files*(files:seq[QFile]) =
   var slen = 0
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
@@ -49,7 +55,6 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
   for x in 0..(xp - 1):
     sp.add(" ")
   let limit = if conf().no_spacing: termwidth else: (termwidth - 4)
-  var columns = newSeq[(seq[string], int)]()
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   let use_abc = conf().abc and not conf().mix
@@ -57,7 +62,7 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
   var used_abci = -1
   var abc_started = false
 
-  proc format_item(file:tuple[kind: PathComponent, path: string]): (string, int) =
+  proc format_item(file:QFile): (string, int) =
     var scount = ""
     if conf().dircount:
       scount = case file.kind
@@ -73,7 +78,7 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
 
     let color = if conf().no_colors: "" else: get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
-    var size = if conf().size: get_file_size(file) else: ""
+    var size = if conf().size: format_file_size(file) else: ""
     
     let clen = prefix.len + file.path.len + size.len + scount.len
     return (&"{color}{prefix}{file.path}{size}{get_ansi(ansi_reset)}{scount}", clen)
@@ -158,10 +163,10 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
 
 proc list_dir*() =
   conf().path = fix_path(conf().path)
-  var dirs: seq[tuple[kind: PathComponent, path: string]]
-  var dirlinks: seq[tuple[kind: PathComponent, path: string]]
-  var filelinks: seq[tuple[kind: PathComponent, path: string]]
-  var files: seq[tuple[kind: PathComponent, path: string]]
+  var dirs: seq[QFile]
+  var dirlinks: seq[QFile]
+  var files: seq[QFile]
+  var filelinks: seq[QFile]
   let do_filter = conf().filter != ""
   let do_regex_filter = conf().filter.startsWith("re:")
   var filter = ""
@@ -182,16 +187,27 @@ proc list_dir*() =
     # Add to proper list
     case file.kind
     of pcDir: 
-      dirs.add(file)
-    of pcLinkToDir: dirlinks.add(file)
-    of pcLinkToFile: filelinks.add(file)
-    of pcFile: files.add(file)
+      dirs.add(QFile(kind:file.kind, path:file.path, size:0))
+    of pcLinkToDir:
+      dirlinks.add(QFile(kind:file.kind, path:file.path, size:0))
+    of pcFile:
+      let size = if conf().size: get_file_size(file.path) else: 0
+      files.add(QFile(kind:file.kind, path:file.path, size:size))
+    of pcLinkToFile:
+      let size = if conf().size: get_file_size(file.path) else: 0
+      filelinks.add(QFile(kind:file.kind, path:file.path, size:size))
   
   proc sort_lists() =
-    dirs = dirs.sortedByIt(it.path.toLower())
-    dirlinks = dirlinks.sortedByIt(it.path.toLower())
-    files = files.sortedByIt(it.path.toLower())
-    filelinks = filelinks.sortedByIt(it.path.toLower())
+    if conf().sizesort:
+      dirs = dirs.sortedByIt(it.path.toLower())
+      dirlinks = dirlinks.sortedByIt(it.path.toLower())
+      files = files.sortedByIt(it.size)
+      filelinks = filelinks.sortedByIt(it.size)
+    else:
+      dirs = dirs.sortedByIt(it.path.toLower())
+      dirlinks = dirlinks.sortedByIt(it.path.toLower())
+      files = files.sortedByIt(it.path.toLower())
+      filelinks = filelinks.sortedByIt(it.path.toLower())
 
   proc do_dirs() =
     if not conf().just_files:
