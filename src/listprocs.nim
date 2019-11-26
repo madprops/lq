@@ -25,20 +25,15 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
   var sline = if conf().no_spacing: "" else: "\n  "
   var xp = if conf().no_spacing: 1 else: 2
   let limit = if conf().no_spacing: termwidth else: (termwidth - 4)
+  var columns = newSeq[(seq[string], int)]()
+  let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+  let use_abc = conf().abc and not conf().fluid and not conf().mix
+  var abci = -1
+  var used_abci = -1
+  var abc_started = false
 
-  proc print_line() =
-    log sline.strip(leading=false, trailing=true)
-    sline = if conf().no_spacing: "" else: "\n  "
-    slen = 0
-  
-  proc add_to_line(s:string, clen:int) =
-    if conf().no_spacing:
-      sline.add(&"{s} ")
-    else:
-      sline.add(&"{s}  ")
-    slen += clen + xp
-
-  for file in files:
+  proc format_item(file:tuple[kind: PathComponent, path: string]): (string, int) =
     var scount = ""
     if conf().dircount:
       scount = case file.kind
@@ -54,11 +49,58 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
 
     let color = get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
-    # Formatted item
-    let s = &"{color}{prefix}{file.path}{get_ansi(ansi_reset)}{scount}"
+    
+    let clen = file.path.len + prefix.len + scount.len
+    return (&"{color}{prefix}{file.path}{get_ansi(ansi_reset)}{scount}", clen)
+
+  proc space_item(s:string): string =
+    if conf().no_spacing:
+      return &"{s} "
+    else:
+      return &"{s}  "
+  
+  proc print_abc() =
+    if abci != -1:
+      if abci == used_abci:
+        return
+      else: used_abci = abci
+    let c = if abci > -1:
+      abc[abci]
+    else: '@'
+    log &"  {get_ansi(ansi_yellow)}{$c}{get_ansi(ansi_reset)}"
+  
+  proc print_line() =
+    if use_abc and abc_started: print_abc()
+    log sline.strip(leading=false, trailing=true)
+    sline = if conf().no_spacing: "" else: "\n  "
+    slen = 0
+  
+  proc add_to_line(s:string, clen:int) =
+    sline.add(space_item(s))
+    slen += clen + xp
+
+  for file in files:
+    let fmt = format_item(file)
+    let s = fmt[0]
+    let clen = fmt[1]
+
+    if use_abc:
+      let sc = file.path[0].toLowerAscii()
+      let ib = abc.find(sc)
+      if ib == -1:
+        if not abc_started:
+          log ""
+          abc_started = true
+      else:
+        if ib != abci:
+          # On letter change
+          abc_started = true
+          if slen > 0:
+            print_line()
+          log ""
+          abci = ib
 
     if not conf().list:
-      let clen = file.path.len + prefix.len + scount.len
       let tots = slen + clen
       # Add to line
       if tots <= limit:
@@ -73,7 +115,7 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
     else: log s
       
   if slen > 0:
-    log sline
+    print_line()
 
 proc list_dir*() =
   conf().path = fix_path(conf().path)

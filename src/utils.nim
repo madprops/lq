@@ -10,6 +10,7 @@ type AnsiKind* = enum
   ansi_red
   ansi_blue
   ansi_magenta
+  ansi_yellow
   ansi_bright
   ansi_underscore
   ansi_reset
@@ -21,6 +22,7 @@ proc get_ansi*(kind:string): string =
   of "red": ansiForegroundColorCode(fgRed)
   of "blue": ansiForegroundColorCode(fgBlue)
   of "magenta": ansiForegroundColorCode(fgMagenta)
+  of "yellow": ansiForegroundColorCode(fgYellow)
   of "bright": ansiStyleCode(styleBright)
   of "underscore": ansiStyleCode(styleUnderscore)
   of "reset": ansiResetCode
@@ -33,6 +35,7 @@ proc get_ansi*(kind:AnsiKind): string =
   of ansi_red: get_ansi("red")
   of ansi_blue: get_ansi("blue")
   of ansi_magenta: get_ansi("magenta")
+  of ansi_yellow: get_ansi("yellow")
   of ansi_bright: get_ansi("bright")
   of ansi_underscore: get_ansi("underscore")
   of ansi_reset: get_ansi("reset")

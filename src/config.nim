@@ -16,6 +16,7 @@ type Config* = ref object
   no_spacing*: bool
   fluid*: bool
   mix*: bool
+  abc*: bool
 
 var oconf*: Config
 
@@ -35,6 +36,7 @@ proc get_config*() =
   let no_spacing = use_arg(name="no-spacing", kind="flag", help="Make it less comfy")
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything")
+  let abc = use_arg(name="abc", kind="flag", help="Categorize with letters")
 
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all")
@@ -59,6 +61,7 @@ proc get_config*() =
     no_spacing:no_spacing.used,
     fluid:fluid.used,
     mix:mix.used,
+    abc:abc.used,
   )
 
   if salad.used:
