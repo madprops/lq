@@ -57,4 +57,8 @@ It also shows the size on the right of files.
 
 ![](http://i.imgur.com/vTrHHFY.jpg)
 
+Sorting is also possible. Either by size or modification date.
+
+`--sizesort or --datesort`
+
 ### [All available flags](https://madprops.github.io/lq/)
