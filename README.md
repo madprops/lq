@@ -43,7 +43,7 @@ Of course you can just use a non regex string to do so.
 ## Extra information
 Here's using the --prefix and --size flags.
 
-These show on the left if it's a D (Directory) or F (File). 
+These show on the left if it's a D (Directory) or F (File).
 
 It also shows the size on the right of files.
 
