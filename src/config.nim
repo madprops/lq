@@ -42,7 +42,7 @@ proc get_config*() =
   let abc = use_arg(name="abc", kind="flag", help="Categorize with letters")
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size")
-  let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date")
+  let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
 
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
