@@ -16,7 +16,7 @@ Similar to what ls does, except it doesn't have all of its features.
 ### List Mode
 ![](http://i.imgur.com/gDbc3ag.jpg)
 
-## Using letter categories
+## Using --abc
 ![](http://i.imgur.com/7m9adHl.jpg)
 
 ### [Documentation](https://madprops.github.io/lq/)
