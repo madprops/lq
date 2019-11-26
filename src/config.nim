@@ -17,6 +17,7 @@ type Config* = ref object
   fluid*: bool
   mix*: bool
   abc*: bool
+  size*: bool
 
 var oconf*: Config
 
@@ -37,6 +38,7 @@ proc get_config*() =
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything")
   let abc = use_arg(name="abc", kind="flag", help="Categorize with letters")
+  let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
 
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -62,6 +64,7 @@ proc get_config*() =
     fluid:fluid.used,
     mix:mix.used,
     abc:abc.used,
+    size:size.used,
   )
 
   if salad.used:

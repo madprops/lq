@@ -7,6 +7,23 @@ import strutils
 import algorithm
 import terminal
 
+proc get_file_size(file:tuple[kind: PathComponent, path: string]): string =
+  case file.kind
+  of pcFile, pcLinkToFile:
+    let path = fix_path_2(file.path)
+    let info = getFileInfo(path)
+    let fsize: float64 = float(info.size)
+    let divider = 1024.0
+    let kb: float64 = fsize / divider
+    let mb: float64 = kb / divider
+    let gb: float64 = mb / divider
+    let size = if gb >= 1.0: &"{gb.formatFloat(ffDecimal, 1)} GB"
+      elif mb >= 1.0: &"{mb.formatFloat(ffDecimal, 1)} MB"
+      elif kb >= 1.0: &"{int(kb)} KB"
+      else: &"{int(fsize)} B"
+    return &" ({size})"
+  else: return ""
+
 proc get_color(kind:PathComponent): string =
   case kind
   of pcDir: get_ansi("blue")
@@ -52,9 +69,10 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
 
     let color = if conf().no_colors: "" else: get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
+    var size = if conf().size: get_file_size(file) else: ""
     
-    let clen = file.path.len + prefix.len + scount.len
-    return (&"{color}{prefix}{file.path}{get_ansi(ansi_reset)}{scount}", clen)
+    let clen = prefix.len + file.path.len + size.len + scount.len
+    return (&"{color}{prefix}{file.path}{size}{get_ansi(ansi_reset)}{scount}", clen)
 
   proc space_item(s:string): string =
     return &"{s}{sp}"

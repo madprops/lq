@@ -58,6 +58,13 @@ proc fix_path*(path:string): string =
       else: getCurrentDir().joinPath(path)
   return path
 
+proc fix_path_2*(path:string): string =
+  var path = expandTilde(path)
+  normalizePath(path)
+  if not path.startsWith("/"):
+    path = fix_path(conf().path).joinPath(path)
+  return path
+
 proc print_title*(title:string, n:int) =
   if conf().no_titles: return
   var brk = if conf().no_spacing: "" else: "\n"
