@@ -14,10 +14,18 @@ Here it's using a flag to count the items inside each directory.
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
 
+It enables --fluid, meaning files, directories, are not in their own block.
+
+Also removes titles with --no-titles.
+
 ![](http://i.imgur.com/I9xXxrg.jpg)
 
 ### Blender Mode
 This is a preset that turns on certain options to make it look like this.
+
+It enables --fluid, --mix, and --no-titles.
+
+--mix means sort everything in a single list, disregarding type.
 
 ![](http://i.imgur.com/CTlYLxe.jpg)
 
