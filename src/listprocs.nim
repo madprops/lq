@@ -6,18 +6,20 @@ import strformat
 import strutils
 import algorithm
 import terminal
+import times
 
 type QFile = object
   kind: PathComponent
   path: string
   size: int64
+  date: int64
 
-proc get_file_size(path:string): int64 =
+proc get_info(path:string): FileInfo =
   try:
     var path = fix_path_2(path)
-    return getFileInfo(path).size
+    return getFileInfo(path)
   except:
-    return 0
+    return FileInfo()
 
 proc format_file_size(file:QFile): string =
   case file.kind
@@ -186,23 +188,56 @@ proc list_dir*() =
           continue
     # Add to proper list
     case file.kind
-    of pcDir: 
-      dirs.add(QFile(kind:file.kind, path:file.path, size:0))
+    of pcDir:
+      var size: int64 = 0
+      var date: int64 = 0
+      if conf().datesort:
+        let info = get_info(file.path)
+        size = info.size
+        date = info.lastWriteTime.toUnix()
+      dirs.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
     of pcLinkToDir:
-      dirlinks.add(QFile(kind:file.kind, path:file.path, size:0))
+      var size: int64 = 0
+      var date: int64 = 0
+      if conf().datesort:
+        let info = get_info(file.path)
+        size = info.size
+        date = info.lastWriteTime.toUnix()
+      dirlinks.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
     of pcFile:
-      let size = if conf().size: get_file_size(file.path) else: 0
-      files.add(QFile(kind:file.kind, path:file.path, size:size))
+      var size: int64 = 0
+      var date: int64 = 0
+      if conf().size or conf().sizesort or conf().datesort:
+        let info = get_info(file.path)
+        size = info.size
+        date = info.lastWriteTime.toUnix()
+      filelinks.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
     of pcLinkToFile:
-      let size = if conf().size: get_file_size(file.path) else: 0
-      filelinks.add(QFile(kind:file.kind, path:file.path, size:size))
+      var size: int64 = 0
+      var date: int64 = 0
+      if conf().size or conf().sizesort or conf().datesort:
+        let info = get_info(file.path)
+        size = info.size
+        date = info.lastWriteTime.toUnix()
+      filelinks.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
   
   proc sort_lists() =
     if conf().sizesort:
       dirs = dirs.sortedByIt(it.path.toLower())
       dirlinks = dirlinks.sortedByIt(it.path.toLower())
       files = files.sortedByIt(it.size)
+      files.reverse()
       filelinks = filelinks.sortedByIt(it.size)
+      filelinks.reverse()
+    elif conf().datesort:
+      dirs = dirs.sortedByIt(it.date)
+      dirs.reverse()
+      dirlinks = dirlinks.sortedByIt(it.date)
+      dirlinks.reverse()
+      files = files.sortedByIt(it.date)
+      files.reverse()
+      filelinks = filelinks.sortedByIt(it.date)
+      filelinks.reverse()
     else:
       dirs = dirs.sortedByIt(it.path.toLower())
       dirlinks = dirlinks.sortedByIt(it.path.toLower())
