@@ -4,7 +4,7 @@ This is a simple directory/file listing tool.
 
 Similar to what ls does, except it doesn't have all of its features.
 
-### Normal view with dircount enabled
+### Normal view with --count
 ![](http://i.imgur.com/4nqtgSp.jpg)
 
 ### Salad Mode
@@ -18,5 +18,8 @@ Similar to what ls does, except it doesn't have all of its features.
 
 ## Using --abc
 ![](http://i.imgur.com/7m9adHl.jpg)
+
+## Filtering with regex
+![](http://i.imgur.com/1qxwL1f.jpg)
 
 ### [Documentation](https://madprops.github.io/lq/)
