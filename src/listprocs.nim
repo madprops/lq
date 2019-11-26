@@ -24,11 +24,14 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
   var xp = if conf().no_spacing: 1 else: 2
+  var sp = ""
+  for x in 0..(xp - 1):
+    sp.add(" ")
   let limit = if conf().no_spacing: termwidth else: (termwidth - 4)
   var columns = newSeq[(seq[string], int)]()
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-  let use_abc = conf().abc and not conf().fluid and not conf().mix
+  let use_abc = conf().abc and not conf().mix
   var abci = -1
   var used_abci = -1
   var abc_started = false
@@ -47,17 +50,17 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
         &" ({ni})"
       else: ""
 
-    let color = get_color(file.kind)
+    let color = if conf().no_colors: "" else: get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
     
     let clen = file.path.len + prefix.len + scount.len
     return (&"{color}{prefix}{file.path}{get_ansi(ansi_reset)}{scount}", clen)
 
   proc space_item(s:string): string =
-    if conf().no_spacing:
-      return &"{s} "
-    else:
-      return &"{s}  "
+    return &"{s}{sp}"
+  
+  proc format_abc(c:char): string =
+    &"{get_ansi(ansi_yellow)}{$c}{get_ansi(ansi_reset)}"
   
   proc print_abc() =
     if abci != -1:
@@ -67,10 +70,12 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
     let c = if abci > -1:
       abc[abci]
     else: '@'
-    log &"  {get_ansi(ansi_yellow)}{$c}{get_ansi(ansi_reset)}"
+    log &"  {format_abc(c)}"
   
   proc print_line() =
-    if use_abc and abc_started: print_abc()
+    if use_abc and abc_started and not conf().fluid:
+      print_abc()
+
     log sline.strip(leading=false, trailing=true)
     sline = if conf().no_spacing: "" else: "\n  "
     slen = 0
@@ -95,9 +100,16 @@ proc show_files*(files:seq[tuple[kind: PathComponent, path: string]]) =
         if ib != abci:
           # On letter change
           abc_started = true
-          if slen > 0:
-            print_line()
-          log ""
+          
+          if conf().fluid:
+            let cs = &"{$format_abc(abc[ib])}{sp}"
+            sline.add(cs)
+            slen += cs.len
+          else:
+            if slen > 0:
+              print_line()
+            log ""
+
           abci = ib
 
     if not conf().list:
