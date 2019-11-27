@@ -211,7 +211,7 @@ proc list_dir*() =
         let info = get_info(file.path)
         size = info.size
         date = info.lastWriteTime.toUnix()
-      filelinks.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
+      files.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
     of pcLinkToFile:
       var size: int64 = 0
       var date: int64 = 0
