@@ -12,4 +12,4 @@ bin           = @["lq"]
 # Dependencies
 
 requires "nim >= 1.0.0"
-requires "nap >= 1.2.2"
+requires "nap >= 1.2.3"
