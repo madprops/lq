@@ -63,7 +63,7 @@ Here's using the -P (or --permissions) flag:
 
 Here's using the -h (--header) flag:
 
-![](http://i.imgur.com/TjFkbkN.jpg)
+![](http://i.imgur.com/sVWSOmp.jpg)
 
 ## Sorting
 
