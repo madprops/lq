@@ -32,7 +32,6 @@ proc get_config*() =
   let absolute = use_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
   let no_colors = use_arg(name="no-colors", kind="flag", help="Don't color paths", alt="X")
   let filter = use_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
-  let dev = use_arg(name="dev", kind="flag", help="Used for development")
   let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
   let list = use_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
   let dircount = use_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
@@ -47,11 +46,14 @@ proc get_config*() =
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
   let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
   let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
-
+  
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
   let blender = use_arg(name="blender", kind="flag", help="Preset to really mix all", alt="b")
   
+  # Dev
+  let dev = use_arg(name="dev", kind="flag", help="Used for development")
+
   add_header("List directories")
   parse_args()
   
