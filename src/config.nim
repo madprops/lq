@@ -20,6 +20,8 @@ type Config* = ref object
   size*: bool
   sizesort*: bool
   datesort*: bool
+  header*: bool
+  permissions*: bool
 
 var oconf*: Config
 
@@ -43,6 +45,8 @@ proc get_config*() =
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size", alt="i")
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
+  let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
+  let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
 
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -71,6 +75,8 @@ proc get_config*() =
     size:size.used,
     sizesort:sizesort.used,
     datesort:datesort.used,
+    header:header.used,
+    permissions:permissions.used
   )
 
   if salad.used:

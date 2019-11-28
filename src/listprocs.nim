@@ -13,6 +13,13 @@ type QFile = object
   path: string
   size: int64
   date: int64
+  perms: string
+
+proc posix_perms(info:FileInfo): string =
+  result.add([pcFile: '-', 'l', pcDir: 'd', 'l'][info.kind])
+  for i, fp in [fpUserRead, fpUserWrite, fpUserExec, fpGroupRead, fpGroupWrite,
+    fpGroupExec, fpOthersRead, fpOthersWrite, fpOthersExec]:
+      result.add(if fp in info.permissions: "rwx"[i mod 3] else: '-')
 
 proc get_info(path:string): FileInfo =
   try:
@@ -20,6 +27,9 @@ proc get_info(path:string): FileInfo =
     return getFileInfo(path)
   except:
     return FileInfo()
+
+proc format_perms(perms:string): string = 
+    &" ({perms})"
 
 proc format_file_size(file:QFile): string =
   case file.kind
@@ -83,9 +93,10 @@ proc show_files*(files:seq[QFile]) =
     let color = if conf().no_colors: "" else: get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
     var size = if conf().size: format_file_size(file) else: ""
+    var perms = if conf().permissions: format_perms(file.perms) else: ""
     
-    let clen = prefix.len + file.path.len + size.len + scount.len
-    return (&"{color}{prefix}{file.path}{size}{get_ansi(ansi_reset)}{scount}", clen)
+    let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
+    return (&"{color}{prefix}{file.path}{size}{perms}{get_ansi(ansi_reset)}{scount}", clen)
 
   proc space_item(s:string): string =
     return &"{s}{sp}"
@@ -185,7 +196,8 @@ proc list_dir*() =
   info.kind == pcLinkToFile:
     let size = info.size
     let date = info.lastWriteTime.toUnix()
-    let qf = QFile(kind:info.kind, path:conf().path, size:size, date:date)
+    let perms = posix_perms(info)
+    let qf = QFile(kind:info.kind, path:conf().path, size:size, date:date, perms:perms)
     if info.kind == pcFile:
       files.add(qf)
     else:
@@ -204,6 +216,7 @@ proc list_dir*() =
         else:
           if not file.path.toLower().contains(filter):
             continue
+            
       # Add to proper list
       case file.kind
 
@@ -211,11 +224,14 @@ proc list_dir*() =
       of pcDir, pcLinkToDir:
         var size: int64 = 0
         var date: int64 = 0
-        if conf().datesort:
+        var perms = ""
+        if conf().datesort or conf().permissions:
           let info = get_info(file.path)
-          size = info.size
-          date = info.lastWriteTime.toUnix()
-        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date)
+          if conf().datesort:
+            date = info.lastWriteTime.toUnix()
+          if conf().permissions:
+            perms = posix_perms(info)
+        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
         if file.kind == pcDir:
           dirs.add(qf)
         else:
@@ -225,11 +241,16 @@ proc list_dir*() =
       of pcFile, pcLinkToFile:
         var size: int64 = 0
         var date: int64 = 0
-        if conf().size or conf().sizesort or conf().datesort:
+        var perms = ""
+        if conf().size or conf().sizesort or conf().datesort or conf().permissions:
           let info = get_info(file.path)
-          size = info.size
-          date = info.lastWriteTime.toUnix()
-        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date)
+          if conf().size or conf().sizesort:
+            size = info.size
+          if conf().datesort:
+            date = info.lastWriteTime.toUnix()
+          if conf().permissions:
+            perms = posix_perms(info)
+        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
         if file.kind == pcFile:
           files.add(qf)
         else:
@@ -295,6 +316,17 @@ proc list_dir*() =
       show_files(all.sortedByIt(it.path.toLower()))
     else:
       show_files(all)
+  
+  proc total_files(): int =
+    dirs.len + dirlinks.len +
+    files.len + filelinks.len
+  
+  proc show_header() =
+    echo &"\n{get_ansi(ansi_bright)}{conf().path}",
+      &" ({total_files()} items) ({posix_perms(info)}){get_ansi(ansi_reset)}"
+  
+  if conf().header:
+    show_header()
   
   if conf().fluid:
     if conf().reverse:
