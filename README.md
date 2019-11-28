@@ -57,12 +57,19 @@ It also shows the size on the right of files.
 
 ![](http://i.imgur.com/vTrHHFY.jpg)
 
-Here's using the -P (or --permissions) flag too:
+Here's using the -P (or --permissions) flag:
 
 ![](http://i.imgur.com/u0tkzQL.jpg)
 
+Here's using the -h (--header) flag:
+
+![](http://i.imgur.com/TjFkbkN.jpg)
+
+## Sorting
+
 Sorting is also possible. Either by size or modification date.
 
-`--sizesort (-i) and --datesort (-d)`
+`--sizesort (-i)` for sorting by size (biggest files first)
+`--datesort (-d)` for sorting by date (recently modified first)
 
 ### [All available flags](https://madprops.github.io/lq/)
