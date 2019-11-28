@@ -57,6 +57,10 @@ It also shows the size on the right of files.
 
 ![](http://i.imgur.com/vTrHHFY.jpg)
 
+Here's using the -P (or --permissions) flag too:
+
+![](http://i.imgur.com/u0tkzQL.jpg)
+
 Sorting is also possible. Either by size or modification date.
 
 `--sizesort or --datesort`
