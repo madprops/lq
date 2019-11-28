@@ -324,7 +324,7 @@ proc list_dir*() =
   
   proc show_header() =
     echo &"\n{get_ansi(ansi_bright)}{conf().path}",
-      &" ({total_files()} items) ({posix_perms(info)}){get_ansi(ansi_reset)}"
+      &" ({total_files()}) ({posix_perms(info)}){get_ansi(ansi_reset)}"
   
   if conf().header:
     show_header()
