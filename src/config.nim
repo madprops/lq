@@ -39,7 +39,7 @@ proc get_config*() =
   let no_spacing = use_arg(name="no-spacing", kind="flag", help="Make it less comfy", alt="x")
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything")
-  let abc = use_arg(name="abc", kind="flag", help="Categorize with letters")
+  let abc = use_arg(name="abc", kind="flag", help="Categorize with letters", alt="@")
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size", alt="i")
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
