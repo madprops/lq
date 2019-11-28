@@ -63,6 +63,6 @@ Here's using the -P (or --permissions) flag too:
 
 Sorting is also possible. Either by size or modification date.
 
-`--sizesort or --datesort`
+`--sizesort (-i) and --datesort (-d)`
 
 ### [All available flags](https://madprops.github.io/lq/)
