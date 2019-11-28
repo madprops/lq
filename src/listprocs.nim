@@ -205,6 +205,7 @@ proc list_dir*() =
     conf().prefix = true
     conf().size = true
     conf().no_titles = true
+    conf().permissions = true
 
   else: # If it's a directory check every file in it
     for file in walkDir(conf().path, relative=(not conf().absolute)):
@@ -216,7 +217,7 @@ proc list_dir*() =
         else:
           if not file.path.toLower().contains(filter):
             continue
-            
+
       # Add to proper list
       case file.kind
 
