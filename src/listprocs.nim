@@ -176,50 +176,62 @@ proc list_dir*() =
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
   else: filter = conf().filter.toLower()
-  
-  for file in walkDir(conf().path, relative=(not conf().absolute)):
-    # Filter
-    if do_filter:
-      if do_regex_filter:
-        let m = file.path.find(res)
-        if m.isNone: continue
-      else:
-        if not file.path.toLower().contains(filter):
-          continue
-    # Add to proper list
-    case file.kind
-    of pcDir:
-      var size: int64 = 0
-      var date: int64 = 0
-      if conf().datesort:
-        let info = get_info(file.path)
-        size = info.size
-        date = info.lastWriteTime.toUnix()
-      dirs.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
-    of pcLinkToDir:
-      var size: int64 = 0
-      var date: int64 = 0
-      if conf().datesort:
-        let info = get_info(file.path)
-        size = info.size
-        date = info.lastWriteTime.toUnix()
-      dirlinks.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
-    of pcFile:
-      var size: int64 = 0
-      var date: int64 = 0
-      if conf().size or conf().sizesort or conf().datesort:
-        let info = get_info(file.path)
-        size = info.size
-        date = info.lastWriteTime.toUnix()
-      files.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
-    of pcLinkToFile:
-      var size: int64 = 0
-      var date: int64 = 0
-      if conf().size or conf().sizesort or conf().datesort:
-        let info = get_info(file.path)
-        size = info.size
-        date = info.lastWriteTime.toUnix()
-      filelinks.add(QFile(kind:file.kind, path:file.path, size:size, date:date))
+
+  let info = getFileInfo(conf().path)
+
+  if info.kind == pcFile or
+  info.kind == pcLinkToFile:
+    let size = info.size
+    let date = info.lastWriteTime.toUnix()
+    let qf = QFile(kind:info.kind, path:conf().path, size:size, date:date)
+    if info.kind == pcFile:
+      files.add(qf)
+    else:
+      filelinks.add(qf)
+    conf().prefix = true
+    conf().size = true
+    conf().no_titles = true
+
+  else: # If it's a directory check every file in it
+    for file in walkDir(conf().path, relative=(not conf().absolute)):
+      # Filter
+      if do_filter:
+        if do_regex_filter:
+          let m = file.path.find(res)
+          if m.isNone: continue
+        else:
+          if not file.path.toLower().contains(filter):
+            continue
+      # Add to proper list
+      case file.kind
+
+      # If directory
+      of pcDir, pcLinkToDir:
+        var size: int64 = 0
+        var date: int64 = 0
+        if conf().datesort:
+          let info = get_info(file.path)
+          size = info.size
+          date = info.lastWriteTime.toUnix()
+        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date)
+        if file.kind == pcDir:
+          dirs.add(qf)
+        else:
+          dirlinks.add(qf)
+      
+      # If file
+      of pcFile, pcLinkToFile:
+        var size: int64 = 0
+        var date: int64 = 0
+        if conf().size or conf().sizesort or conf().datesort:
+          let info = get_info(file.path)
+          size = info.size
+          date = info.lastWriteTime.toUnix()
+        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date)
+        if file.kind == pcFile:
+          files.add(qf)
+        else:
+          filelinks.add(qf)
   
   proc sort_lists() =
     if conf().sizesort:
