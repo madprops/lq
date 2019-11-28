@@ -46,9 +46,9 @@ proc get_color(kind:PathComponent): string =
 proc get_prefix(kind:PathComponent): string =
   case kind
   of pcDir: "[D] "
-  of pcLinkToDir: "[DL] "
+  of pcLinkToDir: "[d] "
   of pcFile: "[F] "
-  of pcLinkToFile: "[FL] "
+  of pcLinkToFile: "[f] "
 
 proc show_files*(files:seq[QFile]) =
   var slen = 0
