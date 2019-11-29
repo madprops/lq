@@ -190,7 +190,7 @@ proc list_dir*(path:string, level=0) =
           break
         else:
           if conf().datesort or conf().permissions:
-            let info = get_info(file.path)
+            let info = get_info(path.join(file.path))
             if conf().datesort:
               date = info.lastWriteTime.toUnix()
             if conf().permissions:
@@ -209,7 +209,7 @@ proc list_dir*(path:string, level=0) =
         var date: int64 = 0
         var perms = ""
         if conf().size or conf().sizesort or conf().datesort or conf().permissions:
-          let info = get_info(file.path)
+          let info = get_info(path.joinPath(file.path))
           if conf().size or conf().sizesort:
             size = info.size
           if conf().datesort:

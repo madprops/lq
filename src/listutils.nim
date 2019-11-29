@@ -18,7 +18,6 @@ proc posix_perms*(info:FileInfo): string =
 
 proc get_info*(path:string): FileInfo =
   try:
-    var path = fix_path_2(path)
     return getFileInfo(path)
   except:
     return FileInfo()
