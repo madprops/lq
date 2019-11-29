@@ -84,6 +84,7 @@ Some special labels are "Git Stuff" and "Empty"
 Sorting is also possible. Either by size or modification date.
 
 `--sizesort (-i)` for sorting by size (biggest files first)
+
 `--datesort (-d)` for sorting by date (recently modified first)
 
 ### [All available flags](https://madprops.github.io/lq/)
