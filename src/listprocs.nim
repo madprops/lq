@@ -122,14 +122,12 @@ proc show_files(files:seq[QFile], path:string, level=0) =
         print_line()
         add_to_line(s, clen)
     # List item
-    else: 
+    else:
       log s
   
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
-          if level == 0:
-            log ""
       
   if slen > 0:
     print_line()
@@ -261,7 +259,7 @@ proc list_dir*(path:string, level=0) =
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len)
         if level == 0:
-          if conf().list and not conf().no_spacing: log ""
+          if not conf().tree and conf().list and not conf().no_spacing: log ""
         show_files(dirlinks, path, level)
       
   proc do_files() =
@@ -316,14 +314,13 @@ proc list_dir*(path:string, level=0) =
     if level > 0 and no_items():
       if msg == "": msg = "(Empty)"
       log &"{get_level_space(level)}{msg}"
-      return
-    sort_lists()
-    if not conf().reverse:
-      do_dirs()
-      do_files()
     else:
-      do_files()
-      do_dirs()
-  
-  if level == 0:
-    if not conf().no_spacing and not conf().tree: log ""
+      sort_lists()
+      if not conf().reverse:
+        do_dirs()
+        do_files()
+      else:
+        do_files()
+        do_dirs()
+
+  if level == 1: log ""
