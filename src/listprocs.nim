@@ -9,9 +9,12 @@ import algorithm
 import terminal
 import times
 
+var spaced* = false
+
 proc list_dir*(path:string, level=0)
 
 proc show_files(files:seq[QFile], path:string, level=0) =
+  spaced = false
   var slen = 0
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
@@ -323,4 +326,6 @@ proc list_dir*(path:string, level=0) =
         do_files()
         do_dirs()
 
-  if level == 1 and not conf().no_spacing: log ""
+  if level == 1 and not conf().no_spacing: 
+    log ""
+    spaced = true
