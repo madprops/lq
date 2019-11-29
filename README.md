@@ -65,6 +65,10 @@ Here's using the -h (--header) flag:
 
 ![](http://i.imgur.com/sVWSOmp.jpg)
 
+Also calculate directory size with -D or --dsize:
+
+![](http://i.imgur.com/dFypcFX.jpg)
+
 ## Sorting
 
 Sorting is also possible. Either by size or modification date.

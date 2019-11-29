@@ -28,23 +28,29 @@ proc get_info(path:string): FileInfo =
   except:
     return FileInfo()
 
+proc calculate_dir_size(path:string): int64 =
+  var size: int64 = 0
+  var path = fix_path_2(path)
+  for file in walkDirRec(&"{path}"):
+    let info = get_info(file)
+    size += info.size
+  return size
+
 proc format_perms(perms:string): string = 
     &" ({perms})"
 
-proc format_file_size(file:QFile): string =
-  case file.kind
-  of pcFile, pcLinkToFile:
-    let fsize = float(file.size)
-    let divider: float64 = 1024.0
-    let kb: float64 = fsize / divider
-    let mb: float64 = kb / divider
-    let gb: float64 = mb / divider
-    let size = if gb >= 1.0: &"{gb.formatFloat(ffDecimal, 1)} GB"
-      elif mb >= 1.0: &"{mb.formatFloat(ffDecimal, 1)} MB"
-      elif kb >= 1.0: &"{int(kb)} KB"
-      else: &"{int(fsize)} B"
-    return &" ({size})"
-  else: return ""
+proc format_size(file:QFile): string =
+  if file.size == 0: return ""
+  let fsize = float(file.size)
+  let divider: float64 = 1024.0
+  let kb: float64 = fsize / divider
+  let mb: float64 = kb / divider
+  let gb: float64 = mb / divider
+  let size = if gb >= 1.0: &"{gb.formatFloat(ffDecimal, 1)} GB"
+    elif mb >= 1.0: &"{mb.formatFloat(ffDecimal, 1)} MB"
+    elif kb >= 1.0: &"{int(kb)} KB"
+    else: &"{int(fsize)} B"
+  return &" ({size})"
 
 proc get_color(kind:PathComponent): string =
   case kind
@@ -92,7 +98,7 @@ proc show_files*(files:seq[QFile]) =
 
     let color = if conf().no_colors: "" else: get_color(file.kind)
     var prefix = if conf().prefix: get_prefix(file.kind) else: ""
-    var size = if conf().size: format_file_size(file) else: ""
+    var size = if conf().size: format_size(file) else: ""
     var perms = if conf().permissions: format_perms(file.perms) else: ""
     
     let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
@@ -232,6 +238,8 @@ proc list_dir*() =
             date = info.lastWriteTime.toUnix()
           if conf().permissions:
             perms = posix_perms(info)
+        if conf().dsize:
+          size = calculate_dir_size(file.path)
         let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
         if file.kind == pcDir:
           dirs.add(qf)
@@ -259,8 +267,14 @@ proc list_dir*() =
   
   proc sort_lists() =
     if conf().sizesort:
-      dirs = dirs.sortedByIt(it.path.toLower())
-      dirlinks = dirlinks.sortedByIt(it.path.toLower())
+      if conf().dsize:
+        dirs = dirs.sortedByIt(it.size)
+        dirs.reverse()
+        dirlinks = dirlinks.sortedByIt(it.size)
+        dirlinks.reverse()
+      else:
+        dirs = dirs.sortedByIt(it.path.toLower())
+        dirlinks = dirlinks.sortedByIt(it.path.toLower())
       files = files.sortedByIt(it.size)
       files.reverse()
       filelinks = filelinks.sortedByIt(it.size)

@@ -18,6 +18,7 @@ type Config* = ref object
   mix*: bool
   abc*: bool
   size*: bool
+  dsize*: bool
   sizesort*: bool
   datesort*: bool
   header*: bool
@@ -41,7 +42,8 @@ proc get_config*() =
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
   let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
-  let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
+  let size = use_arg(name="size", kind="flag", help="Count the size of files", alt="z")
+  let dsize = use_arg(name="dsize", kind="flag", help="Count the size of files AND directories", alt="D")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size", alt="i")
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
   let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
@@ -78,7 +80,8 @@ proc get_config*() =
     sizesort:sizesort.used,
     datesort:datesort.used,
     header:header.used,
-    permissions:permissions.used
+    permissions:permissions.used,
+    dsize:dsize.used,
   )
 
   if salad.used:
@@ -89,6 +92,9 @@ proc get_config*() =
     oconf.no_titles = true
     oconf.fluid = true
     oconf.mix = true
+  
+  elif dsize.used:
+    oconf.size = true
 
 proc conf*(): Config =
   return oconf
