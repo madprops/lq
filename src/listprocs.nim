@@ -123,13 +123,13 @@ proc show_files(files:seq[QFile], path:string, level=0) =
         add_to_line(s, clen)
     # List item
     else: 
-      if level == 0 and conf().tree:
-        if file.kind == pcDir:
-          log ""
       log s
+  
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
+          if level == 0:
+            log ""
       
   if slen > 0:
     print_line()
@@ -325,4 +325,5 @@ proc list_dir*(path:string, level=0) =
       do_files()
       do_dirs()
   
-  if level == 0 and not conf().no_spacing: log ""
+  if level == 0:
+    if not conf().no_spacing and not conf().tree: log ""
