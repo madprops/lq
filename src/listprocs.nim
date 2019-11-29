@@ -323,4 +323,4 @@ proc list_dir*(path:string, level=0) =
         do_files()
         do_dirs()
 
-  if level == 1: log ""
+  if level == 1 and not conf().no_spacing: log ""
