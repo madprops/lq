@@ -23,6 +23,7 @@ type Config* = ref object
   datesort*: bool
   header*: bool
   permissions*: bool
+  tree*: bool
 
 var oconf*: Config
 
@@ -48,6 +49,7 @@ proc get_config*() =
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
   let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
   let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
+  let tree = use_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -82,6 +84,7 @@ proc get_config*() =
     header:header.used,
     permissions:permissions.used,
     dsize:dsize.used,
+    tree:tree.used,
   )
 
   if salad.used:
@@ -93,8 +96,13 @@ proc get_config*() =
     oconf.fluid = true
     oconf.mix = true
   
-  elif dsize.used:
+  if dsize.used:
     oconf.size = true
+  
+  if tree.used:
+    oconf.list = true
+    oconf.no_titles = true
+    oconf.reverse = true
 
 proc conf*(): Config =
   return oconf

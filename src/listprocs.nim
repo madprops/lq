@@ -1,4 +1,5 @@
 import utils
+import listutils
 import config
 import os
 import nre
@@ -8,65 +9,9 @@ import algorithm
 import terminal
 import times
 
-type QFile = object
-  kind: PathComponent
-  path: string
-  size: int64
-  date: int64
-  perms: string
+proc list_dir*(path:string, level=0)
 
-proc posix_perms(info:FileInfo): string =
-  result.add([pcFile: '-', 'l', pcDir: 'd', 'l'][info.kind])
-  for i, fp in [fpUserRead, fpUserWrite, fpUserExec, fpGroupRead, fpGroupWrite,
-    fpGroupExec, fpOthersRead, fpOthersWrite, fpOthersExec]:
-      result.add(if fp in info.permissions: "rwx"[i mod 3] else: '-')
-
-proc get_info(path:string): FileInfo =
-  try:
-    var path = fix_path_2(path)
-    return getFileInfo(path)
-  except:
-    return FileInfo()
-
-proc calculate_dir_size(path:string): int64 =
-  var size: int64 = 0
-  var path = fix_path_2(path)
-  for file in walkDirRec(&"{path}"):
-    let info = get_info(file)
-    size += info.size
-  return size
-
-proc format_perms(perms:string): string = 
-    &" ({perms})"
-
-proc format_size(file:QFile): string =
-  if file.size == 0: return ""
-  let fsize = float(file.size)
-  let divider: float64 = 1024.0
-  let kb: float64 = fsize / divider
-  let mb: float64 = kb / divider
-  let gb: float64 = mb / divider
-  let size = if gb >= 1.0: &"{gb.formatFloat(ffDecimal, 1)} GB"
-    elif mb >= 1.0: &"{mb.formatFloat(ffDecimal, 1)} MB"
-    elif kb >= 1.0: &"{int(kb)} KB"
-    else: &"{int(fsize)} B"
-  return &" ({size})"
-
-proc get_color(kind:PathComponent): string =
-  case kind
-  of pcDir: get_ansi("blue")
-  of pcLinkToDir: get_ansi("cyan")
-  of pcFile: ""
-  of pcLinkToFile: get_ansi("green")
-
-proc get_prefix(kind:PathComponent): string =
-  case kind
-  of pcDir: "[D] "
-  of pcLinkToDir: "[d] "
-  of pcFile: "[F] "
-  of pcLinkToFile: "[f] "
-
-proc show_files*(files:seq[QFile]) =
+proc show_files(files:seq[QFile], path:string, level=0) =
   var slen = 0
   let termwidth = terminalWidth()
   var sline = if conf().no_spacing: "" else: "\n  "
@@ -89,7 +34,7 @@ proc show_files*(files:seq[QFile]) =
       of pcDir, pcLinkToDir:
         var p = file.path
         if not file.path.startsWith("/"):
-          p = conf().path.joinPath(file.path)
+          p = path.joinPath(file.path)
         var ni = 0
         for item in walkDir(p):
           inc(ni)
@@ -97,12 +42,12 @@ proc show_files*(files:seq[QFile]) =
       else: ""
 
     let color = if conf().no_colors: "" else: get_color(file.kind)
-    var prefix = if conf().prefix: get_prefix(file.kind) else: ""
-    var size = if conf().size: format_size(file) else: ""
-    var perms = if conf().permissions: format_perms(file.perms) else: ""
-    
+    let prefix = if conf().prefix: get_prefix(file.kind) else: ""
+    let size = if conf().size: format_size(file) else: ""
+    let perms = if conf().permissions: format_perms(file.perms) else: ""
+    let levs = get_level_space(level)
     let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
-    return (&"{color}{prefix}{file.path}{size}{perms}{get_ansi(ansi_reset)}{scount}", clen)
+    return (&"{color}{levs}{prefix}{file.path}{size}{perms}{get_ansi(ansi_reset)}{scount}", clen)
 
   proc space_item(s:string): string =
     return &"{s}{sp}"
@@ -177,13 +122,19 @@ proc show_files*(files:seq[QFile]) =
         print_line()
         add_to_line(s, clen)
     # List item
-    else: log s
+    else: 
+      if level == 0 and conf().tree:
+        if file.kind == pcDir:
+          log ""
+      log s
+      if conf().tree:
+        if file.kind == pcDir:
+          list_dir(path.joinPath(file.path), level + 1)
       
   if slen > 0:
     print_line()
 
-proc list_dir*() =
-  conf().path = fix_path(conf().path)
+proc list_dir*(path:string, level=0) =
   var dirs: seq[QFile]
   var dirlinks: seq[QFile]
   var files: seq[QFile]
@@ -191,19 +142,20 @@ proc list_dir*() =
   let do_filter = conf().filter != ""
   let do_regex_filter = conf().filter.startsWith("re:")
   var filter = ""
+  var msg = ""
   var res: Regex
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
   else: filter = conf().filter.toLower()
-
-  let info = getFileInfo(conf().path)
-
+  
+  let info = getFileInfo(path)
+  
   if info.kind == pcFile or
   info.kind == pcLinkToFile:
     let size = info.size
     let date = info.lastWriteTime.toUnix()
     let perms = posix_perms(info)
-    let qf = QFile(kind:info.kind, path:conf().path, size:size, date:date, perms:perms)
+    let qf = QFile(kind:info.kind, path:path, size:size, date:date, perms:perms)
     if info.kind == pcFile:
       files.add(qf)
     else:
@@ -212,9 +164,9 @@ proc list_dir*() =
     conf().size = true
     conf().no_titles = true
     conf().permissions = true
-
+  
   else: # If it's a directory check every file in it
-    for file in walkDir(conf().path, relative=(not conf().absolute)):
+    for file in walkDir(path, relative=(not conf().absolute)):
       # Filter
       if do_filter:
         if do_regex_filter:
@@ -223,29 +175,34 @@ proc list_dir*() =
         else:
           if not file.path.toLower().contains(filter):
             continue
-
+  
       # Add to proper list
       case file.kind
-
+  
       # If directory
       of pcDir, pcLinkToDir:
         var size: int64 = 0
         var date: int64 = 0
         var perms = ""
-        if conf().datesort or conf().permissions:
-          let info = get_info(file.path)
-          if conf().datesort:
-            date = info.lastWriteTime.toUnix()
-          if conf().permissions:
-            perms = posix_perms(info)
-        if conf().dsize:
-          size = calculate_dir_size(file.path)
+        if path.contains("/.git"):
+          if level == 1:
+            msg = "(Git Stuff)"
+          break
+        else:
+          if conf().datesort or conf().permissions:
+            let info = get_info(file.path)
+            if conf().datesort:
+              date = info.lastWriteTime.toUnix()
+            if conf().permissions:
+              perms = posix_perms(info)
+          if conf().dsize:
+            size = calculate_dir_size(file.path)
         let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
         if file.kind == pcDir:
           dirs.add(qf)
         else:
           dirlinks.add(qf)
-      
+          
       # If file
       of pcFile, pcLinkToFile:
         var size: int64 = 0
@@ -264,7 +221,7 @@ proc list_dir*() =
           files.add(qf)
         else:
           filelinks.add(qf)
-  
+      
   proc sort_lists() =
     if conf().sizesort:
       if conf().dsize:
@@ -293,62 +250,73 @@ proc list_dir*() =
       dirlinks = dirlinks.sortedByIt(it.path.toLower())
       files = files.sortedByIt(it.path.toLower())
       filelinks = filelinks.sortedByIt(it.path.toLower())
-
+  
   proc do_dirs() =
     if not conf().just_files:
       if dirs.len > 0:
         print_title("Directories", dirs.len)
-        if conf().list and not conf().no_spacing: log ""
-        show_files(dirs)
+        if level == 0:
+          if conf().list and not conf().no_spacing: log ""
+        show_files(dirs, path, level)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len)
-        if conf().list and not conf().no_spacing: log ""
-        show_files(dirlinks)
-  
+        if level == 0:
+          if conf().list and not conf().no_spacing: log ""
+        show_files(dirlinks, path, level)
+      
   proc do_files() =
     if not conf().just_dirs:
       if files.len > 0:
         print_title("Files", files.len)
-        if conf().list and not conf().no_spacing: log ""
-        show_files(files)
+        if level == 0:
+          if conf().list and not conf().no_spacing: log ""
+        show_files(files, path, level)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len)
-        if conf().list and not conf().no_spacing: log ""
-        show_files(filelinks)
-  
+        if level == 0:
+          if conf().list and not conf().no_spacing: log ""
+        show_files(filelinks, path, level)
+      
   proc do_all() =
     if not conf().mix: sort_lists()
     var all = dirs & dirlinks & files & filelinks
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()))
+      show_files(all.sortedByIt(it.path.toLower()), path, level)
     else:
-      show_files(all)
-  
+      show_files(all, path, level)
+      
   proc do_all_reverse() =
     if not conf().mix: sort_lists()
     var all = files & filelinks & dirs & dirlinks
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()))
+      show_files(all.sortedByIt(it.path.toLower()), path, level)
     else:
-      show_files(all)
-  
+      show_files(all, path, level)
+      
   proc total_files(): int =
     dirs.len + dirlinks.len +
     files.len + filelinks.len
-  
+
+  proc no_items(): bool =
+    total_files() == 0
+      
   proc show_header() =
-    echo &"\n{get_ansi(ansi_bright)}{conf().path}",
+    log &"\n{get_ansi(ansi_bright)}{path}" &
       &" ({total_files()}) ({posix_perms(info)}){get_ansi(ansi_reset)}"
-  
+      
   if conf().header:
     show_header()
-  
+      
   if conf().fluid:
     if conf().reverse:
       do_all_reverse()
     else: do_all()
-  
+      
   else:
+    if level > 0 and no_items():
+      if msg == "": msg = "(Empty)"
+      log &"{get_level_space(level)}{msg}"
+      return
     sort_lists()
     if not conf().reverse:
       do_dirs()
@@ -357,4 +325,4 @@ proc list_dir*() =
       do_files()
       do_dirs()
   
-  if not conf().no_spacing: log ""
+  if level == 0 and not conf().no_spacing: log ""
