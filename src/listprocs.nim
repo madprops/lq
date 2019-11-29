@@ -197,7 +197,7 @@ proc list_dir*(path:string, level=0) =
             if conf().permissions:
               perms = posix_perms(info)
           if conf().dsize:
-            size = calculate_dir_size(file.path)
+            size = calculate_dir_size(path.joinPath(file.path))
         let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
         if file.kind == pcDir:
           dirs.add(qf)
