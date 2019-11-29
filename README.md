@@ -69,6 +69,16 @@ Also calculate directory size with -D or --dsize:
 
 ![](http://i.imgur.com/dFypcFX.jpg)
 
+## Tree View
+
+This shows directory content in a tree view:
+
+Some special labels are "Git Stuff" and "Empty"
+
+(Because why would you tree a .git dir)
+
+![](http://i.imgur.com/c4bBooj.jpg)
+
 ## Sorting
 
 Sorting is also possible. Either by size or modification date.
