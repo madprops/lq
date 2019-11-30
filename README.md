@@ -123,7 +123,7 @@ exclude = [
 ]
 ```
 
-## Color Themes
+## Color Theme
 It's possible to override the default colors using the config file.
 
 Settings look like:
