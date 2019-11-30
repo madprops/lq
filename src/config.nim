@@ -27,6 +27,7 @@ type Config* = ref object
   permissions*: bool
   tree*: bool
   exclude*: seq[string]
+  ignore_config*: bool
 
   # These get specified 
   # in the config file
@@ -47,6 +48,8 @@ type Config* = ref object
 
 var oconf*: Config
 var first_print* = false
+
+proc check_config_file()
 
 proc get_config*() =
   let path = use_arg(name="path", kind="argument", help="Path to a directory")
@@ -71,6 +74,7 @@ proc get_config*() =
   let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
   let tree = use_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
   let exclude = use_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
+  let ignore_config = use_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -106,6 +110,7 @@ proc get_config*() =
     dsize:dsize.used,
     tree:tree.used,
     exclude:exclude.values,
+    ignore_config:ignore_config.used
   )
 
   if salad.used:
@@ -122,7 +127,27 @@ proc get_config*() =
     oconf.no_titles = true
     oconf.reverse = true
   
-  # Check config file
+  check_config_file()
+
+proc conf*(): Config =
+  return oconf
+
+proc check_config_file() =
+  oconf.dirscolor = -1
+  oconf.dirlinkscolor = -1
+  oconf.filescolor = -1
+  oconf.filelinkscolor = -1
+  oconf.abccolor = -1
+  oconf.titlescolor = -1
+  oconf.headercolor = -1
+  oconf.labelscolor = -1
+  oconf.backgroundcolor = -1
+  oconf.detailscolor = -1
+  oconf.countcolor = -1
+  oconf.bg_color_code = ""
+
+  if oconf.ignore_config: return
+
   let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
   let table = tom.getTable()
   let exs = table["exclude"]
@@ -131,76 +156,61 @@ proc get_config*() =
     let e = exs[i].getStr()
     if not oconf.exclude.contains(e):
       oconf.exclude.add(e)
-  
+    
   let colors = table["colors"]
 
   try:
     let c = colors["dirs"]
     oconf.dirscolor = c.getInt()
-  except:
-    oconf.dirscolor = -1
+  except: discard
 
   try:
     let c = colors["dirlinks"]
     oconf.dirlinkscolor = c.getInt()
-  except:
-    oconf.dirlinkscolor = -1
+  except: discard
 
   try:
     let c = colors["files"]
     oconf.filescolor = c.getInt()
-  except:
-    oconf.filescolor = -1
+  except: discard
 
   try:
     let c = colors["filelinks"]
     oconf.filelinkscolor = c.getInt()
-  except:
-    oconf.filelinkscolor = -1
+  except: discard
 
   try:
     let c = colors["abc"]
     oconf.abccolor = c.getInt()
-  except:
-    oconf.abccolor = -1
+  except: discard
 
   try:
     let c = colors["titles"]
     oconf.titlescolor = c.getInt()
-  except:
-    oconf.titlescolor = -1
+  except: discard
 
   try:
     let c = colors["header"]
     oconf.headercolor = c.getInt()
-  except:
-    oconf.headercolor = -1
+  except: discard
 
   try:
     let c = colors["lables"]
     oconf.labelscolor = c.getInt()
-  except:
-    oconf.labelscolor = -1
+  except: discard
 
   try:
     let c = colors["background"]
     oconf.backgroundcolor = c.getInt()
     oconf.bg_color_code = &"\x1b[48;5;{c.getInt()}m"
-  except:
-    oconf.backgroundcolor = -1
-    oconf.bg_color_code = ""
+  except: discard
 
   try:
     let c = colors["details"]
     oconf.detailscolor = c.getInt()
-  except:
-    oconf.detailscolor = -1
+  except: discard
 
   try:
     let c = colors["count"]
     oconf.countcolor = c.getInt()
-  except:
-    oconf.countcolor = -1
-
-proc conf*(): Config =
-  return oconf
+  except: discard
