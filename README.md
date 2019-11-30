@@ -73,11 +73,9 @@ Also calculate directory size with -D or --dsize:
 
 This shows directory content in a tree view:
 
-Some special labels are "Git Stuff" and "Empty"
+Some special labels are "Excluded" and "Empty"
 
-(Because why would you tree a .git dir)
-
-![](http://i.imgur.com/c4bBooj.jpg)
+![](http://i.imgur.com/qX5oCuO.jpg)
 
 ## Sorting
 
