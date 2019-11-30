@@ -111,7 +111,9 @@ In Linux a config is placed in ~/config/lq/lq.conf
 
 It uses the TOML format.
 
-Right now it has a section to add directories to exclude.
+Right now it has sections to exclude paths
+
+and to change the color theme.
 
 It looks like this:
 
