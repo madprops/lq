@@ -87,4 +87,40 @@ Sorting is also possible. Either by size or modification date.
 
 `--datesort (-d)` for sorting by date (recently modified first)
 
+## Exclude
+
+Excluding files affects modes like --tree
+
+It can be specified multiple times.
+
+i.e myprogram --exclude=bigDir -e=.git -e=target
+ 
+It is checked as:
+
+```
+full_path.contains(&"/{e}/")
+```
+
+So if ".git" is excluded then
+
+it will match whatever contains `/.git/` for instance,
+
+and not show its content in the tree view.
+
+## Config File
+In Linux a config is placed in ~/config/lq/lq.conf
+
+It uses the TOML format.
+
+Right now it has a section to add directories to exclude.
+
+It looks like this:
+
+```
+exclude = [
+  ".git",
+  ".svn"
+]
+```
+
 ### [All available flags](https://madprops.github.io/lq/)

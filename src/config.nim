@@ -1,4 +1,6 @@
+import os
 import nap
+import parsetoml
 
 type Config* = ref object
   path*: string
@@ -24,6 +26,7 @@ type Config* = ref object
   header*: bool
   permissions*: bool
   tree*: bool
+  exclude*: seq[string]
 
 var oconf*: Config
 
@@ -43,13 +46,14 @@ proc get_config*() =
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
   let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
-  let size = use_arg(name="size", kind="flag", help="Count the size of files", alt="z")
-  let dsize = use_arg(name="dsize", kind="flag", help="Count the size of files AND directories", alt="D")
+  let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
+  let dsize = use_arg(name="dsize", kind="flag", help="Show the size directories", alt="D")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size", alt="i")
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
   let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
   let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
   let tree = use_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
+  let exclude = use_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -85,6 +89,7 @@ proc get_config*() =
     permissions:permissions.used,
     dsize:dsize.used,
     tree:tree.used,
+    exclude:exclude.values,
   )
 
   if salad.used:
@@ -96,13 +101,19 @@ proc get_config*() =
     oconf.fluid = true
     oconf.mix = true
   
-  if dsize.used:
-    oconf.size = true
-  
   if tree.used:
     oconf.list = true
     oconf.no_titles = true
     oconf.reverse = true
+  
+  # Check config file
+  let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
+  let exs = tom.getTable()["exclude"]
+
+  for i in 0..<exs.len:
+    let e = $exs[i]
+    if not oconf.exclude.contains(e):
+      oconf.exclude.add(e)
 
 proc conf*(): Config =
   return oconf

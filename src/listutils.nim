@@ -2,6 +2,7 @@ import utils
 import os
 import strformat
 import strutils
+import times
 
 type QFile* = object
   kind*: PathComponent
@@ -22,13 +23,18 @@ proc get_info*(path:string): FileInfo =
   except:
     return FileInfo()
 
-proc calculate_dir_size*(path:string): int64 =
+proc calculate_dir*(path:string): QFile =
   var size: int64 = 0
+  var date: int64 = 0
   var path = fix_path_2(path)
   for file in walkDirRec(&"{path}"):
     let info = get_info(file)
     size += info.size
-  return size
+    let d = info.lastWriteTime.toUnix()
+    if d > date:
+      date = d
+  
+  QFile(size:size, date:date)
 
 proc format_perms*(perms:string): string = 
     &" ({perms})"

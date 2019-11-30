@@ -46,9 +46,16 @@ proc show_files(files:seq[QFile], path:string, level=0) =
 
     let color = if conf().no_colors: "" else: get_color(file.kind)
     let prefix = if conf().prefix: get_prefix(file.kind) else: ""
-    let size = if conf().size: format_size(file) else: ""
     let perms = if conf().permissions: format_perms(file.perms) else: ""
     let levs = get_level_space(level)
+    
+    let dosize = case file.kind
+    of pcDir, pcLinkToDir:
+      conf().dsize
+    of pcFile, pcLinkToFile:
+      conf().size
+        
+    let size = if dosize: format_size(file) else: ""
     let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
     return (&"{color}{levs}{prefix}{file.path}{size}{perms}{get_ansi(ansi_reset)}{scount}", clen)
 
@@ -131,7 +138,7 @@ proc show_files(files:seq[QFile], path:string, level=0) =
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
-      
+
   if slen > 0:
     print_line()
 
@@ -167,72 +174,70 @@ proc list_dir*(path:string, level=0) =
     conf().permissions = true
   
   else: # If it's a directory check every file in it
-    for file in walkDir(path, relative=(not conf().absolute)):
-      # Filter
-      if do_filter:
-        if do_regex_filter:
-          let m = file.path.find(res)
-          if m.isNone: continue
-        else:
-          if not file.path.toLower().contains(filter):
-            continue
-  
-      # Add to proper list
-      case file.kind
-  
-      # If directory
-      of pcDir, pcLinkToDir:
-        var size: int64 = 0
-        var date: int64 = 0
-        var perms = ""
-        if path.contains("/.git"):
-          if level == 1:
-            msg = "(Git Stuff)"
-          break
-        else:
-          if conf().datesort or conf().permissions:
-            let info = get_info(path.join(file.path))
+    block filesblock: 
+      for file in walkDir(path, relative=(not conf().absolute)):
+        let fp = path.joinPath(file.path)
+
+        for e in conf().exclude:
+          if fp.contains(&"/{e}/"):
+            if level == 1:
+              msg = "(Excluded)"
+            break filesblock
+
+        # Filter
+        if do_filter:
+          if do_regex_filter:
+            let m = file.path.find(res)
+            if m.isNone: continue
+          else:
+            if not file.path.toLower().contains(filter):
+              continue
+    
+        # Add to proper list
+        case file.kind
+    
+        # If directory
+        of pcDir, pcLinkToDir:
+          var size: int64 = 0
+          var date: int64 = 0
+          var perms = ""
+          if conf().datesort or conf().dsize or conf().sizesort:
+            let calc = calculate_dir(fp)
+            size = calc.size
+            date = calc.date
+          if conf().permissions:
+            perms = posix_perms(info)
+          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
+          if file.kind == pcDir:
+            dirs.add(qf)
+          else:
+            dirlinks.add(qf)
+            
+        # If file
+        of pcFile, pcLinkToFile:
+          var size: int64 = 0
+          var date: int64 = 0
+          var perms = ""
+          if conf().size or conf().sizesort or conf().datesort or conf().permissions:
+            let info = get_info(fp)
+            if conf().size or conf().sizesort:
+              size = info.size
             if conf().datesort:
               date = info.lastWriteTime.toUnix()
             if conf().permissions:
               perms = posix_perms(info)
-          if conf().dsize:
-            size = calculate_dir_size(path.joinPath(file.path))
-        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
-        if file.kind == pcDir:
-          dirs.add(qf)
-        else:
-          dirlinks.add(qf)
-          
-      # If file
-      of pcFile, pcLinkToFile:
-        var size: int64 = 0
-        var date: int64 = 0
-        var perms = ""
-        if conf().size or conf().sizesort or conf().datesort or conf().permissions:
-          let info = get_info(path.joinPath(file.path))
-          if conf().size or conf().sizesort:
-            size = info.size
-          if conf().datesort:
-            date = info.lastWriteTime.toUnix()
-          if conf().permissions:
-            perms = posix_perms(info)
-        let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
-        if file.kind == pcFile:
-          files.add(qf)
-        else:
-          filelinks.add(qf)
-      
+          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
+          if file.kind == pcFile:
+            files.add(qf)
+          else:
+            filelinks.add(qf)
+        
   proc sort_lists() =
     if conf().sizesort:
-      if conf().dsize:
-        dirs = dirs.sortedByIt(it.size)
-        dirs.reverse()
-        dirlinks = dirlinks.sortedByIt(it.size)
-        dirlinks.reverse()
-      else:
-        dirs = dirs.sortedByIt(it.path.toLower())
-        dirlinks = dirlinks.sortedByIt(it.path.toLower())
+      dirs = dirs.sortedByIt(it.size)
+      dirs.reverse()
+      dirlinks = dirlinks.sortedByIt(it.size)
+      dirlinks.reverse()
       files = files.sortedByIt(it.size)
       files.reverse()
       filelinks = filelinks.sortedByIt(it.size)
