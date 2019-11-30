@@ -16,7 +16,7 @@ proc list_dir*(path:string, level=0)
 proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   spaced = false
   var slen = 0
-  var findex = 0
+  var cfiles = 0
   let termwidth = terminalWidth()
   var sline = "\n  "
   var xp = 2
@@ -37,6 +37,9 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   proc format_abc(c:char): string =
     &"{get_ansi(ansi_yellow)}{$c}"
   
+  proc check_last(): bool = 
+    last and cfiles == files.len
+  
   proc print_abc() =
     if abci != -1:
       if abci == used_abci:
@@ -47,10 +50,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     else: '@'
 
     let sp = "  "
-    log &"{sp}{format_abc(c)}"
-  
-  proc check_last(): bool = 
-    last and findex == (files.len - 1)
+    log(&"{sp}{format_abc(c)}")
   
   proc print_line() =
     if use_abc and abc_started and not conf().fluid:
@@ -64,6 +64,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   proc add_to_line(s:string, clen:int) =
     sline.add(space_item(s))
     slen += clen + xp
+    inc(cfiles)
 
   for file in files:
     let fmt = format_item(file, path, level)
@@ -106,6 +107,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
         add_to_line(s, clen)
     # List item
     else:
+      inc(cfiles)
       log(s, check_last())
       if conf().tree:
         if file.kind == pcDir:
@@ -113,8 +115,6 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
 
   if slen > 0:
     print_line()
-  
-  inc(findex)
 
 proc list_dir*(path:string, level=0) =
   var dirs: seq[QFile]
@@ -239,7 +239,7 @@ proc list_dir*(path:string, level=0) =
         print_title("Directories", dirs.len)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirs, path, level, last)
+        show_files(dirs, path, level, false)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len)
         if level == 0 and first_print and not spaced:
@@ -252,7 +252,7 @@ proc list_dir*(path:string, level=0) =
         print_title("Files", files.len)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(files, path, level, last)
+        show_files(files, path, level, false)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len)
         if level == 0 and first_print and not spaced:
