@@ -35,7 +35,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     return &"{s}{sp}"
   
   proc format_abc(c:char): string =
-    &"{get_ansi(get_ansi(conf().abccolor))}{$c}"
+    &"{get_ansi(conf().abccolor)}{$c}"
   
   proc check_last(): bool = 
     last and cfiles == files.len
@@ -115,6 +115,10 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
 
   if slen > 0:
     print_line()
+  
+  if level == 0:
+    if conf().no_titles and conf().list:
+      if not last and not spaced: toke()
 
 proc list_dir*(path:string, level=0) =
   var dirs: seq[QFile]
@@ -236,12 +240,12 @@ proc list_dir*(path:string, level=0) =
   proc do_dirs(last=false) =
     if not conf().just_files:
       if dirs.len > 0:
-        print_title("Directories", dirs.len)
+        print_title("Directories", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(dirs, path, level, false)
       if dirlinks.len > 0:
-        print_title("Directory Links", dirlinks.len)
+        print_title("Directory Links", dirlinks.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(dirlinks, path, level, last)
@@ -249,12 +253,12 @@ proc list_dir*(path:string, level=0) =
   proc do_files(last=false) =
     if not conf().just_dirs:
       if files.len > 0:
-        print_title("Files", files.len)
+        print_title("Files", files.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(files, path, level, false)
       if filelinks.len > 0:
-        print_title("File Links", filelinks.len)
+        print_title("File Links", filelinks.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(filelinks, path, level, last)

@@ -77,10 +77,8 @@ proc get_level_space*(level:int): string =
     levs.add("    ")
   return levs
 
-proc print_title*(title:string, n:int) =
-  if conf().no_titles:
-    toke()
-    return
+proc print_title*(title:string, n:int, level:int) =
+  if conf().no_titles: return
   var brk = "\n"
   let c1 = get_ansi(conf().titlescolor)
   let c2 = get_ansi(conf().countcolor)
