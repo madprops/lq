@@ -283,7 +283,7 @@ proc list_dir*(path:string, level=0) =
     total_files() == 0
       
   proc show_header() =
-    log &"\n{get_ansi(ansi_bright)}{path}" &
+    log &"\n{get_ansi(ansi_bright)}{get_header_color()}{path}" &
       &" ({total_files()}) ({posix_perms(info)})"
       
   if conf().header:

@@ -92,6 +92,11 @@ proc get_count_color*(): string =
   if n == -1: get_ansi("white")
   else: get_8bit_fg_color(n)
 
+proc get_header_color*(): string =
+  let n = conf().headercolor
+  if n == -1: get_ansi("white")
+  else: get_8bit_fg_color(n)
+
 proc get_prefix*(kind:PathComponent): string =
   case kind
   of pcDir: "[D] "

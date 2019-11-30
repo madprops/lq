@@ -27,6 +27,13 @@ proc write_bg*() =
   if conf().bg_color_code != "":
     stdout.write(conf().bg_color_code)
 
+proc fill*(n=0) =
+  let m = if n == 0: termwidth
+    else: n
+
+  for x in 0..<m:
+    stdout.write(" ")
+
 proc log*(s:string, last=false) =
   if first_print:
     stdout.write("\n")
