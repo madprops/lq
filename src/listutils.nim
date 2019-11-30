@@ -65,7 +65,7 @@ proc get_fg_color*(kind:PathComponent): string =
     else: get_8bit_fg_color(n)
   of pcFile:
     let n = conf().filescolor
-    if n == -1: ""
+    if n == -1: get_ansi("white")
     else: get_8bit_fg_color(n)
   of pcLinkToFile:
     let n = conf().filelinkscolor
@@ -84,12 +84,12 @@ proc get_details_color*(): string =
 
 proc get_labels_color*(): string =
   let n = conf().labelscolor
-  if n == -1: ""
+  if n == -1: get_ansi("white")
   else: get_8bit_fg_color(n)
 
 proc get_count_color*(): string =
   let n = conf().countcolor
-  if n == -1: ""
+  if n == -1: get_ansi("white")
   else: get_8bit_fg_color(n)
 
 proc get_prefix*(kind:PathComponent): string =
@@ -110,7 +110,7 @@ proc print_title*(title:string, n:int) =
   var brk = "\n"
   let tcolor = get_titles_color()
   let scolor = get_count_color()
-  log(&"{brk}{tcolor}{get_ansi(ansi_bright)}{title}{rstyle()} {scolor}({n})")
+  log(&"{brk}{tcolor}{get_ansi(ansi_bright)}{title}{rstyle()} {scolor}({n}){rstyle()}")
 
 proc format_item*(file:QFile, path:string, level:int): (string, int) =
   var scount = ""
@@ -141,4 +141,4 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
         
   let size = if dosize: format_size(file) else: ""
   let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
-  return (&"{color}{levs}{prefix}{file.path}{dcolor}{size}{perms}{rstyle()}{scolor}{scount}", clen)
+  return (&"{color}{levs}{prefix}{file.path}{dcolor}{size}{perms}{scolor}{scount}", clen)

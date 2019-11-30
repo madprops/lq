@@ -12,6 +12,7 @@ type AnsiKind* = enum
   ansi_magenta
   ansi_yellow
   ansi_bright
+  ansi_white
   ansi_underscore
 
 var termwidth = terminalWidth()
@@ -23,7 +24,8 @@ proc write_reset*() =
   stdout.write(ansiResetCode)
 
 proc write_bg*() =
-  stdout.write(conf().bg_color_code)
+  if conf().bg_color_code != "":
+    stdout.write(conf().bg_color_code)
 
 proc log*(s:string, last=false) =
   if first_print:
@@ -45,6 +47,7 @@ proc get_ansi*(kind:string): string =
   of "blue": ansiForegroundColorCode(fgBlue)
   of "magenta": ansiForegroundColorCode(fgMagenta)
   of "yellow": ansiForegroundColorCode(fgYellow)
+  of "white": ansiForegroundColorCode(fgWhite)
   of "bright": ansiStyleCode(styleBright)
   of "underscore": ansiStyleCode(styleUnderscore)
   else: ""
@@ -57,6 +60,7 @@ proc get_ansi*(kind:AnsiKind): string =
   of ansi_blue: get_ansi("blue")
   of ansi_magenta: get_ansi("magenta")
   of ansi_yellow: get_ansi("yellow")
+  of ansi_white: get_ansi("white")
   of ansi_bright: get_ansi("bright")
   of ansi_underscore: get_ansi("underscore")
 
