@@ -13,16 +13,17 @@ var spaced* = false
 
 proc list_dir*(path:string, level=0)
 
-proc show_files(files:seq[QFile], path:string, level=0) =
+proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   spaced = false
   var slen = 0
+  var findex = 0
   let termwidth = terminalWidth()
-  var sline = if conf().no_spacing: "" else: "\n  "
-  var xp = if conf().no_spacing: 1 else: 2
+  var sline = "\n  "
+  var xp = 2
   var sp = ""
   for x in 0..(xp - 1):
     sp.add(" ")
-  let limit = if conf().no_spacing: termwidth else: (termwidth - 4)
+  let limit = (termwidth - 4)
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   let use_abc = conf().abc and not conf().mix
@@ -30,40 +31,11 @@ proc show_files(files:seq[QFile], path:string, level=0) =
   var used_abci = -1
   var abc_started = false
 
-  proc format_item(file:QFile): (string, int) =
-    var scount = ""
-    if conf().dircount:
-      scount = case file.kind
-      of pcDir, pcLinkToDir:
-        var p = file.path
-        if not file.path.startsWith("/"):
-          p = path.joinPath(file.path)
-        var ni = 0
-        for item in walkDir(p):
-          inc(ni)
-        &" ({ni})"
-      else: ""
-
-    let color = if conf().no_colors: "" else: get_color(file.kind)
-    let prefix = if conf().prefix: get_prefix(file.kind) else: ""
-    let perms = if conf().permissions: format_perms(file.perms) else: ""
-    let levs = get_level_space(level)
-    
-    let dosize = case file.kind
-    of pcDir, pcLinkToDir:
-      conf().dsize
-    of pcFile, pcLinkToFile:
-      conf().size
-        
-    let size = if dosize: format_size(file) else: ""
-    let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
-    return (&"{color}{levs}{prefix}{file.path}{size}{perms}{get_ansi(ansi_reset)}{scount}", clen)
-
   proc space_item(s:string): string =
     return &"{s}{sp}"
   
   proc format_abc(c:char): string =
-    &"{get_ansi(ansi_yellow)}{$c}{get_ansi(ansi_reset)}"
+    &"{get_ansi(ansi_yellow)}{$c}"
   
   proc print_abc() =
     if abci != -1:
@@ -74,17 +46,19 @@ proc show_files(files:seq[QFile], path:string, level=0) =
       abc[abci]
     else: '@'
 
-    let sp = if conf().no_spacing: ""
-      else: "  "
-
+    let sp = "  "
     log &"{sp}{format_abc(c)}"
+  
+  proc check_last(): bool = 
+    last and findex == (files.len - 1)
   
   proc print_line() =
     if use_abc and abc_started and not conf().fluid:
       print_abc()
 
-    log sline.strip(leading=false, trailing=true)
-    sline = if conf().no_spacing: "" else: "\n  "
+    log(sline.strip(leading=false, trailing=true), check_last())
+
+    sline = "\n  "
     slen = 0
   
   proc add_to_line(s:string, clen:int) =
@@ -92,7 +66,7 @@ proc show_files(files:seq[QFile], path:string, level=0) =
     slen += clen + xp
 
   for file in files:
-    let fmt = format_item(file)
+    let fmt = format_item(file, path, level)
     let s = fmt[0]
     let clen = fmt[1]
 
@@ -101,7 +75,7 @@ proc show_files(files:seq[QFile], path:string, level=0) =
       let ib = abc.find(sc)
       if ib == -1:
         if not abc_started:
-          if not conf().no_spacing: log ""
+          toke()
           abc_started = true
       else:
         if ib != abci:
@@ -115,8 +89,7 @@ proc show_files(files:seq[QFile], path:string, level=0) =
           else:
             if slen > 0:
               print_line()
-            if not conf().no_spacing:
-              log ""
+            toke()
 
           abci = ib
 
@@ -133,14 +106,15 @@ proc show_files(files:seq[QFile], path:string, level=0) =
         add_to_line(s, clen)
     # List item
     else:
-      log s
-  
+      log(s, check_last())
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
 
   if slen > 0:
     print_line()
+  
+  inc(findex)
 
 proc list_dir*(path:string, level=0) =
   var dirs: seq[QFile]
@@ -259,47 +233,47 @@ proc list_dir*(path:string, level=0) =
       files = files.sortedByIt(it.path.toLower())
       filelinks = filelinks.sortedByIt(it.path.toLower())
   
-  proc do_dirs() =
+  proc do_dirs(last=false) =
     if not conf().just_files:
       if dirs.len > 0:
         print_title("Directories", dirs.len)
-        if level == 0:
-          if conf().list and not conf().no_spacing: log ""
-        show_files(dirs, path, level)
+        if level == 0 and first_print and not spaced:
+          if conf().list: toke()
+        show_files(dirs, path, level, last)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len)
-        if level == 0:
-          if not conf().tree and conf().list and not conf().no_spacing: log ""
-        show_files(dirlinks, path, level)
+        if level == 0 and first_print and not spaced:
+          if conf().list: toke()
+        show_files(dirlinks, path, level, last)
       
-  proc do_files() =
+  proc do_files(last=false) =
     if not conf().just_dirs:
       if files.len > 0:
         print_title("Files", files.len)
-        if level == 0:
-          if conf().list and not conf().no_spacing: log ""
-        show_files(files, path, level)
+        if level == 0 and first_print and not spaced:
+          if conf().list: toke()
+        show_files(files, path, level, last)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len)
-        if level == 0:
-          if conf().list and not conf().no_spacing: log ""
-        show_files(filelinks, path, level)
+        if level == 0 and first_print and not spaced:
+          if conf().list: toke()
+        show_files(filelinks, path, level, last)
       
-  proc do_all() =
+  proc do_all(last=false) =
     if not conf().mix: sort_lists()
     var all = dirs & dirlinks & files & filelinks
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()), path, level)
+      show_files(all.sortedByIt(it.path.toLower()), path, level, last)
     else:
-      show_files(all, path, level)
+      show_files(all, path, level, last)
       
-  proc do_all_reverse() =
+  proc do_all_reverse(last=false) =
     if not conf().mix: sort_lists()
     var all = files & filelinks & dirs & dirlinks
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()), path, level)
+      show_files(all.sortedByIt(it.path.toLower()), path, level, last)
     else:
-      show_files(all, path, level)
+      show_files(all, path, level, last)
       
   proc total_files(): int =
     dirs.len + dirlinks.len +
@@ -310,29 +284,29 @@ proc list_dir*(path:string, level=0) =
       
   proc show_header() =
     log &"\n{get_ansi(ansi_bright)}{path}" &
-      &" ({total_files()}) ({posix_perms(info)}){get_ansi(ansi_reset)}"
+      &" ({total_files()}) ({posix_perms(info)})"
       
   if conf().header:
     show_header()
       
   if conf().fluid:
     if conf().reverse:
-      do_all_reverse()
-    else: do_all()
+      do_all_reverse(level == 0)
+    else: do_all(level == 0)
       
   else:
     if level > 0 and no_items():
       if msg == "": msg = "(Empty)"
-      log &"{get_level_space(level)}{msg}"
+      log &"{get_level_space(level)}{get_labels_color()}{msg}"
     else:
       sort_lists()
       if not conf().reverse:
         do_dirs()
-        do_files()
+        do_files(level == 0)
       else:
         do_files()
-        do_dirs()
+        do_dirs(level == 0)
 
-  if level == 1 and not conf().no_spacing: 
-    log ""
+  if level == 1:
+    toke()
     spaced = true

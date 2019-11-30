@@ -106,6 +106,7 @@ it will match whatever contains `/.git/` for instance,
 and not show its content in the tree view.
 
 ## Config File
+
 In Linux a config is placed in ~/config/lq/lq.conf
 
 It uses the TOML format.
@@ -121,5 +122,12 @@ exclude = [
   "node_modules"
 ]
 ```
+
+## Color Themes
+It's possible to override the default colors using the config file.
+
+Uncomment and set a 256-color on the items you need.
+
+![](http://i.imgur.com/we17rfr.jpg)
 
 ### [All available flags](https://madprops.github.io/lq/)

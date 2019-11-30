@@ -1,3 +1,4 @@
+import config
 import utils
 import os
 import strformat
@@ -52,12 +53,44 @@ proc format_size*(file:QFile): string =
     else: &"{int(fsize)} B"
   return &" ({size})"
 
-proc get_color*(kind:PathComponent): string =
+proc get_fg_color*(kind:PathComponent): string =
   case kind
-  of pcDir: get_ansi("blue")
-  of pcLinkToDir: get_ansi("cyan")
-  of pcFile: ""
-  of pcLinkToFile: get_ansi("green")
+  of pcDir: 
+    let n = conf().dirscolor
+    if n == -1: get_ansi("blue")
+    else: get_8bit_fg_color(n)
+  of pcLinkToDir: 
+    let n = conf().dirlinkscolor
+    if n == -1: get_ansi("cyan")
+    else: get_8bit_fg_color(n)
+  of pcFile:
+    let n = conf().filescolor
+    if n == -1: ""
+    else: get_8bit_fg_color(n)
+  of pcLinkToFile:
+    let n = conf().filelinkscolor
+    if n == -1: get_ansi("green")
+    else: get_8bit_fg_color(n)
+
+proc get_titles_color*(): string =
+  let n = conf().titlescolor
+  if n == -1: get_ansi("magenta")
+  else: get_8bit_fg_color(n)
+
+proc get_details_color*(): string =
+  let n = conf().detailscolor
+  if n == -1: ""
+  else: get_8bit_fg_color(n)
+
+proc get_labels_color*(): string =
+  let n = conf().labelscolor
+  if n == -1: ""
+  else: get_8bit_fg_color(n)
+
+proc get_count_color*(): string =
+  let n = conf().countcolor
+  if n == -1: ""
+  else: get_8bit_fg_color(n)
 
 proc get_prefix*(kind:PathComponent): string =
   case kind
@@ -71,3 +104,41 @@ proc get_level_space*(level:int): string =
   for x in 0..<level:
     levs.add("    ")
   return levs
+
+proc print_title*(title:string, n:int) =
+  if conf().no_titles: return
+  var brk = "\n"
+  let tcolor = get_titles_color()
+  let scolor = get_count_color()
+  log(&"{brk}{tcolor}{get_ansi(ansi_bright)}{title}{rstyle()} {scolor}({n})")
+
+proc format_item*(file:QFile, path:string, level:int): (string, int) =
+  var scount = ""
+  if conf().dircount:
+    scount = case file.kind
+    of pcDir, pcLinkToDir:
+      var p = file.path
+      if not file.path.startsWith("/"):
+        p = path.joinPath(file.path)
+      var ni = 0
+      for item in walkDir(p):
+        inc(ni)
+      &" ({ni})"
+    else: ""
+
+  let color = if conf().no_colors: "" else: get_fg_color(file.kind)
+  let dcolor = get_details_color()
+  let scolor = get_count_color()
+  let prefix = if conf().prefix: get_prefix(file.kind) else: ""
+  let perms = if conf().permissions: format_perms(file.perms) else: ""
+  let levs = get_level_space(level)
+    
+  let dosize = case file.kind
+  of pcDir, pcLinkToDir:
+    conf().dsize
+  of pcFile, pcLinkToFile:
+    conf().size
+        
+  let size = if dosize: format_size(file) else: ""
+  let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
+  return (&"{color}{levs}{prefix}{file.path}{dcolor}{size}{perms}{rstyle()}{scolor}{scount}", clen)

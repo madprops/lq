@@ -1,6 +1,7 @@
 import os
 import nap
 import parsetoml
+import strformat
 
 type Config* = ref object
   path*: string
@@ -15,7 +16,6 @@ type Config* = ref object
   dircount*: bool
   no_titles*: bool
   reverse*: bool
-  no_spacing*: bool
   fluid*: bool
   mix*: bool
   abc*: bool
@@ -28,7 +28,25 @@ type Config* = ref object
   tree*: bool
   exclude*: seq[string]
 
+  # These get specified 
+  # in the config file
+  dirscolor*: int
+  dirlinkscolor*: int
+  filescolor*: int
+  filelinkscolor*: int
+  abccolor*: int
+  titlescolor*: int
+  headercolor*: int
+  backgroundcolor*: int
+  detailscolor*: int
+  countcolor*: int
+  labelscolor*: int
+
+  # Auto generated
+  bg_color_code*: string
+
 var oconf*: Config
+var first_print* = false
 
 proc get_config*() =
   let path = use_arg(name="path", kind="argument", help="Path to a directory")
@@ -42,7 +60,6 @@ proc get_config*() =
   let dircount = use_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
   let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="o")
   let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
-  let no_spacing = use_arg(name="no-spacing", kind="flag", help="Make it less comfy", alt="x")
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
   let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
@@ -78,7 +95,6 @@ proc get_config*() =
     dircount:dircount.used,
     no_titles:no_titles.used,
     reverse:reverse.used,
-    no_spacing:no_spacing.used,
     fluid:fluid.used,
     mix:mix.used,
     abc:abc.used,
@@ -108,12 +124,83 @@ proc get_config*() =
   
   # Check config file
   let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
-  let exs = tom.getTable()["exclude"]
+  let table = tom.getTable()
+  let exs = table["exclude"]
 
   for i in 0..<exs.len:
-    let e = $exs[i]
+    let e = exs[i].getStr()
     if not oconf.exclude.contains(e):
       oconf.exclude.add(e)
+  
+  let colors = table["colors"]
+
+  try:
+    let c = colors["dirs"]
+    oconf.dirscolor = c.getInt()
+  except:
+    oconf.dirscolor = -1
+
+  try:
+    let c = colors["dirlinks"]
+    oconf.dirlinkscolor = c.getInt()
+  except:
+    oconf.dirlinkscolor = -1
+
+  try:
+    let c = colors["files"]
+    oconf.filescolor = c.getInt()
+  except:
+    oconf.filescolor = -1
+
+  try:
+    let c = colors["filelinks"]
+    oconf.filelinkscolor = c.getInt()
+  except:
+    oconf.filelinkscolor = -1
+
+  try:
+    let c = colors["abc"]
+    oconf.abccolor = c.getInt()
+  except:
+    oconf.abccolor = -1
+
+  try:
+    let c = colors["titles"]
+    oconf.titlescolor = c.getInt()
+  except:
+    oconf.titlescolor = -1
+
+  try:
+    let c = colors["header"]
+    oconf.headercolor = c.getInt()
+  except:
+    oconf.headercolor = -1
+
+  try:
+    let c = colors["lables"]
+    oconf.labelscolor = c.getInt()
+  except:
+    oconf.labelscolor = -1
+
+  try:
+    let c = colors["background"]
+    oconf.backgroundcolor = c.getInt()
+    oconf.bg_color_code = &"\x1b[48;5;{c.getInt()}m"
+  except:
+    oconf.backgroundcolor = -1
+    oconf.bg_color_code = ""
+
+  try:
+    let c = colors["details"]
+    oconf.detailscolor = c.getInt()
+  except:
+    oconf.detailscolor = -1
+
+  try:
+    let c = colors["count"]
+    oconf.countcolor = c.getInt()
+  except:
+    oconf.countcolor = -1
 
 proc conf*(): Config =
   return oconf
