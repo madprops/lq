@@ -128,6 +128,9 @@ It's possible to override the default colors using the config file.
 
 Settings look like:
 ```
+# Available colors:
+# black, red, green, yellow, blue,
+# magenta, cyan, white
 [colors]
 # Dir items
 dirs = "cyan"
