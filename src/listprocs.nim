@@ -179,10 +179,12 @@ proc list_dir*(path:string, level=0) =
         let fp = path.joinPath(file.path)
 
         for e in conf().exclude:
-          if fp.contains(&"/{e}/"):
-            if level == 1:
-              msg = "(Excluded)"
-            break filesblock
+          let rs = re(&"/{e}(/|$)")
+          if fp.find(rs).isSome and conf().path.find(rs).isNone:
+            if level > 0:
+              if level == 1:
+                msg = "(Excluded)"
+              break filesblock
 
         # Filter
         if do_filter:
