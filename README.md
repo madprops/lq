@@ -73,7 +73,7 @@ Also calculate directory size with -D or --dsize:
 
 This shows directory content in a tree view:
 
-Some special labels are "Excluded" and "Empty"
+Some special labels are "Excluded" and "Empty".
 
 ![](http://i.imgur.com/qX5oCuO.jpg)
 
