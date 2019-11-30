@@ -119,7 +119,8 @@ It looks like this:
 ```
 exclude = [
   ".git",
-  ".svn"
+  ".svn",
+  "node_modules"
 ]
 ```
 
