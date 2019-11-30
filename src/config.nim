@@ -1,7 +1,6 @@
 import os
 import nap
 import parsetoml
-import strformat
 
 type Config* = ref object
   path*: string

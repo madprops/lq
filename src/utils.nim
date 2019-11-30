@@ -16,8 +16,6 @@ type AnsiKind* = enum
   ansi_bright
   ansi_underscore
 
-var termwidth = terminalWidth()
-
 proc reset*(): string =
   ansiResetCode
 
