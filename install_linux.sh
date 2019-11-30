@@ -7,8 +7,7 @@ then
 else
     mkdir ~/.config/lq
     cp lq.conf ~/.config/lq/lq.conf
-    cp color_reference.png ~/.config/lq/color_reference.png
-    echo "Config files placed in ~/.config/lq"
+    echo "Config file placed in ~/.config/lq"
 fi
 
 echo "Done."

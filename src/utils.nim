@@ -17,31 +17,11 @@ type AnsiKind* = enum
 
 var termwidth = terminalWidth()
 
-proc rstyle*(): string =
-  "\e[22m"
-
-proc write_reset*() =
-  stdout.write(ansiResetCode)
-
-proc write_bg*() =
-  if conf().bg_color_code != "":
-    stdout.write(conf().bg_color_code)
-
-proc fill*(n=0) =
-  let m = if n == 0: termwidth
-    else: n
-
-  for x in 0..<m:
-    stdout.write(" ")
+proc reset*(): string =
+  ansiResetCode
 
 proc log*(s:string, last=false) =
-  if first_print:
-    stdout.write("\n")
-  else: first_print = true
-  let rs = if last:
-    &"\n{ansiResetCode}"
-  else: ""
-  stdout.write(&"{s}{rs}")
+  stdout.writeLine(&"{reset()}{s}")
   
 proc toke*() =
   log ""
@@ -73,12 +53,6 @@ proc get_ansi*(kind:AnsiKind): string =
 
 proc get_8bit_fg_color*(n:int): string =
   &"\e[38;5;{n}m"
-
-proc ccolor*(color:string): string =
-  if conf().no_colors: "" else: get_ansi(color)
-
-proc ccolor*(color:AnsiKind): string =
-  if conf().no_colors: "" else: get_ansi(color)
 
 proc fix_path*(path:string): string =
   var path = expandTilde(path)

@@ -56,46 +56,13 @@ proc format_size*(file:QFile): string =
 proc get_fg_color*(kind:PathComponent): string =
   case kind
   of pcDir: 
-    let n = conf().dirscolor
-    if n == -1: get_ansi("blue")
-    else: get_8bit_fg_color(n)
+    get_ansi(conf().dirscolor)
   of pcLinkToDir: 
-    let n = conf().dirlinkscolor
-    if n == -1: get_ansi("cyan")
-    else: get_8bit_fg_color(n)
+    get_ansi(conf().dirlinkscolor)
   of pcFile:
-    let n = conf().filescolor
-    if n == -1: get_ansi("white")
-    else: get_8bit_fg_color(n)
+    get_ansi(conf().filescolor)
   of pcLinkToFile:
-    let n = conf().filelinkscolor
-    if n == -1: get_ansi("green")
-    else: get_8bit_fg_color(n)
-
-proc get_titles_color*(): string =
-  let n = conf().titlescolor
-  if n == -1: get_ansi("magenta")
-  else: get_8bit_fg_color(n)
-
-proc get_details_color*(): string =
-  let n = conf().detailscolor
-  if n == -1: ""
-  else: get_8bit_fg_color(n)
-
-proc get_labels_color*(): string =
-  let n = conf().labelscolor
-  if n == -1: get_ansi("white")
-  else: get_8bit_fg_color(n)
-
-proc get_count_color*(): string =
-  let n = conf().countcolor
-  if n == -1: get_ansi("white")
-  else: get_8bit_fg_color(n)
-
-proc get_header_color*(): string =
-  let n = conf().headercolor
-  if n == -1: get_ansi("white")
-  else: get_8bit_fg_color(n)
+    get_ansi(conf().filelinkscolor)
 
 proc get_prefix*(kind:PathComponent): string =
   case kind
@@ -113,9 +80,9 @@ proc get_level_space*(level:int): string =
 proc print_title*(title:string, n:int) =
   if conf().no_titles: return
   var brk = "\n"
-  let tcolor = get_titles_color()
-  let scolor = get_count_color()
-  log(&"{brk}{tcolor}{get_ansi(ansi_bright)}{title}{rstyle()} {scolor}({n}){rstyle()}")
+  let c1 = get_ansi(conf().titlescolor)
+  let c2 = get_ansi(conf().countcolor)
+  log(&"{brk}{c1}{get_ansi(ansi_bright)}{title}{reset()} {c2}({n})")
 
 proc format_item*(file:QFile, path:string, level:int): (string, int) =
   var scount = ""
@@ -131,9 +98,8 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
       &" ({ni})"
     else: ""
 
-  let color = if conf().no_colors: "" else: get_fg_color(file.kind)
-  let dcolor = get_details_color()
-  let scolor = get_count_color()
+  let c1 = get_fg_color(file.kind)
+  let c2 = get_ansi(conf().countcolor)
   let prefix = if conf().prefix: get_prefix(file.kind) else: ""
   let perms = if conf().permissions: format_perms(file.perms) else: ""
   let levs = get_level_space(level)
@@ -146,4 +112,4 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
         
   let size = if dosize: format_size(file) else: ""
   let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
-  return (&"{color}{levs}{prefix}{file.path}{dcolor}{size}{perms}{scolor}{scount}", clen)
+  return (&"{c1}{levs}{prefix}{file.path}{size}{perms}{c2}{scount}", clen)

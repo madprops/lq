@@ -35,7 +35,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     return &"{s}{sp}"
   
   proc format_abc(c:char): string =
-    &"{get_ansi(ansi_yellow)}{$c}"
+    &"{get_ansi(get_ansi(conf().abccolor))}{$c}"
   
   proc check_last(): bool = 
     last and cfiles == files.len
@@ -283,7 +283,8 @@ proc list_dir*(path:string, level=0) =
     total_files() == 0
       
   proc show_header() =
-    log &"\n{get_ansi(ansi_bright)}{get_header_color()}{path}" &
+    let c1 = get_ansi(conf().headercolor)
+    log &"\n{get_ansi(ansi_bright)}{c1}{path}" &
       &" ({total_files()}) ({posix_perms(info)})"
       
   if conf().header:
@@ -297,7 +298,8 @@ proc list_dir*(path:string, level=0) =
   else:
     if level > 0 and no_items():
       if msg == "": msg = "(Empty)"
-      log &"{get_level_space(level)}{get_labels_color()}{msg}"
+      let c1 = get_ansi(conf().headercolor)
+      log(&"{get_level_space(level)}{c1}{msg}")
     else:
       sort_lists()
       if not conf().reverse:

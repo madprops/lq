@@ -8,7 +8,6 @@ type Config* = ref object
   just_dirs*: bool
   just_files*: bool
   absolute*: bool
-  no_colors*: bool
   filter*: string
   dev*: bool
   list*: bool
@@ -31,20 +30,15 @@ type Config* = ref object
 
   # These get specified 
   # in the config file
-  dirscolor*: int
-  dirlinkscolor*: int
-  filescolor*: int
-  filelinkscolor*: int
-  abccolor*: int
-  titlescolor*: int
-  headercolor*: int
-  backgroundcolor*: int
-  detailscolor*: int
-  countcolor*: int
-  labelscolor*: int
-
-  # Auto generated
-  bg_color_code*: string
+  dirscolor*: string
+  dirlinkscolor*: string
+  filescolor*: string
+  filelinkscolor*: string
+  abccolor*: string
+  titlescolor*: string
+  headercolor*: string
+  countcolor*: string
+  labelscolor*: string
 
 var oconf*: Config
 var first_print* = false
@@ -56,7 +50,6 @@ proc get_config*() =
   let just_dirs = use_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
   let just_files = use_arg(name="files", kind="flag", help="Just show files", alt="2")
   let absolute = use_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
-  let no_colors = use_arg(name="no-colors", kind="flag", help="Don't color paths", alt="X")
   let filter = use_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
   let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
   let list = use_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
@@ -91,7 +84,6 @@ proc get_config*() =
     just_dirs:just_dirs.used, 
     just_files:just_files.used,
     absolute:absolute.used,
-    no_colors:no_colors.used,
     filter:filter.value,
     dev:dev.used,
     list:list.used,
@@ -133,18 +125,15 @@ proc conf*(): Config =
   return oconf
 
 proc check_config_file() =
-  oconf.dirscolor = -1
-  oconf.dirlinkscolor = -1
-  oconf.filescolor = -1
-  oconf.filelinkscolor = -1
-  oconf.abccolor = -1
-  oconf.titlescolor = -1
-  oconf.headercolor = -1
-  oconf.labelscolor = -1
-  oconf.backgroundcolor = -1
-  oconf.detailscolor = -1
-  oconf.countcolor = -1
-  oconf.bg_color_code = ""
+  oconf.dirscolor = "blue"
+  oconf.dirlinkscolor = "cyan"
+  oconf.filescolor = "white"
+  oconf.filelinkscolor = "green"
+  oconf.abccolor = "yellow"
+  oconf.titlescolor = "magenta"
+  oconf.headercolor = "white"
+  oconf.labelscolor = "white"
+  oconf.countcolor = "white"
 
   if oconf.ignore_config: return
 
@@ -161,56 +150,45 @@ proc check_config_file() =
 
   try:
     let c = colors["dirs"]
-    oconf.dirscolor = c.getInt()
+    oconf.dirscolor = c.getStr()
   except: discard
 
   try:
     let c = colors["dirlinks"]
-    oconf.dirlinkscolor = c.getInt()
+    oconf.dirlinkscolor = c.getStr()
   except: discard
 
   try:
     let c = colors["files"]
-    oconf.filescolor = c.getInt()
+    oconf.filescolor = c.getStr()
   except: discard
 
   try:
     let c = colors["filelinks"]
-    oconf.filelinkscolor = c.getInt()
+    oconf.filelinkscolor = c.getStr()
   except: discard
 
   try:
     let c = colors["abc"]
-    oconf.abccolor = c.getInt()
+    oconf.abccolor = c.getStr()
   except: discard
 
   try:
     let c = colors["titles"]
-    oconf.titlescolor = c.getInt()
+    oconf.titlescolor = c.getStr()
   except: discard
 
   try:
     let c = colors["header"]
-    oconf.headercolor = c.getInt()
+    oconf.headercolor = c.getStr()
   except: discard
 
   try:
-    let c = colors["lables"]
-    oconf.labelscolor = c.getInt()
-  except: discard
-
-  try:
-    let c = colors["background"]
-    oconf.backgroundcolor = c.getInt()
-    oconf.bg_color_code = &"\x1b[48;5;{c.getInt()}m"
-  except: discard
-
-  try:
-    let c = colors["details"]
-    oconf.detailscolor = c.getInt()
+    let c = colors["labels"]
+    oconf.labelscolor = c.getStr()
   except: discard
 
   try:
     let c = colors["count"]
-    oconf.countcolor = c.getInt()
+    oconf.countcolor = c.getStr()
   except: discard
