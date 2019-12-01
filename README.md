@@ -128,18 +128,6 @@ exclude = [
 ## Color Theme
 It's possible to override the default colors using the config file.
 
-Settings look like:
-```
-# Available colors:
-# black, red, green, yellow, blue,
-# magenta, cyan, white
-[colors]
-# Dir items
-dirs = "cyan"
-# Dir Link items
-titles = "green underscore"
-```
-
-![](http://i.imgur.com/B8Pc458.jpg)
+![](http://i.imgur.com/z42bWjI.png)
 
 ### [All available flags](https://madprops.github.io/lq/)
