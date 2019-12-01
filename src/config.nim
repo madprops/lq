@@ -1,6 +1,7 @@
 import os
 import nap
 import parsetoml
+import strutils
 
 type Config* = ref object
   path*: string
@@ -29,15 +30,15 @@ type Config* = ref object
 
   # These get specified 
   # in the config file
-  dirscolor*: string
-  dirlinkscolor*: string
-  filescolor*: string
-  filelinkscolor*: string
-  abccolor*: string
-  titlescolor*: string
-  headercolor*: string
-  countcolor*: string
-  labelscolor*: string
+  dirscolor*: seq[string]
+  dirlinkscolor*: seq[string]
+  filescolor*: seq[string]
+  filelinkscolor*: seq[string]
+  abccolor*: seq[string]
+  titlescolor*: seq[string]
+  headercolor*: seq[string]
+  countcolor*: seq[string]
+  labelscolor*: seq[string]
 
 var oconf*: Config
 var first_print* = false
@@ -76,6 +77,9 @@ proc get_config*() =
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
 
   add_header("List directories")
+  add_note("A config file should be in ~/.config/lq")
+  add_note("Git Repo: https://github.com/madprops/lq")
+
   parse_args()
   
   oconf = Config(
@@ -124,15 +128,15 @@ proc conf*(): Config =
   return oconf
 
 proc check_config_file() =
-  oconf.dirscolor = "blue"
-  oconf.dirlinkscolor = "cyan"
-  oconf.filescolor = "white"
-  oconf.filelinkscolor = "green"
-  oconf.abccolor = "yellow"
-  oconf.titlescolor = "magenta"
-  oconf.headercolor = "white"
-  oconf.labelscolor = "white"
-  oconf.countcolor = "white"
+  oconf.headercolor = @["bright"]
+  oconf.titlescolor = @["bright", "magenta"]
+  oconf.dirscolor = @["blue"]
+  oconf.dirlinkscolor = @["cyan"]
+  oconf.filescolor = @[""]
+  oconf.filelinkscolor = @["green"]
+  oconf.abccolor = @["yellow"]
+  oconf.labelscolor = @[""]
+  oconf.countcolor = @[""]
 
   if oconf.ignore_config: return
 
@@ -148,46 +152,46 @@ proc check_config_file() =
   let colors = table["colors"]
 
   try:
-    let c = colors["dirs"]
-    oconf.dirscolor = c.getStr()
-  except: discard
-
-  try:
-    let c = colors["dirlinks"]
-    oconf.dirlinkscolor = c.getStr()
-  except: discard
-
-  try:
-    let c = colors["files"]
-    oconf.filescolor = c.getStr()
-  except: discard
-
-  try:
-    let c = colors["filelinks"]
-    oconf.filelinkscolor = c.getStr()
-  except: discard
-
-  try:
-    let c = colors["abc"]
-    oconf.abccolor = c.getStr()
+    let c = colors["header"]
+    oconf.headercolor = c.getStr().split(" ")
   except: discard
 
   try:
     let c = colors["titles"]
-    oconf.titlescolor = c.getStr()
+    oconf.titlescolor = c.getStr().split(" ")
+  except: discard  
+
+  try:
+    let c = colors["dirs"]
+    oconf.dirscolor = c.getStr().split(" ")
   except: discard
 
   try:
-    let c = colors["header"]
-    oconf.headercolor = c.getStr()
+    let c = colors["dirlinks"]
+    oconf.dirlinkscolor = c.getStr().split(" ")
+  except: discard
+
+  try:
+    let c = colors["files"]
+    oconf.filescolor = c.getStr().split(" ")
+  except: discard
+
+  try:
+    let c = colors["filelinks"]
+    oconf.filelinkscolor = c.getStr().split(" ")
+  except: discard
+
+  try:
+    let c = colors["abc"]
+    oconf.abccolor = c.getStr().split(" ")
   except: discard
 
   try:
     let c = colors["labels"]
-    oconf.labelscolor = c.getStr()
+    oconf.labelscolor = c.getStr().split(" ")
   except: discard
 
   try:
     let c = colors["count"]
-    oconf.countcolor = c.getStr()
+    oconf.countcolor = c.getStr().split(" ")
   except: discard

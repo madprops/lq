@@ -137,7 +137,7 @@ Settings look like:
 # Dir items
 dirs = "cyan"
 # Dir Link items
-dirlinks = "blue"
+titles = "green underscore"
 ```
 
 ![](http://i.imgur.com/B8Pc458.jpg)

@@ -288,8 +288,7 @@ proc list_dir*(path:string, level=0) =
       
   proc show_header() =
     let c1 = get_ansi(conf().headercolor)
-    log &"\n{get_ansi(ansi_bright)}{c1}{path}" &
-      &" ({total_files()}) ({posix_perms(info)})"
+    log &"\n{c1}{path} ({total_files()}) ({posix_perms(info)})"
       
   if conf().header:
     show_header()

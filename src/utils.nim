@@ -14,7 +14,14 @@ type AnsiKind* = enum
   ansi_white
   ansi_black
   ansi_bright
+  ansi_dim
+  ansi_italic
   ansi_underscore
+  ansi_blink
+  ansi_blinkrapid
+  ansi_reverse
+  ansi_hidden
+  ansi_strikethrough
 
 proc reset*(): string =
   ansiResetCode
@@ -36,7 +43,14 @@ proc get_ansi*(kind:string): string =
   of "white": ansiForegroundColorCode(fgWhite)
   of "black": ansiForegroundColorCode(fgBlack)
   of "bright": ansiStyleCode(styleBright)
+  of "dim": ansiStyleCode(styleDim)
+  of "italic": ansiStyleCode(styleItalic)
   of "underscore": ansiStyleCode(styleUnderscore)
+  of "blink": ansiStyleCode(styleBlink)
+  of "blinkrapid": ansiStyleCode(styleBlinkRapid)
+  of "reverse": ansiStyleCode(styleReverse)
+  of "hidden": ansiStyleCode(styleHidden)
+  of "strikethrough": ansiStyleCode(styleStrikethrough)
   else: ""
 
 proc get_ansi*(kind:AnsiKind): string =
@@ -50,10 +64,41 @@ proc get_ansi*(kind:AnsiKind): string =
   of ansi_white: get_ansi("white")
   of ansi_black: get_ansi("black")
   of ansi_bright: get_ansi("bright")
+  of ansi_dim: get_ansi("dim")
+  of ansi_italic: get_ansi("italic")
   of ansi_underscore: get_ansi("underscore")
+  of ansi_blink: get_ansi("blink")
+  of ansi_blinkrapid: get_ansi("blinkrapid")
+  of ansi_reverse: get_ansi("reverse")
+  of ansi_hidden: get_ansi("hidden")
+  of ansi_strikethrough: get_ansi("strikethrough")
 
-proc get_8bit_fg_color*(n:int): string =
-  &"\e[38;5;{n}m"
+proc get_ansi*(list:seq[string]): string =
+  var s = ""
+  for item in list:
+    let a = case item
+    of "green": get_ansi("green")
+    of "cyan": get_ansi("cyan")
+    of "red": get_ansi("red")
+    of "blue": get_ansi("blue")
+    of "magenta": get_ansi("magenta")
+    of "yellow": get_ansi("yellow")
+    of "white": get_ansi("white")
+    of "black": get_ansi("black")
+    of "bright": get_ansi("bright")
+    of "dim": get_ansi("dim")
+    of "underscore": get_ansi("underscore")
+    of "italic": get_ansi("italic")
+    of "blink": get_ansi("blink")
+    of "blinkrapid": get_ansi("blinkrapid")
+    of "reverse": get_ansi("reverse")
+    of "hidden": get_ansi("hidden")
+    of "strikethrough": get_ansi("strikethrough")
+    else: ""
+
+    if a != "": s.add(a)
+  
+  return s
 
 proc fix_path*(path:string): string =
   var path = expandTilde(path)

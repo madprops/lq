@@ -53,7 +53,7 @@ proc format_size*(file:QFile): string =
     else: &"{int(fsize)} B"
   return &" ({size})"
 
-proc get_fg_color*(kind:PathComponent): string =
+proc get_kind_color*(kind:PathComponent): string =
   case kind
   of pcDir: 
     get_ansi(conf().dirscolor)
@@ -82,7 +82,7 @@ proc print_title*(title:string, n:int, level:int) =
   var brk = "\n"
   let c1 = get_ansi(conf().titlescolor)
   let c2 = get_ansi(conf().countcolor)
-  log(&"{brk}{c1}{get_ansi(ansi_bright)}{title}{reset()} {c2}({n})")
+  log(&"{brk}{c1}{title}{reset()} {c2}({n})")
 
 proc format_item*(file:QFile, path:string, level:int): (string, int) =
   var scount = ""
@@ -98,7 +98,7 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
       &" ({ni})"
     else: ""
 
-  let c1 = get_fg_color(file.kind)
+  let c1 = get_kind_color(file.kind)
   let c2 = get_ansi(conf().countcolor)
   let prefix = if conf().prefix: get_prefix(file.kind) else: ""
   let perms = if conf().permissions: format_perms(file.perms) else: ""
