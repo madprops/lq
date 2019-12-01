@@ -4,6 +4,7 @@ import os
 import strformat
 import strutils
 import times
+import tables
 
 type QFile* = object
   kind*: PathComponent
@@ -12,17 +13,26 @@ type QFile* = object
   date*: int64
   perms*: string
 
+# This stores file info to be recycled
+# instead of it getting fetched again
+var info_cache = initTable[string, FileInfo]()
+
+proc get_info*(path:string): FileInfo =
+  try:
+    if info_cache.hasKey(path):
+      return info_cache[path]
+    else:
+      let info = getFileInfo(path)
+      info_cache.add(path, info)
+      return info
+  except:
+    return FileInfo()
+
 proc posix_perms*(info:FileInfo): string =
   result.add([pcFile: '-', 'l', pcDir: 'd', 'l'][info.kind])
   for i, fp in [fpUserRead, fpUserWrite, fpUserExec, fpGroupRead, fpGroupWrite,
     fpGroupExec, fpOthersRead, fpOthersWrite, fpOthersExec]:
-      result.add(if fp in info.permissions: "rwx"[i mod 3] else: '-')
-
-proc get_info*(path:string): FileInfo =
-  try:
-    return getFileInfo(path)
-  except:
-    return FileInfo()
+      result.add(if fp in info.permissions: "rwx"[i mod 3] else: '-')    
 
 proc calculate_dir*(path:string): QFile =
   var size: int64 = 0

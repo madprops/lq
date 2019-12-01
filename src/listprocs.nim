@@ -10,7 +10,6 @@ import terminal
 import times
 
 var spaced* = false
-
 proc list_dir*(path:string, level=0)
 
 proc show_files(files:seq[QFile], path:string, level=0, last=false) =
