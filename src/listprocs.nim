@@ -299,9 +299,9 @@ proc list_dir*(path:string, level=0) =
       
   else:
     if level > 0 and no_items():
-      if msg == "": msg = "(Empty)"
-      let c1 = get_ansi(conf().headercolor)
-      log(&"{get_level_space(level)}{c1}{msg}")
+      if msg != "":
+        let c1 = get_ansi(conf().labelscolor)
+        log(&"{get_level_space(level)}{c1}{msg}")
     else:
       sort_lists()
       if not conf().reverse:
