@@ -5,6 +5,8 @@ import strformat
 import strutils
 import times
 import tables
+import sugar
+import sequtils
 
 type QFile* = object
   kind*: PathComponent
@@ -116,6 +118,17 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
         
   let size = if dosize: format_size(file) else: ""
   let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
-  let pth = if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
+  var pth = if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
+
+  if conf().filter != "" and conf().filtermatchcolor.filter(x => x.len > 0).len > 0:
+    echo 11111
+    let lc = pth.toLower()
+    let f = conf().filter
+    let i = lc.find(f)
+    if i != -1:
+      let cm = get_ansi(conf().filtermatchcolor)
+      pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
+        &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
+
   let s = &"{c1}{levs}{prefix}{pth}{size}{perms}{c2}{scount}"
   return (s, clen)

@@ -41,6 +41,7 @@ type Config* = ref object
   headercolor*: seq[string]
   countcolor*: seq[string]
   labelscolor*: seq[string]
+  filtermatchcolor*: seq[string]
 
 var oconf*: Config
 var first_print* = false
@@ -106,7 +107,7 @@ proc get_config*() =
       quit(0)
 
   oconf = Config(
-    path: path.value, 
+    path: path.value,
     just_dirs: just_dirs.used, 
     just_files: just_files.used,
     absolute: absolute.used,
@@ -154,6 +155,8 @@ proc conf*(): Config =
   return oconf
 
 proc check_config_file() =
+  oconf.path = fix_path(oconf.path)
+
   oconf.headercolor = @["bright"]
   oconf.titlescolor = @["bright", "magenta"]
   oconf.dirscolor = @["blue"]
@@ -163,6 +166,7 @@ proc check_config_file() =
   oconf.abccolor = @["yellow"]
   oconf.labelscolor = @[""]
   oconf.countcolor = @[""]
+  oconf.filtermatchcolor = @[""]
 
   if oconf.ignore_config: return
 
@@ -220,6 +224,11 @@ proc check_config_file() =
   try:
     let c = colors["count"]
     oconf.countcolor = c.getStr().split(" ")
+  except: discard
+
+  try:
+    let c = colors["filtermatch"]
+    oconf.filtermatchcolor = c.getStr().split(" ")
   except: discard
 
 proc fix_path(path:string): string =

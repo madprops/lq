@@ -5,7 +5,6 @@ import listprocs
 when isMainModule:
   # Config stuff
   get_config()
-  conf().path = fix_path(conf().path)
 
   # First line
   if conf().no_titles and conf().list and 
