@@ -188,19 +188,22 @@ proc list_dir*(path:string, level=0) =
         let full_path = path.joinPath(file.path)
         let short_path = full_path.replace(og_path, "")
 
-        for e in conf().exclude:
-          let rs = re(&"/{e}(/|$)")
-          if full_path.find(rs).isSome and conf().path.find(rs).isNone:
-            if level > 0:
-              if level == 1:
-                msg = "(Excluded)"
-              break filesblock
+        if not aotfilter:
+          for e in conf().exclude:
+            let rs = re(&"/{e}(/|$)")
+            if full_path.find(rs).isSome and conf().path.find(rs).isNone:
+              if level > 0:
+                if level == 1:
+                  msg = "(Excluded)"
+                break filesblock
 
         # Filter
         if aotfilter:
           var cont = true
           for filt in filts:
-            if filt.startsWith(short_path):
+            let rs = re(&"{short_path}(/|$)")
+            let m = filt.find(rs)
+            if m.isSome:
               cont = false
               break
           if cont: continue
