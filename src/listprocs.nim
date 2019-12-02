@@ -30,7 +30,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   let use_abc = conf().abc and not conf().mix
   var abci = -1
   var used_abci = -1
-  var abc_started = false
+  var arroba_placed = false
 
   proc space_item(s:string): string =
     return &"{s}{sp}"
@@ -58,13 +58,18 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
 
     if conf().list: print_line()
   
-  proc add_abc(letter:char) =
+  proc add_abc(letter:char, clen:int): bool =
     if conf().list:
-      log &"\n{$format_abc(letter)}"
+      log &"\n{format_abc(letter)}"
     else:
-      let cs = &"{$format_abc(letter)}{sp}"
+      let cs = &"{format_abc(letter)}{sp}"
+      if conf().fluid:
+        if slen + clen + 3 > limit:
+          print_line()
+          return true
       sline.add(cs)
-      slen += cs.len
+      slen += 3
+    return false
 
   for file in files:
     let fmt = format_item(file, path, level)
@@ -76,19 +81,21 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       let ib = abc.find(sc)
 
       # First @ lines
-      if ib == -1 and not abc_started:
-        add_abc('@')
-        abc_started = true
-      
+      if ib == -1:
+        if not arroba_placed:
+          arroba_placed = true
+          if add_abc('@', clen): 
+            continue
       else:
         # On letter change
         if ib != abci:
-          abc_started = true
+          abci = ib
+          arroba_placed = false
           if not conf().fluid:
             if slen > 0:
               print_line()
-          abci = ib
-          add_abc(abc[ib])
+          if add_abc(abc[ib], clen): 
+            continue
 
     if not conf().list:
       let tots = slen + clen

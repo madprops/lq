@@ -96,6 +96,7 @@ proc print_title*(title:string, n:int, level:int) =
 
 proc format_item*(file:QFile, path:string, level:int): (string, int) =
   var scount = ""
+  
   if conf().dircount:
     scount = case file.kind
     of pcDir, pcLinkToDir:
