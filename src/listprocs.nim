@@ -211,7 +211,7 @@ proc list_dir*(path:string, level=0) =
           var cont = true
           for filt in filts:
             let rs = re(&"{short_path}(/|$)")
-            let m = filt.find(rs)
+            let m = filt.match(rs)
             if m.isSome:
               cont = false
               break
