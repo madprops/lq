@@ -33,6 +33,9 @@ proc log*(s:string, last=false) =
   stdout.writeLine(line)
   if conf().output != "":
     all_output.add(&"{line}\n")
+
+proc dbg*[T](s:T) =
+  if conf().dev: echo s
   
 proc toke*() =
   log ""
