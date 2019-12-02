@@ -46,6 +46,8 @@ var oconf*: Config
 var first_print* = false
 
 proc check_config_file()
+proc fix_path(path:string): string
+proc fix_path_2(path:string): string
 
 proc get_config*() =
   let path = use_arg(name="path", kind="argument", help="Path to a directory")
@@ -98,9 +100,7 @@ proc get_config*() =
   # Output
   var output_path = ""
   if output.used:
-    output_path = output.value
-    if not output_path.startsWith("/"):
-      output_path = getCurrentDir().joinPath(output_path)
+    output_path = fix_path_2(output.value)
     if not dirExists(output_path.parentDir()):
       echo "Invalid output path."
       quit(0)
@@ -221,3 +221,19 @@ proc check_config_file() =
     let c = colors["count"]
     oconf.countcolor = c.getStr().split(" ")
   except: discard
+
+proc fix_path(path:string): string =
+  var path = expandTilde(path)
+  normalizePath(path)
+  if not path.startsWith("/"):
+    path = if conf().dev:
+      getCurrentDir().parentDir().joinPath(path)
+      else: getCurrentDir().joinPath(path)
+  return path
+
+proc fix_path_2(path:string): string =
+  var path = expandTilde(path)
+  normalizePath(path)
+  if not path.startsWith("/"):
+    path = fix_path(conf().path).joinPath(path)
+  return path
