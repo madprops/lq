@@ -17,7 +17,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   var slen = 0
   var cfiles = 0
   let termwidth = terminalWidth()
-  var sline = "\n  "
+  let defsline = if conf().list: "" else: "\n  "
+  var sline = defsline
   var xp = 2
   var sp = ""
   for x in 0..(xp - 1):
@@ -34,36 +35,35 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     return &"{s}{sp}"
   
   proc format_abc(c:char): string =
-    &"{get_ansi(conf().abccolor)}{$c}"
+    &"{get_ansi(conf().abccolor)}{$c}{reset()}"
   
   proc check_last(): bool = 
     last and cfiles == files.len
   
-  proc print_abc() =
-    if abci != -1:
-      if abci == used_abci:
-        return
-      else: used_abci = abci
-    let c = if abci > -1:
-      abc[abci]
-    else: '@'
-
-    let sp = "  "
-    log(&"{sp}{format_abc(c)}")
-  
   proc print_line() =
-    if use_abc and abc_started and not conf().fluid:
-      print_abc()
-
     log(sline.strip(leading=false, trailing=true), check_last())
-
-    sline = "\n  "
+    sline = defsline
     slen = 0
   
   proc add_to_line(s:string, clen:int) =
+    if use_abc and not conf().fluid and not conf().list:
+      if sline == defsline:
+        sline.add("   ")
+        slen += 3
+
     sline.add(space_item(s))
     slen += clen + xp
     inc(cfiles)
+
+    if conf().list: print_line()
+  
+  proc add_abc(letter:char) =
+    if conf().list:
+      log &"\n{$format_abc(letter)}"
+    else:
+      let cs = &"{$format_abc(letter)}{sp}"
+      sline.add(cs)
+      slen += cs.len
 
   for file in files:
     let fmt = format_item(file, path, level)
@@ -73,25 +73,21 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     if use_abc:
       let sc = file.path[0].toLowerAscii()
       let ib = abc.find(sc)
-      if ib == -1:
-        if not abc_started:
-          toke()
-          abc_started = true
+
+      # First @ lines
+      if ib == -1 and not abc_started:
+        add_abc('@')
+        abc_started = true
+      
       else:
+        # On letter change
         if ib != abci:
-          # On letter change
           abc_started = true
-          
-          if conf().fluid:
-            let cs = &"{$format_abc(abc[ib])}{sp}"
-            sline.add(cs)
-            slen += cs.len
-          else:
+          if not conf().fluid:
             if slen > 0:
               print_line()
-            toke()
-
           abci = ib
+          add_abc(abc[ib])
 
     if not conf().list:
       let tots = slen + clen
@@ -106,8 +102,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
         add_to_line(s, clen)
     # List item
     else:
-      inc(cfiles)
-      log(s, check_last())
+      add_to_line(s, clen)
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
@@ -116,7 +111,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     print_line()
   
   if level == 0:
-    if conf().no_titles and conf().list:
+    if conf().no_titles and conf().list and not conf().abc:
       if not last and not spaced: toke()
 
 proc list_dir*(path:string, level=0) =

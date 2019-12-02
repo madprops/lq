@@ -121,6 +121,7 @@ proc get_config*() =
     oconf.list = true
     oconf.no_titles = true
     oconf.reverse = true
+    oconf.abc = false
   
   check_config_file()
 
