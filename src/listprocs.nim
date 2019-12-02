@@ -45,7 +45,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     last and cfiles == files.len
   
   proc print_line() =
-    log(sline.strip(leading=false, trailing=true), check_last())
+    let line = sline.strip(leading=false, trailing=true)
+    log(line, check_last())
     sline = defsline
     slen = 0
   
@@ -124,6 +125,14 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   if level == 0:
     if conf().no_titles and conf().list and not conf().abc:
       if not last and not spaced: toke()
+
+proc print_title*(title:string, n:int, level:int) =
+  if conf().no_titles: return
+  var brk = "\n"
+  let c1 = get_ansi(conf().titlescolor)
+  let c2 = get_ansi(conf().countcolor)
+  let s = &"{brk}{c1}{title}{reset()} {c2}({n})"
+  log(s)
 
 proc list_dir*(path:string, level=0) =
   if level == 0: og_path = path

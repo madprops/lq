@@ -28,6 +28,7 @@ type Config* = ref object
   exclude*: seq[string]
   ignore_config*: bool
   max_width*: int
+  output*: string
 
   # These get specified 
   # in the config file
@@ -55,7 +56,7 @@ proc get_config*() =
   let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
   let list = use_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
   let dircount = use_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
-  let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="o")
+  let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="x")
   let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
@@ -70,6 +71,7 @@ proc get_config*() =
   let exclude = use_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
   let max_width = use_arg(name="max-width", kind="value", help="Maximum horizontal size", alt="w")
   let ignore_config = use_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
+  let output = use_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -91,6 +93,16 @@ proc get_config*() =
       maxw = max_width.value.parseInt()
     except:
       echo "Invalid max-width value."
+      quit(0)
+  
+  # Output
+  var output_path = ""
+  if output.used:
+    output_path = output.value
+    if not output_path.startsWith("/"):
+      output_path = getCurrentDir().joinPath(output_path)
+    if not dirExists(output_path.parentDir()):
+      echo "Invalid output path."
       quit(0)
 
   oconf = Config(
@@ -118,6 +130,7 @@ proc get_config*() =
     exclude: exclude.values,
     ignore_config: ignore_config.used,
     max_width: maxw,
+    output: output_path
   )
 
   if salad.used:

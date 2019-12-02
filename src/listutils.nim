@@ -87,13 +87,6 @@ proc get_level_space*(level:int): string =
     levs.add("    ")
   return levs
 
-proc print_title*(title:string, n:int, level:int) =
-  if conf().no_titles: return
-  var brk = "\n"
-  let c1 = get_ansi(conf().titlescolor)
-  let c2 = get_ansi(conf().countcolor)
-  log(&"{brk}{c1}{title}{reset()} {c2}({n})")
-
 proc format_item*(file:QFile, path:string, level:int): (string, int) =
   var scount = ""
 
@@ -124,4 +117,5 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
   let size = if dosize: format_size(file) else: ""
   let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
   let pth = if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
-  return (&"{c1}{levs}{prefix}{pth}{size}{perms}{c2}{scount}", clen)
+  let s = &"{c1}{levs}{prefix}{pth}{size}{perms}{c2}{scount}"
+  return (s, clen)

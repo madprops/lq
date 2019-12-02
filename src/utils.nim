@@ -23,11 +23,16 @@ type AnsiKind* = enum
   ansi_hidden
   ansi_strikethrough
 
+var all_output* = ""
+
 proc reset*(): string =
   ansiResetCode
 
 proc log*(s:string, last=false) =
-  stdout.writeLine(&"{reset()}{s}")
+  let line = &"{reset()}{s}"
+  stdout.writeLine(line)
+  if conf().output != "":
+    all_output.add(&"{line}\n")
   
 proc toke*() =
   log ""
