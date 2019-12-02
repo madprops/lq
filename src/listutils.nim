@@ -122,7 +122,7 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
 
   if conf().filter != "" and conf().filtermatchcolor.filter(x => x.len > 0).len > 0:
     let lc = pth.toLower()
-    let f = conf().filter
+    let f = conf().filter.toLower()
     let i = lc.find(f)
     if i != -1:
       let cm = get_ansi(conf().filtermatchcolor)
