@@ -121,7 +121,6 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
   var pth = if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
 
   if conf().filter != "" and conf().filtermatchcolor.filter(x => x.len > 0).len > 0:
-    echo 11111
     let lc = pth.toLower()
     let f = conf().filter
     let i = lc.find(f)
