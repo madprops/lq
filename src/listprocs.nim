@@ -9,7 +9,10 @@ import algorithm
 import terminal
 import times
 
+var og_path* = ""
 var spaced* = false
+var aotfilter* = false
+var filts* = newSeq[string]()
 proc list_dir*(path:string, level=0)
 
 proc show_files(files:seq[QFile], path:string, level=0, last=false) =
@@ -123,6 +126,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       if not last and not spaced: toke()
 
 proc list_dir*(path:string, level=0) =
+  if level == 0: og_path = path
   var dirs: seq[QFile]
   var dirlinks: seq[QFile]
   var files: seq[QFile]
@@ -136,8 +140,33 @@ proc list_dir*(path:string, level=0) =
     res = re(conf().filter.replace(re"^re\:", ""))
   else: filter = conf().filter.toLower()
   
-  let info = getFileInfo(path)
+  # Check files ahead of time if filtering a tree
+  if do_filter and level == 0 and conf().tree:
+    aotfilter = true
+
+    for fpath in walkDirRec(path):
+      # Exclude
+      var excluded = false
+      for e in conf().exclude:
+        let rs = re(&"/{e}(/|$)")
+        if fpath.find(rs).isSome:
+          excluded = true
+      
+      if excluded: continue
+      
+      # Add to filts on matches
+      let short_path = fpath.replace(og_path, "")
+
+      if do_regex_filter:
+        let m = short_path.find(res)
+        if m.isSome:
+          filts.add(short_path)
+      else:
+        if short_path.toLower().contains(filter):
+          filts.add(short_path)
   
+  let info = getFileInfo(path)
+
   if info.kind == pcFile or
   info.kind == pcLinkToFile:
     let size = info.size
@@ -156,24 +185,33 @@ proc list_dir*(path:string, level=0) =
   else: # If it's a directory check every file in it
     block filesblock: 
       for file in walkDir(path, relative=true):
-        let fp = path.joinPath(file.path)
+        let full_path = path.joinPath(file.path)
+        let short_path = full_path.replace(og_path, "")
 
         for e in conf().exclude:
           let rs = re(&"/{e}(/|$)")
-          if fp.find(rs).isSome and conf().path.find(rs).isNone:
+          if full_path.find(rs).isSome and conf().path.find(rs).isNone:
             if level > 0:
               if level == 1:
                 msg = "(Excluded)"
               break filesblock
 
         # Filter
-        if do_filter:
-          if do_regex_filter:
-            let m = file.path.find(res)
-            if m.isNone: continue
-          else:
-            if not file.path.toLower().contains(filter):
-              continue
+        if aotfilter:
+          var cont = true
+          for filt in filts:
+            if filt.startsWith(short_path):
+              cont = false
+              break
+          if cont: continue
+        else:
+          if do_filter:
+            if do_regex_filter:
+              let m = file.path.find(res)
+              if m.isNone: continue
+            else:
+              if not file.path.toLower().contains(filter):
+                continue
     
         # Add to proper list
         case file.kind
@@ -184,7 +222,7 @@ proc list_dir*(path:string, level=0) =
           var date: int64 = 0
           var perms = ""
           if conf().datesort or conf().dsize or conf().sizesort:
-            let calc = calculate_dir(fp)
+            let calc = calculate_dir(full_path)
             size = calc.size
             date = calc.date
           if conf().permissions:
@@ -201,7 +239,7 @@ proc list_dir*(path:string, level=0) =
           var date: int64 = 0
           var perms = ""
           if conf().size or conf().sizesort or conf().datesort or conf().permissions:
-            let info = get_info(fp)
+            let info = get_info(full_path)
             if conf().size or conf().sizesort:
               size = info.size
             if conf().datesort:
