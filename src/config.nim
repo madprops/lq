@@ -83,7 +83,6 @@ proc get_config*() =
   add_note("Git Repo: https://github.com/madprops/lq")
 
   parse_args()
-  var ok = true
 
   # Max width
   var maxw = 0
@@ -92,9 +91,7 @@ proc get_config*() =
       maxw = max_width.value.parseInt()
     except:
       echo "Invalid max-width value."
-      ok = false
-  
-  if not ok: quit(0)
+      quit(0)
 
   oconf = Config(
     path: path.value, 
