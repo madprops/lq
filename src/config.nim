@@ -27,6 +27,7 @@ type Config* = ref object
   tree*: bool
   exclude*: seq[string]
   ignore_config*: bool
+  max_width*: int
 
   # These get specified 
   # in the config file
@@ -67,6 +68,7 @@ proc get_config*() =
   let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
   let tree = use_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
   let exclude = use_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
+  let max_width = use_arg(name="max-width", kind="value", help="Maximum horizontal size", alt="w")
   let ignore_config = use_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
   
   # Presets
@@ -81,31 +83,44 @@ proc get_config*() =
   add_note("Git Repo: https://github.com/madprops/lq")
 
   parse_args()
+  var ok = true
+
+  # Max width
+  var maxw = 0
+  if max_width.used:
+    try:
+      maxw = max_width.value.parseInt()
+    except:
+      echo "Invalid max-width value."
+      ok = false
   
+  if not ok: quit(0)
+
   oconf = Config(
-    path:path.value, 
-    just_dirs:just_dirs.used, 
-    just_files:just_files.used,
-    absolute:absolute.used,
-    filter:filter.value,
-    dev:dev.used,
-    list:list.used,
-    prefix:prefix.used,
-    dircount:dircount.used,
-    no_titles:no_titles.used,
-    reverse:reverse.used,
-    fluid:fluid.used,
-    mix:mix.used,
-    abc:abc.used,
-    size:size.used,
-    sizesort:sizesort.used,
-    datesort:datesort.used,
-    header:header.used,
-    permissions:permissions.used,
-    dsize:dsize.used,
-    tree:tree.used,
-    exclude:exclude.values,
-    ignore_config:ignore_config.used
+    path: path.value, 
+    just_dirs: just_dirs.used, 
+    just_files: just_files.used,
+    absolute: absolute.used,
+    filter: filter.value,
+    dev: dev.used,
+    list: list.used,
+    prefix: prefix.used,
+    dircount: dircount.used,
+    no_titles: no_titles.used,
+    reverse: reverse.used,
+    fluid: fluid.used,
+    mix: mix.used,
+    abc: abc.used,
+    size: size.used,
+    sizesort: sizesort.used,
+    datesort: datesort.used,
+    header: header.used,
+    permissions: permissions.used,
+    dsize: dsize.used,
+    tree: tree.used,
+    exclude: exclude.values,
+    ignore_config: ignore_config.used,
+    max_width: maxw,
   )
 
   if salad.used:

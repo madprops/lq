@@ -23,7 +23,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   var sp = ""
   for x in 0..(xp - 1):
     sp.add(" ")
-  let limit = (termwidth - 4)
+  let limit = if conf().max_width > 0 and conf().max_width <= termwidth:
+    (conf().max_width - 4) else: (termwidth - 4)
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   let use_abc = conf().abc and not conf().mix
