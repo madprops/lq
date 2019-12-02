@@ -155,7 +155,7 @@ proc list_dir*(path:string, level=0) =
   
   else: # If it's a directory check every file in it
     block filesblock: 
-      for file in walkDir(path, relative=(not conf().absolute)):
+      for file in walkDir(path, relative=true):
         let fp = path.joinPath(file.path)
 
         for e in conf().exclude:
