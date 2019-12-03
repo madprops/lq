@@ -153,19 +153,19 @@ proc list_dir*(path:string, level=0) =
   if do_filter and level == 0 and conf().tree:
     aotfilter = true
 
-    for fpath in walkDirRec(path):
+    for full_path in walkDirRec(path):
       # Exclude
       var excluded = false
       for e in conf().exclude:
         let rs = re(&"/{e}/.*")
-        if fpath.find(rs).isSome:
+        if full_path.find(rs).isSome and conf().path.find(rs).isNone:
           excluded = true
           break
       
       if excluded: continue
       
       # Add to filts on matches
-      let short_path = fpath.replace(og_path, "")
+      let short_path = full_path.replace(og_path, "")
 
       if do_regex_filter:
         let m = short_path.find(res)
