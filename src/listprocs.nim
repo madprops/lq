@@ -197,7 +197,6 @@ proc list_dir*(path:string, level=0) =
       for file in walkDir(path, relative=true):
         let full_path = path.joinPath(file.path)
         let short_path = full_path.replace(og_path, "")
-        var excluded = false
 
         if not aotfilter:
           for e in conf().exclude:
