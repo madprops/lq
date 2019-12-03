@@ -148,25 +148,26 @@ proc list_dir*(path:string, level=0) =
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
   else: filter = conf().filter.toLower()
+
+  proc check_exclude(short_path:string): bool =
+    for e in conf().exclude:
+      let rs = re(&"{e}/.*")
+      if short_path.find(rs).isSome:
+        return true
+    return false
   
   # Check files ahead of time if filtering a tree
   if do_filter and level == 0 and conf().tree:
     aotfilter = true
 
     for full_path in walkDirRec(path):
-      # Exclude
-      var excluded = false
-      for e in conf().exclude:
-        let rs = re(&"/{e}/.*")
-        if full_path.find(rs).isSome and conf().path.find(rs).isNone:
-          excluded = true
-          break
-      
-      if excluded: continue
-      
-      # Add to filts on matches
       let short_path = full_path.replace(og_path, "")
 
+      # Exclude
+      if check_exclude(short_path):
+        continue
+      
+      # Add to filts on matches
       if do_regex_filter:
         let m = short_path.find(res)
         if m.isSome:
@@ -199,11 +200,9 @@ proc list_dir*(path:string, level=0) =
         let short_path = full_path.replace(og_path, "")
 
         if not aotfilter:
-          for e in conf().exclude:
-            let rs = re(&"/{e}/.*")
-            if full_path.find(rs).isSome and conf().path.find(rs).isNone:
-              msg = "(Excluded)"
-              break filesblock       
+          if check_exclude(short_path):
+            msg = "(Excluded)"
+            break filesblock
 
         # Filter
         if aotfilter:
