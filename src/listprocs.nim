@@ -157,9 +157,10 @@ proc list_dir*(path:string, level=0) =
       # Exclude
       var excluded = false
       for e in conf().exclude:
-        let rs = re(&"/{e}(/|$)")
+        let rs = re(&"/{e}/.*")
         if fpath.find(rs).isSome:
           excluded = true
+          break
       
       if excluded: continue
       
@@ -200,16 +201,10 @@ proc list_dir*(path:string, level=0) =
 
         if not aotfilter:
           for e in conf().exclude:
-            let rs = re(&"/{e}(/|$)")
+            let rs = re(&"/{e}/.*")
             if full_path.find(rs).isSome and conf().path.find(rs).isNone:
-              excluded = true
-              break
-
-        if excluded:
-          if file.kind == pcFile or 
-          file.kind == pcLinkToFile:
-            msg = "(Excluded)"
-            break filesblock          
+              msg = "(Excluded)"
+              break filesblock       
 
         # Filter
         if aotfilter:
