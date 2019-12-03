@@ -89,23 +89,6 @@ proc get_config*() =
 
   parse_args()
 
-  # Max width
-  var maxw = 0
-  if max_width.used:
-    try:
-      maxw = max_width.value.parseInt()
-    except:
-      echo "Invalid max-width value."
-      quit(0)
-  
-  # Output
-  var output_path = ""
-  if output.used:
-    output_path = fix_path_2(output.value)
-    if not dirExists(output_path.parentDir()):
-      echo "Invalid output path."
-      quit(0)
-
   oconf = Config(
     path: path.value,
     just_dirs: just_dirs.used, 
@@ -130,8 +113,8 @@ proc get_config*() =
     tree: tree.used,
     exclude: exclude.values,
     ignore_config: ignore_config.used,
-    max_width: maxw,
-    output: output_path
+    max_width: max_width.getInt(fallback=0),
+    output: output.value,
   )
 
   if salad.used:
@@ -155,8 +138,17 @@ proc conf*(): Config =
   return oconf
 
 proc check_config_file() =
+  # Path
   oconf.path = fix_path(oconf.path)
 
+  # Output
+  if oconf.output != "":
+    oconf.output = fix_path_2(oconf.output)
+    if not dirExists(oconf.output.parentDir()):
+      echo "Invalid output path."
+      quit(0)  
+  
+  # Default colors
   oconf.headercolor = @["bright"]
   oconf.titlescolor = @["bright", "magenta"]
   oconf.dirscolor = @["blue"]
@@ -167,7 +159,8 @@ proc check_config_file() =
   oconf.labelscolor = @[""]
   oconf.countcolor = @[""]
   oconf.filtermatchcolor = @[""]
-
+  
+  # CONFIG FILE 
   if oconf.ignore_config: return
 
   let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
@@ -235,7 +228,7 @@ proc fix_path(path:string): string =
   var path = expandTilde(path)
   normalizePath(path)
   if not path.startsWith("/"):
-    path = if conf().dev:
+    path = if oconf.dev:
       getCurrentDir().parentDir().joinPath(path)
       else: getCurrentDir().joinPath(path)
   return path
@@ -244,5 +237,5 @@ proc fix_path_2(path:string): string =
   var path = expandTilde(path)
   normalizePath(path)
   if not path.startsWith("/"):
-    path = fix_path(conf().path).joinPath(path)
+    path = fix_path(oconf.path).joinPath(path)
   return path
