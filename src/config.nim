@@ -113,7 +113,7 @@ proc get_config*() =
     tree: tree.used,
     exclude: exclude.values,
     ignore_config: ignore_config.used,
-    max_width: max_width.getInt(fallback=0),
+    max_width: max_width.getInt(0),
     output: output.value,
   )
 
