@@ -196,15 +196,20 @@ proc list_dir*(path:string, level=0) =
       for file in walkDir(path, relative=true):
         let full_path = path.joinPath(file.path)
         let short_path = full_path.replace(og_path, "")
+        var excluded = false
 
         if not aotfilter:
           for e in conf().exclude:
             let rs = re(&"/{e}(/|$)")
             if full_path.find(rs).isSome and conf().path.find(rs).isNone:
-              if level > 0:
-                if level == 1:
-                  msg = "(Excluded)"
-                break filesblock
+              excluded = true
+              break
+
+        if excluded:
+          if file.kind == pcFile or 
+          file.kind == pcLinkToFile:
+            msg = "(Excluded)"
+            break filesblock          
 
         # Filter
         if aotfilter:
