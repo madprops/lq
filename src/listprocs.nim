@@ -295,7 +295,7 @@ proc list_dir*(path:string, level=0) =
         print_title("Directories", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirs, path, level, false)
+        show_files(dirs, path, level, last and dirlinks.len == 0)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len, level)
         if level == 0 and first_print and not spaced:
@@ -308,7 +308,7 @@ proc list_dir*(path:string, level=0) =
         print_title("Files", files.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(files, path, level, false)
+        show_files(files, path, level, last and filelinks.len == 0)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len, level)
         if level == 0 and first_print and not spaced:
@@ -360,10 +360,10 @@ proc list_dir*(path:string, level=0) =
     else:
       sort_lists()
       if not conf().reverse:
-        do_dirs()
+        do_dirs(level == 0 and files.len == 0)
         do_files(level == 0)
       else:
-        do_files()
+        do_files(level == 0 and dirs.len == 0)
         do_dirs(level == 0)
 
   if level == 1:
