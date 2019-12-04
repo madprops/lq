@@ -163,7 +163,7 @@ proc check_config_file() =
   oconf.labelscolor = @[""]
   oconf.countcolor = @[""]
   oconf.filtermatchcolor = @[""]
-  oconf.pipescolor = @[""]
+  oconf.pipescolor = @["cyan", "dim"]
   
   # CONFIG FILE 
   if oconf.ignore_config: return

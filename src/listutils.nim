@@ -7,7 +7,6 @@ import times
 import tables
 import sugar
 import sequtils
-import nre
 
 type QFile* = object
   kind*: PathComponent

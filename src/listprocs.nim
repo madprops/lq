@@ -32,7 +32,6 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false, batches:var 
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   let use_abc = conf().abc and not conf().mix
   var abci = -1
-  var used_abci = -1
   var arroba_placed = false
 
   proc space_item(s:string): string =
@@ -292,29 +291,19 @@ proc list_dir*(path:string, level=0) =
   
   proc do_dirs(last=false) =
     if not conf().just_files:
-      if dirs.len > 0:
+      if dirs.len > 0 or dirlinks.len > 0:
         print_title("Directories", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirs, path, level, last and dirlinks.len == 0, batches)
-      if dirlinks.len > 0:
-        print_title("Directory Links", dirlinks.len, level)
-        if level == 0 and first_print and not spaced:
-          if conf().list: toke()
-        show_files(dirlinks, path, level, last, batches)
+        show_files(dirs & dirlinks, path, level, last and dirlinks.len == 0, batches)
       
   proc do_files(last=false) =
     if not conf().just_dirs:  
-      if files.len > 0:
+      if files.len > 0 or filelinks.len > 0:
         print_title("Files", files.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(files, path, level, last and filelinks.len == 0, batches)
-      if filelinks.len > 0:
-        print_title("File Links", filelinks.len, level)
-        if level == 0 and first_print and not spaced:
-          if conf().list: toke()
-        show_files(filelinks, path, level, last, batches)
+        show_files(files & filelinks, path, level, last and filelinks.len == 0, batches)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
