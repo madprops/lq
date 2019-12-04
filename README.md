@@ -35,7 +35,7 @@ Show items in a vertical list.
 ## ABC Mode
 Categorize results by letters.
 
-![](http://i.imgur.com/7m9adHl.jpg)
+![](http://i.imgur.com/qllXg4d.jpg)
 
 ## Filtering with regex
 You can use regex to filter results.
