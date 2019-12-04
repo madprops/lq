@@ -95,10 +95,11 @@ proc get_level_space*(level:int): string =
     levs.add(levspace)
   return levs
 
-proc format_item*(file:QFile, path:string, level:int, index:int, len:int, batches:int): (string, int) =
+proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, label=""): (string, int) =
   var scount = ""
+  var is_label = label != ""
 
-  if conf().dircount:
+  if not is_label and conf().dircount:
     scount = case file.kind
     of pcDir, pcLinkToDir:
       var p = file.path
@@ -109,24 +110,29 @@ proc format_item*(file:QFile, path:string, level:int, index:int, len:int, batche
         inc(ni)
       &" ({ni})"
     else: ""
-
-  let c1 = get_kind_color(file.kind)
-  let c2 = get_ansi(conf().countcolor)
-  let prefix = if conf().prefix: get_prefix(file.kind) else: ""
-  let perms = if conf().permissions: format_perms(file.perms) else: ""
-  levlines[level] = batches == 1 and index == (len - 1)
+  
+  let c1 = if is_label: get_ansi(conf().labelscolor) else: get_kind_color(file.kind)
+  var c2 = ""
+  var prefix = ""
+  var perms = ""
+  if not is_label:
+    c2 = get_ansi(conf().countcolor)
+    prefix = if conf().prefix: get_prefix(file.kind) else: ""
+    perms = if conf().permissions: format_perms(file.perms) else: ""
+    levlines[level] = batches == 1 and index == (len - 1)
   var levs = ""
 
   if conf().tree and level > 0:
     levs = get_ansi(conf().pipescolor)
-    
+
     for lvl in 1..<level:
       if levlines[lvl]:
         levs.add(levspace)
       else:
         levs.add("│   ")
 
-    let icon = if index == (len - 1):
+    let icon = if is_label: "└── "
+    elif index == (len - 1):
       if batches == 1: "└── "
       else: "├── "
     else: "├── "
@@ -144,7 +150,9 @@ proc format_item*(file:QFile, path:string, level:int, index:int, len:int, batche
         
   let size = if dosize: format_size(file) else: ""
   let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
-  var pth = if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
+  var pth = if is_label: label
+  else:
+    if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
 
   if conf().filter != "" and conf().filtermatchcolor.filter(x => x.len > 0).len > 0:
     let lc = pth.toLower()
@@ -154,6 +162,9 @@ proc format_item*(file:QFile, path:string, level:int, index:int, len:int, batche
       let cm = get_ansi(conf().filtermatchcolor)
       pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
         &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
-
+  
   let s = &"{levs}{c1}{prefix}{pth}{size}{perms}{c2}{scount}"
   return (s, clen)
+
+proc show_label*(msg:string, level:int) =
+  log format_item(label=msg, level=level)[0]

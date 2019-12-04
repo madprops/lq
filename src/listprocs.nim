@@ -145,7 +145,6 @@ proc list_dir*(path:string, level=0) =
   let do_filter = conf().filter != ""
   let do_regex_filter = conf().filter.startsWith("re:")
   var filter = ""
-  var msg = ""
   var res: Regex
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
@@ -203,7 +202,7 @@ proc list_dir*(path:string, level=0) =
 
         if not aotfilter:
           if check_exclude(short_path):
-            msg = "(Excluded)"
+            show_label("(Excluded)", level)
             break filesblock
 
         # Filter
@@ -357,28 +356,23 @@ proc list_dir*(path:string, level=0) =
     else: do_all(level == 0)
       
   else:
-    if level > 0 and no_items():
-      if msg != "":
-        let c1 = get_ansi(conf().labelscolor)
-        log(&"{get_level_space(level)}{c1}{msg}")
+    sort_lists()
+
+    if dirs.len > 0:
+      inc(batches)
+    if dirlinks.len > 0:
+      inc(batches) 
+    if files.len > 0:
+      inc(batches)
+    if filelinks.len > 0:
+      inc(batches) 
+
+    if not conf().reverse:
+      do_dirs(level == 0 and files.len == 0)
+      do_files(level == 0)
     else:
-      sort_lists()
-
-      if dirs.len > 0:
-        inc(batches)
-      if dirlinks.len > 0:
-        inc(batches) 
-      if files.len > 0:
-        inc(batches)
-      if filelinks.len > 0:
-        inc(batches) 
-
-      if not conf().reverse:
-        do_dirs(level == 0 and files.len == 0)
-        do_files(level == 0)
-      else:
-        do_files(level == 0 and dirs.len == 0)
-        do_dirs(level == 0)
+      do_files(level == 0 and dirs.len == 0)
+      do_dirs(level == 0)
 
   if level == 1:
     toke()
