@@ -146,13 +146,13 @@ proc check_config_file() =
   # Default colors
   oconf.colors = initTable[string, seq[string]]()
   oconf.colors["header"] = @["bright"]
-  oconf.colors["titles"] = @["bright", "magenta"]
+  oconf.colors["titles"] = @["magenta", "bright"]
   oconf.colors["dirs"] = @["blue"]
   oconf.colors["dirlinks"] = @["cyan"]
   oconf.colors["files"] = @[""]
   oconf.colors["exefiles"] = @["bright"]
   oconf.colors["filelinks"] = @["green"]
-  oconf.colors["exefilelinks"] = @["bright", "green"]
+  oconf.colors["exefilelinks"] = @["green", "bright"]
   oconf.colors["abc"] = @["yellow"]
   oconf.colors["labels"] = @[""]
   oconf.colors["count"] = @[""]
