@@ -32,7 +32,7 @@ Show items in a vertical list.
 
 ![](http://i.imgur.com/gDbc3ag.jpg)
 
-## Using --abc
+## ABC Mode
 Categorize results by letters.
 
 ![](http://i.imgur.com/7m9adHl.jpg)
