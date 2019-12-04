@@ -149,10 +149,10 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
     conf().size
         
   let size = if dosize: format_size(file) else: ""
-  let clen = prefix.len + file.path.len + size.len + scount.len + perms.len
   var pth = if is_label: label
   else:
     if conf().absolute and level == 0: path.joinPath(file.path) else: file.path
+  let clen = prefix.len + pth.len + size.len + scount.len + perms.len
 
   if conf().filter != "" and conf().filtermatchcolor.filter(x => x.len > 0).len > 0:
     let lc = pth.toLower()
