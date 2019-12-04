@@ -7,9 +7,7 @@ Similar to what ls does, except it doesn't have all of its features.
 ### Normal view with --count
 This is how it normally looks.
 
-Here it's using a flag to count the items inside each directory.
-
-![](http://i.imgur.com/4nqtgSp.jpg)
+![](http://i.imgur.com/WPMQoHt.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
@@ -46,16 +44,20 @@ Just add re: to the filter.
 
 Of course you can just use a non regex string to do so.
 
-![](http://i.imgur.com/1qxwL1f.jpg)
+![](http://i.imgur.com/G1I9R25.jpg)
 
 ## Extra information
-Here's using the --prefix and --size flags.
+Here's using:
 
-These show on the left if it's a D (Directory) or F (File).
+`--prefix`
 
-It also shows the size on the right of files.
+`--dsize`
 
-![](http://i.imgur.com/vTrHHFY.jpg)
+`--size`
+
+`--sizesort`
+
+![](http://i.imgur.com/ACrKVxd.jpg)
 
 Here's using the -P (or --permissions) flag:
 
@@ -63,11 +65,7 @@ Here's using the -P (or --permissions) flag:
 
 Here's using the -h (--header) flag:
 
-![](http://i.imgur.com/sVWSOmp.jpg)
-
-Also calculate directory size with -D or --dsize:
-
-![](http://i.imgur.com/dFypcFX.jpg)
+![](http://i.imgur.com/4izEKRH.jpg)
 
 ## Tree View
 
