@@ -118,7 +118,8 @@ proc format_item*(file:QFile, path:string, level:int, index:int, len:int, batche
   var levs = ""
 
   if conf().tree and level > 0:
-    levs = &"{get_ansi(ansi_white)}"
+    levs = get_ansi(conf().pipescolor)
+    
     for lvl in 1..<level:
       if levlines[lvl]:
         levs.add(levspace)

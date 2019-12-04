@@ -73,7 +73,7 @@ Also calculate directory size with -D or --dsize:
 
 This shows directory content in a tree view:
 
-![](http://i.imgur.com/sXBFc4R.jpg)
+![](http://i.imgur.com/UUDRO8R.jpg)
 
 ## Sorting
 
@@ -126,6 +126,6 @@ exclude = [
 ## Color Theme
 It's possible to override the default colors using the config file.
 
-![](http://i.imgur.com/z42bWjI.png)
+![](http://i.imgur.com/z42bWjI.jpg)
 
 ### [All available flags](https://madprops.github.io/lq/)

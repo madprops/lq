@@ -42,6 +42,7 @@ type Config* = ref object
   countcolor*: seq[string]
   labelscolor*: seq[string]
   filtermatchcolor*: seq[string]
+  pipescolor*: seq[string]
 
 var oconf*: Config
 var first_print* = false
@@ -159,6 +160,7 @@ proc check_config_file() =
   oconf.labelscolor = @[""]
   oconf.countcolor = @[""]
   oconf.filtermatchcolor = @[""]
+  oconf.pipescolor = @[""]
   
   # CONFIG FILE 
   if oconf.ignore_config: return
@@ -222,6 +224,11 @@ proc check_config_file() =
   try:
     let c = colors["filtermatch"]
     oconf.filtermatchcolor = c.getStr().split(" ")
+  except: discard
+
+  try:
+    let c = colors["pipes"]
+    oconf.pipescolor = c.getStr().split(" ")
   except: discard
 
 proc fix_path(path:string): string =
