@@ -2,6 +2,7 @@ import os
 import nap
 import parsetoml
 import strutils
+import terminal
 
 type Config* = ref object
   path*: string
@@ -29,6 +30,7 @@ type Config* = ref object
   ignore_config*: bool
   max_width*: int
   output*: string
+  piped*: bool
 
   # These get specified 
   # in the config file
@@ -116,6 +118,7 @@ proc get_config*() =
     ignore_config: ignore_config.used,
     max_width: max_width.getInt(0),
     output: output.value,
+    piped: not isatty(stdout),
   )
 
   if salad.used:

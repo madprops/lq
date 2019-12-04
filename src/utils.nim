@@ -41,6 +41,8 @@ proc toke*() =
   log ""
 
 proc get_ansi*(kind:string): string =
+  if conf().piped: return ""
+  
   case kind
   of "green": ansiForegroundColorCode(fgGreen)
   of "cyan": ansiForegroundColorCode(fgCyan)
