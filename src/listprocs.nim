@@ -15,7 +15,7 @@ var aotfilter* = false
 var filts* = newSeq[string]()
 proc list_dir*(path:string, level=0)
 
-proc show_files(files:seq[QFile], path:string, level=0, last=false) =
+proc show_files(files:seq[QFile], path:string, level=0, last=false, batches:var int) =
   spaced = false
   var slen = 0
   var cfiles = 0
@@ -75,8 +75,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       slen += 3
     return false
 
-  for file in files:
-    let fmt = format_item(file, path, level)
+  for i, file in files:
+    let fmt = format_item(file, path, level, i, files.len, batches)
     let s = fmt[0]
     let clen = fmt[1]
 
@@ -125,6 +125,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   if level == 0:
     if conf().no_titles and conf().list and not conf().abc:
       if not last and not spaced: toke()
+
+  dec(batches)
 
 proc print_title*(title:string, n:int, level:int) =
   if conf().no_titles: return
@@ -287,47 +289,50 @@ proc list_dir*(path:string, level=0) =
       files = files.sortedByIt(it.path.toLower())
       filelinks = filelinks.sortedByIt(it.path.toLower())
   
+  var batches = 0
+  
   proc do_dirs(last=false) =
     if not conf().just_files:
       if dirs.len > 0:
         print_title("Directories", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirs, path, level, last and dirlinks.len == 0)
+        show_files(dirs, path, level, last and dirlinks.len == 0, batches)
       if dirlinks.len > 0:
         print_title("Directory Links", dirlinks.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirlinks, path, level, last)
+        show_files(dirlinks, path, level, last, batches)
       
   proc do_files(last=false) =
-    if not conf().just_dirs:
+    if not conf().just_dirs:  
       if files.len > 0:
         print_title("Files", files.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(files, path, level, last and filelinks.len == 0)
+        show_files(files, path, level, last and filelinks.len == 0, batches)
       if filelinks.len > 0:
         print_title("File Links", filelinks.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(filelinks, path, level, last)
+        show_files(filelinks, path, level, last, batches)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
     var all = dirs & dirlinks & files & filelinks
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()), path, level, last)
+      show_files(all.sortedByIt(it.path.toLower()), path, level, last, batches)
     else:
-      show_files(all, path, level, last)
+      show_files(all, path, level, last, batches)
       
   proc do_all_reverse(last=false) =
     if not conf().mix: sort_lists()
+    inc(batches)
     var all = files & filelinks & dirs & dirlinks
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()), path, level, last)
+      show_files(all.sortedByIt(it.path.toLower()), path, level, last, batches)
     else:
-      show_files(all, path, level, last)
+      show_files(all, path, level, last, batches)
       
   proc total_files(): int =
     dirs.len + dirlinks.len +
@@ -346,6 +351,7 @@ proc list_dir*(path:string, level=0) =
     show_header()
       
   if conf().fluid:
+    inc(batches)
     if conf().reverse:
       do_all_reverse(level == 0)
     else: do_all(level == 0)
@@ -357,6 +363,16 @@ proc list_dir*(path:string, level=0) =
         log(&"{get_level_space(level)}{c1}{msg}")
     else:
       sort_lists()
+
+      if dirs.len > 0:
+        inc(batches)
+      if dirlinks.len > 0:
+        inc(batches) 
+      if files.len > 0:
+        inc(batches)
+      if filelinks.len > 0:
+        inc(batches) 
+
       if not conf().reverse:
         do_dirs(level == 0 and files.len == 0)
         do_files(level == 0)

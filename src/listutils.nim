@@ -7,6 +7,7 @@ import times
 import tables
 import sugar
 import sequtils
+import nre
 
 type QFile* = object
   kind*: PathComponent
@@ -14,6 +15,11 @@ type QFile* = object
   size*: int64
   date*: int64
   perms*: string
+
+# Used to create spaces on levels
+var levspace* = "    "
+var levspace_2* = "\\s\\s\\s\\s"
+var levlines* = initTable[int, bool]()
 
 # This stores file info to be recycled
 # instead of it getting fetched again
@@ -86,10 +92,10 @@ proc get_prefix*(kind:PathComponent): string =
 proc get_level_space*(level:int): string =
   var levs = ""
   for x in 0..<level:
-    levs.add("    ")
+    levs.add(levspace)
   return levs
 
-proc format_item*(file:QFile, path:string, level:int): (string, int) =
+proc format_item*(file:QFile, path:string, level:int, index:int, len:int, batches:int): (string, int) =
   var scount = ""
 
   if conf().dircount:
@@ -108,8 +114,27 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
   let c2 = get_ansi(conf().countcolor)
   let prefix = if conf().prefix: get_prefix(file.kind) else: ""
   let perms = if conf().permissions: format_perms(file.perms) else: ""
-  let levs = get_level_space(level)
-    
+  levlines[level] = batches == 1 and index == (len - 1)
+  var levs = ""
+
+  if conf().tree and level > 0:
+    levs = &"{get_ansi(ansi_white)}"
+    for lvl in 1..<level:
+      if levlines[lvl]:
+        levs.add(levspace)
+      else:
+        levs.add("│   ")
+
+    let icon = if index == (len - 1):
+      if batches == 1: "└── "
+      else: "├── "
+    else: "├── "
+
+    levs.add(icon)
+    levs.add(reset())
+  else:
+    levs = get_level_space(level)
+
   let dosize = case file.kind
   of pcDir, pcLinkToDir:
     conf().dsize
@@ -129,5 +154,5 @@ proc format_item*(file:QFile, path:string, level:int): (string, int) =
       pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
         &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
 
-  let s = &"{c1}{levs}{prefix}{pth}{size}{perms}{c2}{scount}"
+  let s = &"{levs}{c1}{prefix}{pth}{size}{perms}{c2}{scount}"
   return (s, clen)
