@@ -3,6 +3,8 @@ import nap
 import parsetoml
 import strutils
 import terminal
+import sugar
+import sequtils
 
 type Config* = ref object
   path*: string
@@ -32,19 +34,8 @@ type Config* = ref object
   output*: string
   piped*: bool
 
-  # These get specified 
-  # in the config file
-  dirscolor*: seq[string]
-  dirlinkscolor*: seq[string]
-  filescolor*: seq[string]
-  filelinkscolor*: seq[string]
-  abccolor*: seq[string]
-  titlescolor*: seq[string]
-  headercolor*: seq[string]
-  countcolor*: seq[string]
-  labelscolor*: seq[string]
-  filtermatchcolor*: seq[string]
-  pipescolor*: seq[string]
+  # These get specified in the config file
+  colors*: Table[string, seq[string]]
 
 var oconf*: Config
 var first_print* = false
@@ -153,86 +144,43 @@ proc check_config_file() =
       quit(0)  
   
   # Default colors
-  oconf.headercolor = @["bright"]
-  oconf.titlescolor = @["bright", "magenta"]
-  oconf.dirscolor = @["blue"]
-  oconf.dirlinkscolor = @["cyan"]
-  oconf.filescolor = @[""]
-  oconf.filelinkscolor = @["green"]
-  oconf.abccolor = @["yellow"]
-  oconf.labelscolor = @[""]
-  oconf.countcolor = @[""]
-  oconf.filtermatchcolor = @[""]
-  oconf.pipescolor = @["cyan", "dim"]
+  oconf.colors = initTable[string, seq[string]]()
+  oconf.colors["header"] = @["bright"]
+  oconf.colors["titles"] = @["bright", "magenta"]
+  oconf.colors["dirs"] = @["blue"]
+  oconf.colors["dirlinks"] = @["cyan"]
+  oconf.colors["files"] = @[""]
+  oconf.colors["exefiles"] = @["underscore"]
+  oconf.colors["filelinks"] = @["green"]
+  oconf.colors["exefilelinks"] = @["underscore", "green"]
+  oconf.colors["abc"] = @["yellow"]
+  oconf.colors["labels"] = @[""]
+  oconf.colors["count"] = @[""]
+  oconf.colors["filtermatch"] = @[""]
+  oconf.colors["pipes"] = @["cyan", "dim"]
   
   # CONFIG FILE 
   if oconf.ignore_config: return
-
+  
+  # Read and parse the file
   let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
   let table = tom.getTable()
+  
+  # Get excludes
   let exs = table["exclude"]
-
   for i in 0..<exs.len:
     let e = exs[i].getStr()
     if not oconf.exclude.contains(e):
       oconf.exclude.add(e)
-    
+  
+  # Get colors
   let colors = table["colors"]
-
-  try:
-    let c = colors["header"]
-    oconf.headercolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["titles"]
-    oconf.titlescolor = c.getStr().split(" ")
-  except: discard  
-
-  try:
-    let c = colors["dirs"]
-    oconf.dirscolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["dirlinks"]
-    oconf.dirlinkscolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["files"]
-    oconf.filescolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["filelinks"]
-    oconf.filelinkscolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["abc"]
-    oconf.abccolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["labels"]
-    oconf.labelscolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["count"]
-    oconf.countcolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["filtermatch"]
-    oconf.filtermatchcolor = c.getStr().split(" ")
-  except: discard
-
-  try:
-    let c = colors["pipes"]
-    oconf.pipescolor = c.getStr().split(" ")
-  except: discard
+  for key in oconf.colors.keys:
+    try:
+      let c = colors[key]
+      oconf.colors[key] = c.getStr().split(" ")
+        .map(s => s.strip())
+    except: discard
 
 proc fix_path(path:string): string =
   var path = expandTilde(path)

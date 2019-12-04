@@ -73,13 +73,13 @@ proc format_size*(file:QFile): string =
 proc get_kind_color*(kind:PathComponent): string =
   case kind
   of pcDir: 
-    get_ansi(conf().dirscolor)
+    get_ansi(conf().colors["dirs"])
   of pcLinkToDir: 
-    get_ansi(conf().dirlinkscolor)
+    get_ansi(conf().colors["dirlinks"])
   of pcFile:
-    get_ansi(conf().filescolor)
+    get_ansi(conf().colors["files"])
   of pcLinkToFile:
-    get_ansi(conf().filelinkscolor)
+    get_ansi(conf().colors["filelinks"])
 
 proc get_prefix*(kind:PathComponent): string =
   case kind
@@ -97,32 +97,40 @@ proc get_level_space*(level:int): string =
 proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, label=""): (string, int) =
   var scount = ""
   var is_label = label != ""
+  var full_path = path.joinPath(file.path)
 
   if not is_label and conf().dircount:
     scount = case file.kind
     of pcDir, pcLinkToDir:
-      var p = file.path
-      if not file.path.startsWith("/"):
-        p = path.joinPath(file.path)
       var ni = 0
-      for item in walkDir(p):
+      for item in walkDir(full_path):
         inc(ni)
       &" ({ni})"
     else: ""
+
+  var c1 = get_kind_color(file.kind)
   
-  let c1 = if is_label: get_ansi(conf().labelscolor) else: get_kind_color(file.kind)
+  if is_label: c1 = get_ansi(conf().colors["labels"]) else:
+    if file.kind == pcFile or file.kind == pcLinkToFile:
+      let info = if is_label: FileInfo() else: get_info(full_path)
+      if info.permissions.contains(fpUserExec):
+        if file.kind == pcFile:
+          c1 = get_ansi(conf().colors["exefiles"])
+        if file.kind == pcLinkToFile:
+          c1 = get_ansi(conf().colors["exefilelinks"])
+
   var c2 = ""
   var prefix = ""
   var perms = ""
   if not is_label:
-    c2 = get_ansi(conf().countcolor)
+    c2 = get_ansi(conf().colors["count"])
     prefix = if conf().prefix: get_prefix(file.kind) else: ""
     perms = if conf().permissions: format_perms(file.perms) else: ""
     levlines[level] = batches == 1 and index == (len - 1)
   var levs = ""
 
   if conf().tree and level > 0:
-    levs = get_ansi(conf().pipescolor)
+    levs = get_ansi(conf().colors["pipes"])
 
     for lvl in 1..<level:
       if levlines[lvl]:
@@ -149,19 +157,19 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
         
   let size = if dosize: format_size(file) else: ""
   var pth = if is_label: label
-  elif conf().absolute: path.joinPath(file.path) else: file.path
+  elif conf().absolute: full_path else: file.path
   let clen = prefix.len + pth.len + size.len + scount.len + perms.len
 
-  if conf().filter != "" and conf().filtermatchcolor.filter(x => x.len > 0).len > 0:
+  if conf().filter != "" and conf().colors["filtermatch"].filter(x => x.len > 0).len > 0:
     let lc = pth.toLower()
     let f = conf().filter.toLower()
     let i = lc.find(f)
     if i != -1:
-      let cm = get_ansi(conf().filtermatchcolor)
+      let cm = get_ansi(conf().colors["filtermatch"])
       pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
         &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
   
-  let s = &"{levs}{c1}{prefix}{pth}{size}{perms}{c2}{scount}"
+  let s = &"{levs}{c1}{prefix}{pth}{size}{perms}{reset()}{c2}{scount}{reset()}"
   return (s, clen)
 
 proc show_label*(msg:string, level:int) =

@@ -8,6 +8,7 @@ import strutils
 import algorithm
 import terminal
 import times
+import tables
 
 var og_path* = ""
 var spaced* = false
@@ -37,8 +38,9 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false, batches:var 
   proc space_item(s:string): string =
     return &"{s}{sp}"
   
-  proc format_abc(c:char): string =
-    &"{get_ansi(conf().abccolor)}{$c}{reset()}"
+  proc format_abc(letter:char): string =
+    let c = get_ansi(conf().colors["abc"])
+    &"{c}{$letter}{reset()}"
   
   proc check_last(): bool = 
     last and cfiles == files.len
@@ -130,8 +132,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false, batches:var 
 proc print_title*(title:string, n:int, level:int) =
   if conf().no_titles: return
   var brk = "\n"
-  let c1 = get_ansi(conf().titlescolor)
-  let c2 = get_ansi(conf().countcolor)
+  let c1 = get_ansi(conf().colors["titles"])
+  let c2 = get_ansi(conf().colors["count"])
   let s = &"{brk}{c1}{title}{reset()} {c2}({n})"
   log(s)
 
@@ -330,7 +332,7 @@ proc list_dir*(path:string, level=0) =
     total_files() == 0
       
   proc show_header() =
-    let c1 = get_ansi(conf().headercolor)
+    let c1 = get_ansi(conf().colors["header"])
     let n1 = if conf().no_titles: "" else: "\n"
     let n2 = if conf().no_titles: "\n" else: ""
     log &"{n1}{c1}{path}\n({total_files()}) ({posix_perms(info)}){n2}"
