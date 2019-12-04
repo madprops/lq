@@ -71,6 +71,8 @@ Also calculate directory size with -D or --dsize:
 
 ## Tree View
 
+`--tree` or `-t`
+
 This shows directory content in a tree view:
 
 ![](http://i.imgur.com/NS2VS6t.jpg)
