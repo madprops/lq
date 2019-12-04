@@ -73,7 +73,7 @@ Also calculate directory size with -D or --dsize:
 
 This shows directory content in a tree view:
 
-![](http://i.imgur.com/UUDRO8R.jpg)
+![](http://i.imgur.com/8EmsqO0.jpg)
 
 ## Sorting
 
