@@ -4,7 +4,7 @@ This is a simple directory/file listing tool.
 
 Similar to what ls does, except it doesn't have all of its features.
 
-### [All available flags](https://madprops.github.io/lq/)
+### [Click here to see all available flags](https://madprops.github.io/lq/)
 
 ### Normal view with --count
 This is how it normally looks.
