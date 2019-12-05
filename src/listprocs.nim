@@ -165,7 +165,11 @@ proc list_dir*(path:string, level=0) =
     aotfilter = true
 
     for full_path in walkDirRec(path):
-      let short_path = full_path.replace(og_path, "")
+      let short_path = full_path.replace(&"{og_path}/", "")
+
+      if conf().ignore_dots and short_path
+      .extractFileName().startsWith("."):
+        continue
 
       # Exclude
       if check_exclude(short_path):
@@ -201,7 +205,11 @@ proc list_dir*(path:string, level=0) =
     block filesblock: 
       for file in walkDir(path, relative=true):
         let full_path = path.joinPath(file.path)
-        let short_path = full_path.replace(og_path, "")
+        let short_path = full_path.replace(&"{og_path}/", "")
+
+        if conf().ignore_dots and short_path
+          .extractFileName().startsWith("."):
+            continue
 
         if not aotfilter:
           if check_exclude(short_path):

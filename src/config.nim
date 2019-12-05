@@ -33,6 +33,9 @@ type Config* = ref object
   ignore_config*: bool
   max_width*: int
   output*: string
+  ignore_dots*: bool
+
+  # Set automatically
   piped*: bool
 
   # These get specified in the config file
@@ -46,7 +49,7 @@ proc fix_path(path:string): string
 proc fix_path_2(path:string): string
 
 proc get_config*() =
-  let path = use_arg(name="path", kind="argument", help="Path to a directory")
+  let path = use_arg(name="path", kind="argument", value="", help="Path to a directory")
   let just_dirs = use_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
   let just_files = use_arg(name="files", kind="flag", help="Just show files", alt="2")
   let just_execs = use_arg(name="execs", kind="flag", help="Just show executables", alt="3")
@@ -71,6 +74,7 @@ proc get_config*() =
   let max_width = use_arg(name="max-width", kind="value", help="Maximum horizontal size", alt="w")
   let ignore_config = use_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
   let output = use_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
+  let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -86,6 +90,7 @@ proc get_config*() =
   parse_args()
 
   oconf = Config(
+    piped: not isatty(stdout),
     path: path.value,
     just_dirs: just_dirs.used, 
     just_files: just_files.used,
@@ -112,7 +117,7 @@ proc get_config*() =
     ignore_config: ignore_config.used,
     max_width: max_width.getInt(0),
     output: output.value,
-    piped: not isatty(stdout),
+    ignore_dots: ignore_dots.used,
   )
 
   if salad.used:
@@ -187,16 +192,16 @@ proc check_config_file() =
 
 proc fix_path(path:string): string =
   var path = expandTilde(path)
-  normalizePath(path)
   if not path.startsWith("/"):
     path = if oconf.dev:
       getCurrentDir().parentDir().joinPath(path)
       else: getCurrentDir().joinPath(path)
+  normalizePath(path)
   return path
 
 proc fix_path_2(path:string): string =
   var path = expandTilde(path)
-  normalizePath(path)
   if not path.startsWith("/"):
     path = fix_path(oconf.path).joinPath(path)
+  normalizePath(path)
   return path
