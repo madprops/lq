@@ -14,6 +14,7 @@ type QFile* = object
   size*: int64
   date*: int64
   perms*: string
+  exe*: bool
 
 # Used to create spaces on levels
 var levspace* = "    "
@@ -81,12 +82,14 @@ proc get_kind_color*(kind:PathComponent): string =
   of pcLinkToFile:
     get_ansi(conf().colors["filelinks"])
 
-proc get_prefix*(kind:PathComponent): string =
-  case kind
+proc get_prefix*(file:QFile): string =
+  case file.kind
   of pcDir: "[D] "
   of pcLinkToDir: "[d] "
-  of pcFile: "[F] "
-  of pcLinkToFile: "[f] "
+  of pcFile: 
+    if file.exe: "[E] " else: "[F] "
+  of pcLinkToFile: 
+    if file.exe: "[e] " else: "[f] "
 
 proc get_level_space*(level:int): string =
   var levs = ""
@@ -113,7 +116,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
   if is_label: c1 = get_ansi(conf().colors["labels"]) else:
     if file.kind == pcFile or file.kind == pcLinkToFile:
       let info = if is_label: FileInfo() else: get_info(full_path)
-      if info.permissions.contains(fpUserExec):
+      if file.exe:
         if file.kind == pcFile:
           c1 = get_ansi(conf().colors["exefiles"])
         if file.kind == pcLinkToFile:
@@ -124,7 +127,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
   var perms = ""
   if not is_label:
     c2 = get_ansi(conf().colors["count"])
-    prefix = if conf().prefix: get_prefix(file.kind) else: ""
+    prefix = if conf().prefix: get_prefix(file) else: ""
     perms = if conf().permissions: format_perms(file.perms) else: ""
     levlines[level] = batches == 1 and index == (len - 1)
   var levs = ""

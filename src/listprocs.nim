@@ -143,6 +143,8 @@ proc list_dir*(path:string, level=0) =
   var dirlinks: seq[QFile]
   var files: seq[QFile]
   var filelinks: seq[QFile]
+  var exefiles: seq[QFile]
+  var exefilelinks: seq[QFile]
   let do_filter = conf().filter != ""
   let do_regex_filter = conf().filter.startsWith("re:")
   var filter = ""
@@ -233,13 +235,14 @@ proc list_dir*(path:string, level=0) =
           var size: int64 = 0
           var date: int64 = 0
           var perms = ""
+          let info = get_info(full_path)
           if conf().datesort or conf().dsize or conf().sizesort:
             let calc = calculate_dir(full_path)
             size = calc.size
             date = calc.date
           if conf().permissions:
             perms = posix_perms(info)
-          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
+          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:false)
           if file.kind == pcDir:
             dirs.add(qf)
           else:
@@ -250,19 +253,22 @@ proc list_dir*(path:string, level=0) =
           var size: int64 = 0
           var date: int64 = 0
           var perms = ""
+          let info = get_info(full_path)
           if conf().size or conf().sizesort or conf().datesort or conf().permissions:
-            let info = get_info(full_path)
             if conf().size or conf().sizesort:
               size = info.size
             if conf().datesort:
               date = info.lastWriteTime.toUnix()
             if conf().permissions:
               perms = posix_perms(info)
-          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms)
+          let exe = info.permissions.contains(fpUserExec)
+          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:exe)
           if file.kind == pcFile:
-            files.add(qf)
+            if exe: exefiles.add(qf)
+            else: files.add(qf)
           else:
-            filelinks.add(qf)
+            if exe: exefilelinks.add(qf)
+            else: filelinks.add(qf)
         
   proc sort_lists() =
     if conf().sizesort:
@@ -294,7 +300,7 @@ proc list_dir*(path:string, level=0) =
   proc do_dirs(last=false) =
     if not conf().just_files:
       if dirs.len > 0 or dirlinks.len > 0:
-        print_title("Directories", dirs.len, level)
+        print_title("Dircs", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(dirs & dirlinks, path, level, last and dirlinks.len == 0, batches)
@@ -307,9 +313,17 @@ proc list_dir*(path:string, level=0) =
           if conf().list: toke()
         show_files(files & filelinks, path, level, last and filelinks.len == 0, batches)
       
+  proc do_exefiles(last=false) =
+    if not conf().just_dirs:  
+      if exefiles.len > 0 or exefilelinks.len > 0:
+        print_title("Execs", exefiles.len, level)
+        if level == 0 and first_print and not spaced:
+          if conf().list: toke()
+        show_files(exefiles & exefilelinks, path, level, last and exefilelinks.len == 0, batches)
+      
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
-    var all = dirs & dirlinks & files & filelinks
+    var all = dirs & dirlinks & files & filelinks & exefiles & exefilelinks
     if conf().mix:
       show_files(all.sortedByIt(it.path.toLower()), path, level, last, batches)
     else:
@@ -318,7 +332,7 @@ proc list_dir*(path:string, level=0) =
   proc do_all_reverse(last=false) =
     if not conf().mix: sort_lists()
     inc(batches)
-    var all = files & filelinks & dirs & dirlinks
+    var all = files & filelinks & dirs & dirlinks & exefiles & exefilelinks
     if conf().mix:
       show_files(all.sortedByIt(it.path.toLower()), path, level, last, batches)
     else:
@@ -357,11 +371,17 @@ proc list_dir*(path:string, level=0) =
       inc(batches)
     if filelinks.len > 0:
       inc(batches) 
+    if exefiles.len > 0:
+      inc(batches)
+    if exefilelinks.len > 0:
+      inc(batches) 
 
     if not conf().reverse:
       do_dirs(level == 0 and files.len == 0)
       do_files(level == 0)
+      do_exefiles(level == 0)
     else:
+      do_exefiles(level == 0 and dirs.len == 0)
       do_files(level == 0 and dirs.len == 0)
       do_dirs(level == 0)
 
