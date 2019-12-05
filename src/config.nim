@@ -10,6 +10,7 @@ type Config* = ref object
   path*: string
   just_dirs*: bool
   just_files*: bool
+  just_execs*: bool
   absolute*: bool
   filter*: string
   dev*: bool
@@ -48,6 +49,7 @@ proc get_config*() =
   let path = use_arg(name="path", kind="argument", help="Path to a directory")
   let just_dirs = use_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
   let just_files = use_arg(name="files", kind="flag", help="Just show files", alt="2")
+  let just_execs = use_arg(name="execs", kind="flag", help="Just show executables", alt="3")
   let absolute = use_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
   let filter = use_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
   let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
@@ -87,6 +89,7 @@ proc get_config*() =
     path: path.value,
     just_dirs: just_dirs.used, 
     just_files: just_files.used,
+    just_execs: just_execs.used,
     absolute: absolute.used,
     filter: filter.value,
     dev: dev.used,

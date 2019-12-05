@@ -298,7 +298,7 @@ proc list_dir*(path:string, level=0) =
   var batches = 0
   
   proc do_dirs(last=false) =
-    if not conf().just_files:
+    if not conf().just_files and not conf().just_execs:
       if dirs.len > 0 or dirlinks.len > 0:
         print_title("Dircs", dirs.len, level)
         if level == 0 and first_print and not spaced:
@@ -306,7 +306,7 @@ proc list_dir*(path:string, level=0) =
         show_files(dirs & dirlinks, path, level, last and dirlinks.len == 0, batches)
       
   proc do_files(last=false) =
-    if not conf().just_dirs:  
+    if not conf().just_dirs and not conf().just_execs:
       if files.len > 0 or filelinks.len > 0:
         print_title("Files", files.len, level)
         if level == 0 and first_print and not spaced:
@@ -314,7 +314,7 @@ proc list_dir*(path:string, level=0) =
         show_files(files & filelinks, path, level, last and filelinks.len == 0, batches)
       
   proc do_exefiles(last=false) =
-    if not conf().just_dirs:  
+    if not conf().just_dirs and not conf().just_files: 
       if exefiles.len > 0 or exefilelinks.len > 0:
         print_title("Execs", exefiles.len, level)
         if level == 0 and first_print and not spaced:
