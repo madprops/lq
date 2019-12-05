@@ -2,7 +2,7 @@
 
 This is a simple directory/file listing tool.
 
-Similar to what ls does, except it doesn't have all of its features. 
+Similar to what ls and tree do, except it doesn't have all of their features. 
 
 It has different modes to list the contents of a directory. 
 
