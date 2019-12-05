@@ -4,19 +4,12 @@ This is a simple directory/file listing tool.
 
 Similar to what ls does, except it doesn't have all of its features.
 
-### [Click here to see all available flags](https://madprops.github.io/lq/)
+[Click here to see all available flags](https://madprops.github.io/lq/)
 
 ### Normal view with --count
 This is how it normally looks.
 
-![](http://i.imgur.com/WPMQoHt.jpg)
-
-### NEW (Executables)
-Now files are marked as executables or not.
-
-This allows further categorization.
-
-![](http://i.imgur.com/xlSX9M8.jpg)
+![](http://i.imgur.com/Ahnsuyd.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
