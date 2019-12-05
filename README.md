@@ -4,6 +4,8 @@ This is a simple directory/file listing tool.
 
 Similar to what ls does, except it doesn't have all of its features.
 
+### [All available flags](https://madprops.github.io/lq/)
+
 ### Normal view with --count
 This is how it normally looks.
 
@@ -134,5 +136,3 @@ exclude = [
 It's possible to override the default colors using the config file.
 
 ![](http://i.imgur.com/z42bWjI.jpg)
-
-### [All available flags](https://madprops.github.io/lq/)
