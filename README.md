@@ -2,7 +2,11 @@
 
 This is a simple directory/file listing tool.
 
-Similar to what ls does, except it doesn't have all of its features. It has different modes to list the contents of a directory. Most item styles are customizable, you can set for instance that directories should be "bright red" in the config file.
+Similar to what ls does, except it doesn't have all of its features. 
+
+It has different modes to list the contents of a directory. 
+
+Most item styles are customizable, you can set for instance that directories should be "bright red" in the config file.
 
 [Click here to see all available flags](https://madprops.github.io/lq/)
 
