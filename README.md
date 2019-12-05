@@ -21,7 +21,7 @@ Executables are bold.
 
 Details are italic.
 
-![](http://i.imgur.com/AhyfHn6.jpg)
+![](http://i.imgur.com/Qit4sab.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
@@ -44,12 +44,12 @@ It enables --fluid, --mix, and --no-titles.
 ### List Mode
 Show items in a vertical list.
 
-![](http://i.imgur.com/vT9YQH0.jpg)
+![](http://i.imgur.com/FZ6nMh7.jpg)
 
 ## ABC Mode
 Categorize results by letters.
 
-![](http://i.imgur.com/s5Ok8V0.jpg)
+![](http://i.imgur.com/sOFVbss.jpg)
 
 ## Tree Mode
 
@@ -83,7 +83,7 @@ Here's using:
 
 `--count` (-c) (Count items inside directories)
 
-![](http://i.imgur.com/QrI9YdG.jpg)
+![](http://i.imgur.com/pnOeg6x.jpg)
 
 ## Sorting
 
