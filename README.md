@@ -6,7 +6,7 @@ Similar to what ls does, except it doesn't have all of its features.
 
 [Click here to see all available flags](https://madprops.github.io/lq/)
 
-### Normal view with --count
+### Normal View
 This is how it normally looks.
 
 ![](http://i.imgur.com/Ahnsuyd.jpg)
