@@ -348,7 +348,8 @@ proc list_dir*(path:string, level=0) =
       
   proc total_files(): int =
     dirs.len + dirlinks.len +
-    files.len + filelinks.len
+    files.len + filelinks.len +
+    exefiles.len + exefilelinks.len
 
   proc no_items(): bool =
     total_files() == 0

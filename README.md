@@ -26,7 +26,7 @@ It enables --fluid, meaning files, directories, are not in their own block.
 
 Also removes titles with --no-titles.
 
-![](http://i.imgur.com/I9xXxrg.jpg)
+![](http://i.imgur.com/GElGSFc.jpg)
 
 ### Blender Mode
 This is a preset that turns on certain options to make it look like this.
@@ -35,7 +35,7 @@ It enables --fluid, --mix, and --no-titles.
 
 --mix means sort everything in a single list, disregarding type.
 
-![](http://i.imgur.com/CTlYLxe.jpg)
+![](http://i.imgur.com/na6Kbw3.jpg)
 
 ### List Mode
 Show items in a vertical list.
@@ -45,7 +45,15 @@ Show items in a vertical list.
 ## ABC Mode
 Categorize results by letters.
 
-![](http://i.imgur.com/qllXg4d.jpg)
+![](http://i.imgur.com/E0ZW2Xz.jpg)
+
+## Tree Mode
+
+`--tree` or `-t`
+
+This shows directory content in a tree view:
+
+![](http://i.imgur.com/NS2VS6t.jpg)
 
 ## Filtering with regex
 You can use regex to filter results.
@@ -59,31 +67,19 @@ Of course you can just use a non regex string to do so.
 ## Extra information
 Here's using:
 
-`--prefix`
+`--prefix` (-p) (Show a prefix like [D] or [F])
 
-`--dsize`
+`--dsize` (-D) (Show dir size)
 
-`--size`
+`--size` (-z) (Show file size)
 
-`--sizesort`
+`--header` (-h) (Show some context above)
 
-![](http://i.imgur.com/ACrKVxd.jpg)
+`--permissions` (-P) (Show item's permissions)
 
-Here's using the -P (or --permissions) flag:
+`--count` (-c) (Count items inside directories)
 
-![](http://i.imgur.com/u0tkzQL.jpg)
-
-Here's using the -h (--header) flag:
-
-![](http://i.imgur.com/4izEKRH.jpg)
-
-## Tree View
-
-`--tree` or `-t`
-
-This shows directory content in a tree view:
-
-![](http://i.imgur.com/NS2VS6t.jpg)
+![](http://i.imgur.com/VhlfUi4.jpg)
 
 ## Sorting
 
@@ -92,26 +88,6 @@ Sorting is also possible. Either by size or modification date.
 `--sizesort (-i)` for sorting by size (biggest files first)
 
 `--datesort (-d)` for sorting by date (recently modified first)
-
-## Exclude
-
-Excluding files affects modes like --tree
-
-It can be specified multiple times.
-
-i.e myprogram --exclude=bigDir -e=.git -e=target
- 
-It is checked as:
-
-```
-full_path.contains(&"/{e}/")
-```
-
-So if ".git" is excluded then
-
-it will match whatever contains `/.git/` for instance,
-
-and not show its content in the tree view.
 
 ## Config File
 
@@ -132,6 +108,26 @@ exclude = [
   "node_modules"
 ]
 ```
+
+## Exclude
+
+Excluding files affects modes like --tree
+
+It can be specified multiple times.
+
+i.e myprogram --exclude=bigDir -e=.git -e=target
+ 
+It is checked as:
+
+```
+full_path.contains(&"/{e}/")
+```
+
+So if ".git" is excluded then
+
+it will match whatever contains `/.git/` for instance,
+
+and not show its content in the tree view.
 
 ## Color Theme
 It's possible to override the default colors using the config file.
