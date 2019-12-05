@@ -1,6 +1,6 @@
 (Tested only on Linux)
 
-This is a simple directory/file listing tool.
+This is a directory/file listing tool.
 
 Similar to what ls and tree do, except it doesn't have all of their features. 
 
