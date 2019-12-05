@@ -25,6 +25,7 @@ type AnsiKind* = enum
   ansi_reset
 
 var all_output* = ""
+var spaced* = false
 
 proc get_ansi*(kind:string): string =
   if conf().piped: return ""
@@ -105,14 +106,18 @@ proc reset*(): string =
 proc log*(s:string, last=false) =
   let line = &"{reset()}{s}"
   stdout.writeLine(line)
+
   if conf().output != "":
     all_output.add(&"{line}\n")
+
+  spaced = (s == "") or s.endsWith("\n")
 
 proc dbg*[T](s:T) =
   if conf().dev: echo s
   
 proc toke*() =
   log ""
+  spaced = true
 
 proc fix_path*(path:string): string =
   var path = expandTilde(path)

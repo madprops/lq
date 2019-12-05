@@ -11,13 +11,11 @@ import times
 import tables
 
 var og_path* = ""
-var spaced* = false
 var aotfilter* = false
 var filts* = newSeq[string]()
 proc list_dir*(path:string, level=0)
 
 proc show_files(files:seq[QFile], path:string, level=0, last=false, batches:var int) =
-  spaced = false
   var slen = 0
   var cfiles = 0
   let termwidth = terminalWidth()
@@ -394,4 +392,6 @@ proc list_dir*(path:string, level=0) =
 
   if level == 1:
     toke()
-    spaced = true
+  elif level == 0:
+    if not spaced:
+      toke()

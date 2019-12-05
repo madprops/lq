@@ -19,7 +19,9 @@ Symlinks are underlined.
 
 Executables are bold.
 
-![](http://i.imgur.com/6CgXyag.jpg)
+Details are italic.
+
+![](http://i.imgur.com/AhyfHn6.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.

@@ -18,4 +18,3 @@ when isMainModule:
   # output is enabled
   if conf().output != "":
     writeFile(conf().output, all_output)
-    
