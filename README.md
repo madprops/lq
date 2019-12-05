@@ -17,6 +17,8 @@ Items are separated in Directories, Files, and Executables.
 
 Symlinks are underlined.
 
+Executables are bold.
+
 ![](http://i.imgur.com/6CgXyag.jpg)
 
 ### Salad Mode
