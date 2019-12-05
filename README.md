@@ -79,7 +79,7 @@ Here's using:
 
 `--count` (-c) (Count items inside directories)
 
-![](http://i.imgur.com/VhlfUi4.jpg)
+![](http://i.imgur.com/sGcR6aB.jpg)
 
 ## Sorting
 

@@ -133,7 +133,7 @@ proc print_title*(title:string, n:int, level:int) =
   if conf().no_titles: return
   var brk = "\n"
   let c1 = get_ansi(conf().colors["titles"])
-  let c2 = get_ansi(conf().colors["count"])
+  let c2 = get_ansi(conf().colors["details"])
   let s = &"{brk}{c1}{title}{reset()} {c2}({n})"
   log(s)
 
@@ -350,15 +350,13 @@ proc list_dir*(path:string, level=0) =
     dirs.len + dirlinks.len +
     files.len + filelinks.len +
     exefiles.len + exefilelinks.len
-
-  proc no_items(): bool =
-    total_files() == 0
       
   proc show_header() =
     let c1 = get_ansi(conf().colors["header"])
+    let c2 = get_ansi(conf().colors["details"])
     let n1 = if conf().no_titles: "" else: "\n"
     let n2 = if conf().no_titles: "\n" else: ""
-    log &"{n1}{c1}{path}\n{reset()}({total_files()}) ({posix_perms(info)}){n2}"
+    log &"{n1}{c1}{path}\n{reset()}{c2}({total_files()}) ({posix_perms(info)}){n2}"
       
   if level == 0 and conf().header:
     show_header()

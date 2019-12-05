@@ -115,7 +115,6 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
   
   if is_label: c1 = get_ansi(conf().colors["labels"]) else:
     if file.kind == pcFile or file.kind == pcLinkToFile:
-      let info = if is_label: FileInfo() else: get_info(full_path)
       if file.exe:
         if file.kind == pcFile:
           c1 = get_ansi(conf().colors["exefiles"])
@@ -126,7 +125,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
   var prefix = ""
   var perms = ""
   if not is_label:
-    c2 = get_ansi(conf().colors["count"])
+    c2 = get_ansi(conf().colors["details"])
     prefix = if conf().prefix: get_prefix(file) else: ""
     perms = if conf().permissions: format_perms(file.perms) else: ""
     levlines[level] = batches == 1 and index == (len - 1)
@@ -172,7 +171,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
       pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
         &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
   
-  let s = &"{levs}{c1}{prefix}{pth}{size}{perms}{reset()}{c2}{scount}{reset()}"
+  let s = &"{levs}{c1}{c2}{prefix}{reset()}{c1}{pth}{reset()}{c2}{size}{perms}{scount}{reset()}"
   return (s, clen)
 
 proc show_label*(msg:string, level:int) =
