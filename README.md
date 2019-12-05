@@ -9,6 +9,13 @@ This is how it normally looks.
 
 ![](http://i.imgur.com/WPMQoHt.jpg)
 
+### NEW (Executables)
+Now files are marked as executables or not.
+
+This allows further categorization.
+
+![](http://i.imgur.com/xlSX9M8.jpg)
+
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
 
