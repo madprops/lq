@@ -9,6 +9,10 @@ Similar to what ls does, except it doesn't have all of its features.
 ### Normal View
 This is how it normally looks.
 
+Items are separated in Directories, Files, and Executables.
+
+Symlinks have different colors.
+
 ![](http://i.imgur.com/Ahnsuyd.jpg)
 
 ### Salad Mode
