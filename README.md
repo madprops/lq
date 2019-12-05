@@ -36,7 +36,7 @@ It enables --fluid, --mix, and --no-titles.
 ### List Mode
 Show items in a vertical list.
 
-![](http://i.imgur.com/gDbc3ag.jpg)
+![](http://i.imgur.com/YYMBaTj.jpg)
 
 ## ABC Mode
 Categorize results by letters.
