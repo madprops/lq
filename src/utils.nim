@@ -22,23 +22,9 @@ type AnsiKind* = enum
   ansi_reverse
   ansi_hidden
   ansi_strikethrough
+  ansi_reset
 
 var all_output* = ""
-
-proc reset*(): string =
-  ansiResetCode
-
-proc log*(s:string, last=false) =
-  let line = &"{reset()}{s}"
-  stdout.writeLine(line)
-  if conf().output != "":
-    all_output.add(&"{line}\n")
-
-proc dbg*[T](s:T) =
-  if conf().dev: echo s
-  
-proc toke*() =
-  log ""
 
 proc get_ansi*(kind:string): string =
   if conf().piped: return ""
@@ -61,6 +47,7 @@ proc get_ansi*(kind:string): string =
   of "reverse": ansiStyleCode(styleReverse)
   of "hidden": ansiStyleCode(styleHidden)
   of "strikethrough": ansiStyleCode(styleStrikethrough)
+  of "reset": ansiResetCode
   else: ""
 
 proc get_ansi*(kind:AnsiKind): string =
@@ -82,6 +69,7 @@ proc get_ansi*(kind:AnsiKind): string =
   of ansi_reverse: get_ansi("reverse")
   of ansi_hidden: get_ansi("hidden")
   of ansi_strikethrough: get_ansi("strikethrough")
+  of ansi_reset: get_ansi("reset")
 
 proc get_ansi*(list:seq[string]): string =
   var s = ""
@@ -104,11 +92,27 @@ proc get_ansi*(list:seq[string]): string =
     of "reverse": get_ansi("reverse")
     of "hidden": get_ansi("hidden")
     of "strikethrough": get_ansi("strikethrough")
+    of "reset": get_ansi("reset")
     else: ""
 
     if a != "": s.add(a)
   
   return s
+
+proc reset*(): string =
+  get_ansi("reset")
+
+proc log*(s:string, last=false) =
+  let line = &"{reset()}{s}"
+  stdout.writeLine(line)
+  if conf().output != "":
+    all_output.add(&"{line}\n")
+
+proc dbg*[T](s:T) =
+  if conf().dev: echo s
+  
+proc toke*() =
+  log ""
 
 proc fix_path*(path:string): string =
   var path = expandTilde(path)
