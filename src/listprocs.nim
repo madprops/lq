@@ -356,7 +356,7 @@ proc list_dir*(path:string, level=0) =
     let c2 = get_ansi(conf().colors["details"])
     let n1 = if conf().no_titles: "" else: "\n"
     let n2 = if conf().no_titles: "\n" else: ""
-    log &"{n1}{c1}{path}\n{reset()}{c2}({total_files()}) ({posix_perms(info)}){n2}"
+    log &"{n1}{c1}{path} {reset()}{c2}({total_files()}) ({posix_perms(info)}){n2}"
       
   if level == 0 and conf().header:
     show_header()
