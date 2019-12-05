@@ -15,9 +15,9 @@ This is how it normally looks.
 
 Items are separated in Directories, Files, and Executables.
 
-Symlinks have different colors.
+Symlinks are underlined.
 
-![](http://i.imgur.com/LzX5jD1.jpg)
+![](http://i.imgur.com/6CgXyag.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
