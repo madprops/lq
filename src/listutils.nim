@@ -25,7 +25,7 @@ var levlines* = initTable[int, bool]()
 # instead of it getting fetched again
 var info_cache = initTable[string, FileInfo]()
 
-proc get_info*(path:string): FileInfo =
+proc get_info*(path:string, canfail=false): FileInfo =
   try:
     if info_cache.hasKey(path):
       return info_cache[path]
@@ -34,7 +34,11 @@ proc get_info*(path:string): FileInfo =
       info_cache.add(path, info)
       return info
   except:
-    return FileInfo()
+    if canfail:
+      log(&"Error: Can't read '{path}'")
+      quit(0)
+    else:
+      return FileInfo()
 
 proc posix_perms*(info:FileInfo): string =
   result.add([pcFile: '-', 'l', pcDir: 'd', 'l'][info.kind])
@@ -97,7 +101,7 @@ proc get_level_space*(level:int): string =
     levs.add(levspace)
   return levs
 
-proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, label=""): (string, int) =
+proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, label=""): (string, int) =
   var scount = ""
   var is_label = label != ""
   var full_path = path.joinPath(file.path)
@@ -124,11 +128,13 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
   var c2 = ""
   var prefix = ""
   var perms = ""
+  
   if not is_label:
     c2 = get_ansi(conf().colors["details"])
     prefix = if conf().prefix: get_prefix(file) else: ""
     perms = if conf().permissions: format_perms(file.perms) else: ""
-    levlines[level] = batches == 1 and index == (len - 1)
+    levlines[level] = last and index == (len - 1)
+
   var levs = ""
 
   if conf().tree and level > 0:
@@ -142,7 +148,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, batches=0, lab
 
     let icon = if is_label: "└── "
     elif index == (len - 1):
-      if batches == 1: "└── "
+      if last: "└── "
       else: "├── "
     else: "├── "
 
