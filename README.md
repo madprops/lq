@@ -2,7 +2,7 @@
 
 This is a simple directory/file listing tool.
 
-Similar to what ls does, except it doesn't have all of its features.
+Similar to what ls does, except it doesn't have all of its features. It has different modes to list the contents of a directory. Most item styles are customizable, you can set for instance that directories should be "bright red" in the config file.
 
 [Click here to see all available flags](https://madprops.github.io/lq/)
 
@@ -13,7 +13,7 @@ Items are separated in Directories, Files, and Executables.
 
 Symlinks have different colors.
 
-![](http://i.imgur.com/Ahnsuyd.jpg)
+![](http://i.imgur.com/LzX5jD1.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
