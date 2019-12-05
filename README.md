@@ -30,7 +30,7 @@ It enables --fluid, meaning files, directories, are not in their own block.
 
 Also removes titles with --no-titles.
 
-![](http://i.imgur.com/GElGSFc.jpg)
+![](http://i.imgur.com/MrDNwMt.jpg)
 
 ### Blender Mode
 This is a preset that turns on certain options to make it look like this.
@@ -39,17 +39,17 @@ It enables --fluid, --mix, and --no-titles.
 
 --mix means sort everything in a single list, disregarding type.
 
-![](http://i.imgur.com/na6Kbw3.jpg)
+![](http://i.imgur.com/AYRpdgO.jpg)
 
 ### List Mode
 Show items in a vertical list.
 
-![](http://i.imgur.com/YYMBaTj.jpg)
+![](http://i.imgur.com/vT9YQH0.jpg)
 
 ## ABC Mode
 Categorize results by letters.
 
-![](http://i.imgur.com/E0ZW2Xz.jpg)
+![](http://i.imgur.com/s5Ok8V0.jpg)
 
 ## Tree Mode
 
@@ -66,7 +66,7 @@ Just add re: to the filter.
 
 Of course you can just use a non regex string to do so.
 
-![](http://i.imgur.com/G1I9R25.jpg)
+![](http://i.imgur.com/yQBCI1Z.jpg)
 
 ## Extra information
 Here's using:
