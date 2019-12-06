@@ -84,7 +84,7 @@ proc get_config*() =
   let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
   let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
   let snippets = use_arg(name="snippets", kind="flag", help="Show text file snippets", alt="S")
-  let snippets_length = use_arg(name="snippets_length", kind="value", help="Max length of the snippets", alt="n")
+  let snippets_length = use_arg(name="snippets-length", kind="value", help="Max length of the snippets", alt="n")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
