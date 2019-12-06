@@ -34,6 +34,7 @@ type Config* = ref object
   max_width*: int
   output*: string
   ignore_dots*: bool
+  reverse_sort*: bool
 
   # Set automatically
   piped*: bool
@@ -75,6 +76,7 @@ proc get_config*() =
   let ignore_config = use_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
   let output = use_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
   let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
+  let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -118,6 +120,7 @@ proc get_config*() =
     max_width: max_width.getInt(0),
     output: output.value,
     ignore_dots: ignore_dots.used,
+    reverse_sort: reverse_sort.used,
   )
 
   if salad.used:

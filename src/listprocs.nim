@@ -136,11 +136,8 @@ proc print_title*(title:string, n:int, level:int) =
 proc list_dir*(path:string, level=0) =
   if level == 0: og_path = path
   var dirs: seq[QFile]
-  var dirlinks: seq[QFile]
   var files: seq[QFile]
-  var filelinks: seq[QFile]
   var exefiles: seq[QFile]
-  var exefilelinks: seq[QFile]
   let do_filter = conf().filter != ""
   let do_regex_filter = conf().filter.startsWith("re:")
   var filter = ""
@@ -188,10 +185,7 @@ proc list_dir*(path:string, level=0) =
     let date = info.lastWriteTime.toUnix()
     let perms = posix_perms(info)
     let qf = QFile(kind:info.kind, path:path, size:size, date:date, perms:perms)
-    if info.kind == pcFile:
-      files.add(qf)
-    else:
-      filelinks.add(qf)
+    files.add(qf)
     conf().prefix = true
     conf().size = true
     conf().no_titles = true
@@ -247,10 +241,7 @@ proc list_dir*(path:string, level=0) =
           if conf().permissions:
             perms = posix_perms(info)
           let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:false)
-          if file.kind == pcDir:
-            dirs.add(qf)
-          else:
-            dirlinks.add(qf)
+          dirs.add(qf)
             
         # If file
         of pcFile, pcLinkToFile:
@@ -267,82 +258,72 @@ proc list_dir*(path:string, level=0) =
               perms = posix_perms(info)
           let exe = info.permissions.contains(fpUserExec)
           let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:exe)
-          if file.kind == pcFile:
-            if exe: exefiles.add(qf)
-            else: files.add(qf)
-          else:
-            if exe: exefilelinks.add(qf)
-            else: filelinks.add(qf)
+          if exe: exefiles.add(qf)
+          else: files.add(qf)
+  
+  proc sort_list(list: var seq[QFile]) =
+    if conf().sizesort:
+      list = list.sortedByIt(it.size)
+      if not conf().reverse_sort:
+        list.reverse()
+    elif conf().datesort:
+      list = list.sortedByIt(it.date)
+      if not conf().reverse_sort:
+        list.reverse()
+    else:
+      list = list.sortedByIt(it.path.toLower())
+      if conf().reverse_sort:
+        list.reverse()
         
   proc sort_lists() =
-    if conf().sizesort:
-      dirs = dirs.sortedByIt(it.size)
-      dirs.reverse()
-      dirlinks = dirlinks.sortedByIt(it.size)
-      dirlinks.reverse()
-      files = files.sortedByIt(it.size)
-      files.reverse()
-      filelinks = filelinks.sortedByIt(it.size)
-      filelinks.reverse()
-    elif conf().datesort:
-      dirs = dirs.sortedByIt(it.date)
-      dirs.reverse()
-      dirlinks = dirlinks.sortedByIt(it.date)
-      dirlinks.reverse()
-      files = files.sortedByIt(it.date)
-      files.reverse()
-      filelinks = filelinks.sortedByIt(it.date)
-      filelinks.reverse()
-    else:
-      dirs = dirs.sortedByIt(it.path.toLower())
-      dirlinks = dirlinks.sortedByIt(it.path.toLower())
-      files = files.sortedByIt(it.path.toLower())
-      filelinks = filelinks.sortedByIt(it.path.toLower())
+    sort_list(dirs)
+    sort_list(files)
+    sort_list(exefiles)
   
   proc do_dirs(last=false) =
     if not conf().just_files and not conf().just_execs:
-      if dirs.len > 0 or dirlinks.len > 0:
-        print_title("Dircs", dirs.len + dirlinks.len, level)
+      if dirs.len > 0:
+        print_title("Dircs", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirs & dirlinks, path, level, last)
+        show_files(dirs, path, level, last)
       
   proc do_files(last=false) =
     if not conf().just_dirs and not conf().just_execs:
-      if files.len > 0 or filelinks.len > 0:
-        print_title("Files", files.len + filelinks.len, level)
+      if files.len > 0:
+        print_title("Files", files.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(files & filelinks, path, level, last)
+        show_files(files, path, level, last)
       
   proc do_exefiles(last=false) =
     if not conf().just_dirs and not conf().just_files: 
-      if exefiles.len > 0 or exefilelinks.len > 0:
-        print_title("Execs", exefiles.len + exefilelinks.len, level)
+      if exefiles.len > 0:
+        print_title("Execs", exefiles.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(exefiles & exefilelinks, path, level, last)
+        show_files(exefiles, path, level, last)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
-    var all = dirs & dirlinks & files & filelinks & exefiles & exefilelinks
+    var all = dirs & files & exefiles
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()), path, level, last)
+      sort_list(all)
+      show_files(all, path, level, last)
     else:
       show_files(all, path, level, last)
       
   proc do_all_reverse(last=false) =
     if not conf().mix: sort_lists()
-    var all = files & filelinks & dirs & dirlinks & exefiles & exefilelinks
+    var all = files & dirs & exefiles
     if conf().mix:
-      show_files(all.sortedByIt(it.path.toLower()), path, level, last)
+      sort_list(all)
+      show_files(all, path, level, last)
     else:
       show_files(all, path, level, last)
       
   proc total_files(): int =
-    dirs.len + dirlinks.len +
-    files.len + filelinks.len +
-    exefiles.len + exefilelinks.len
+    dirs.len + files.len + exefiles.len
       
   proc show_header() =
     let c1 = get_ansi(conf().colors["header"])
@@ -362,12 +343,12 @@ proc list_dir*(path:string, level=0) =
   else:
     sort_lists()
     if not conf().reverse:
-      do_dirs(files.len == 0 and filelinks.len == 0 and exefiles.len == 0 and exefilelinks.len == 0)
-      do_files(exefiles.len == 0 and exefilelinks.len == 0)
+      do_dirs(files.len == 0 and exefiles.len == 0)
+      do_files(exefiles.len == 0)
       do_exefiles(true)
     else:
-      do_exefiles(files.len == 0 and filelinks.len == 0 and dirs.len == 0 and dirlinks.len == 0)
-      do_files(dirs.len == 0 and dirlinks.len == 0)
+      do_exefiles(files.len == 0 and dirs.len == 0)
+      do_files(dirs.len == 0)
       do_dirs(true)
 
   if level == 1:
