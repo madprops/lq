@@ -15,16 +15,17 @@ var aotfilter* = false
 var filts* = newSeq[string]()
 proc list_dir*(path:string, level=0)
 
+var space_level = 2
+var space = ""
+for x in 0..<space_level:
+  space.add(" ")
+
 proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   var slen = 0
   var cfiles = 0
   let termwidth = terminalWidth()
   let defsline = if conf().list: "" else: "\n  "
   var sline = defsline
-  var xp = 2
-  var sp = ""
-  for x in 0..(xp - 1):
-    sp.add(" ")
   let limit = if conf().max_width > 0 and conf().max_width <= termwidth:
     (conf().max_width - 4) else: (termwidth - 4)
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
@@ -34,7 +35,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   var arroba_placed = false
 
   proc space_item(s:string): string =
-    return &"{s}{sp}"
+    return &"{s}{space}"
   
   proc format_abc(letter:char): string =
     let c = get_ansi(conf().colors["abc"])
@@ -56,7 +57,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
         slen += 3
 
     sline.add(space_item(s))
-    slen += clen + xp
+    slen += clen + space_level
     inc(cfiles)
 
     if conf().list: print_line()
@@ -65,7 +66,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     if conf().list:
       log &"\n{format_abc(letter)}"
     else:
-      let cs = &"{format_abc(letter)}{sp}"
+      let cs = &"{format_abc(letter)}{space}"
       if conf().fluid:
         if slen + clen + 3 > limit:
           print_line()
@@ -328,9 +329,8 @@ proc list_dir*(path:string, level=0) =
   proc show_header() =
     let c1 = get_ansi(conf().colors["header"])
     let c2 = get_ansi(conf().colors["details"])
-    let n1 = if conf().no_titles: "" else: "\n"
-    let n2 = if conf().no_titles: "\n" else: ""
-    log &"{n1}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){n2}"
+    let sp = if conf().no_titles: space else: ""
+    log &"\n{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()})"
       
   if level == 0 and conf().header:
     show_header()
