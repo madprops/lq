@@ -49,16 +49,18 @@ proc posix_perms*(info:FileInfo): string =
       result.add(if fp in info.permissions: "rwx"[i mod 3] else: '-')    
 
 proc calculate_dir*(path:string): QFile =
+  let info = get_info(path)
   var size: int64 = 0
   var date: int64 = 0
   var path = fix_path_2(path)
   for file in walkDirRec(&"{path}"):
-    let info = get_info(file)
-    size += info.size
-    let d = info.lastWriteTime.toUnix()
+    let info2 = get_info(file)
+    size += info2.size
+    let d = info2.lastWriteTime.toUnix()
     if d > date:
       date = d
   
+  date = max(date, info.lastWriteTime.toUnix())
   QFile(size:size, date:date)
 
 proc format_perms*(perms:string): string = 
