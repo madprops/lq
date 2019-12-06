@@ -59,6 +59,16 @@ This shows directory content in a tree view:
 
 ![](http://i.imgur.com/NS2VS6t.jpg)
 
+## Snippets Mode
+
+`--snippets` or `-S`
+
+Show previews of text files.
+
+![](http://i.imgur.com/860r4Fp.jpg)
+
+![](http://i.imgur.com/ak3SY2T.jpg)
+
 ## Filtering with regex
 You can use regex to filter results.
 
