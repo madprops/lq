@@ -133,7 +133,7 @@ proc get_config*() =
     ignore_dots: ignore_dots.used,
     reverse_sort: reverse_sort.used,
     snippets: snippets.used,
-    snippets_length: snippets_length.getInt(0),
+    snippets_length: snippets_length.getInt(300),
   )
 
   if salad.used:
