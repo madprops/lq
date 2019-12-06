@@ -63,9 +63,9 @@ proc calculate_dir*(path:string): QFile =
 proc format_perms*(perms:string): string = 
     &" ({perms})"
 
-proc format_size*(file:QFile): string =
-  if file.size == 0: return ""
-  let fsize = float(file.size)
+proc format_size*(size: int64): string =
+  if size == 0: return ""
+  let fsize = float(size)
   let divider: float64 = 1024.0
   let kb: float64 = fsize / divider
   let mb: float64 = kb / divider
@@ -76,8 +76,8 @@ proc format_size*(file:QFile): string =
     else: &"{int(fsize)} B"
   return &" ({size})"
 
-proc format_date*(file:QFile): string =
-  let days = int( float( rightnow - file.date ) / 3600.0 / 24.0 )
+proc format_date*(date:int64): string =
+  let days = int( float( rightnow - date ) / 3600.0 / 24.0 )
   if days == 0:
     return " (Today)"
   if days == 1:
@@ -179,8 +179,8 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   of pcFile, pcLinkToFile:
     conf().date
         
-  let size = if dosize: format_size(file) else: ""
-  let date = if dodate: format_date(file) else: ""
+  let size = if dosize: format_size(file.size) else: ""
+  let date = if dodate: format_date(file.date) else: ""
   var pth = if is_label: label
   elif conf().absolute: full_path else: file.path
   let clen = prefix.len + pth.len + size.len + date.len + scount.len + perms.len
