@@ -219,9 +219,9 @@ proc show_snippet*(full_path:string, level:int) =
   try:
     let content = readFile(full_path)
     if content.strip() != "":
-      let lines = content.substr(0, conf().snippets_length).splitLines()
+      let lines = content.substr(0, conf().snippets_length - 1).splitLines()
       .filter(line => line.strip() != "")
-      .filter(line => line.strip().len > 5)
+      .filter(line => line.strip().len >= 5)
 
       for line in lines:
         show_label(line, level, true)
