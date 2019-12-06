@@ -81,7 +81,7 @@ proc get_config*() =
   let output = use_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
   let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
   let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
-  let deets = use_arg(name="deets", kind="flag", help="Reverse sorting", alt="$")
+  let info = use_arg(name="info", kind="flag", help="Reverse sorting", alt="?")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -145,7 +145,7 @@ proc get_config*() =
     oconf.reverse = true
     oconf.abc = false
   
-  if deets.used:
+  if info.used:
     oconf.size = true
     oconf.dirsize = true
     oconf.date = true

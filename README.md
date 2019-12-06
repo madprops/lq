@@ -89,7 +89,7 @@ Here's using:
 
 ![](http://i.imgur.com/zteReJV.jpg)
 
-There's a shortcut `--deets` (-$) that enables all size and date flags.
+There's a preset `--info` (-?) that enables all size and date flags.
 
 ## Sorting
 
