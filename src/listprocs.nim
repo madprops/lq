@@ -137,7 +137,7 @@ proc list_dir*(path:string, level=0) =
   if level == 0: og_path = path
   var dirs: seq[QFile]
   var files: seq[QFile]
-  var exefiles: seq[QFile]
+  var execs: seq[QFile]
   let do_filter = conf().filter != ""
   let do_regex_filter = conf().filter.startsWith("re:")
   var filter = ""
@@ -258,7 +258,7 @@ proc list_dir*(path:string, level=0) =
               perms = posix_perms(info)
           let exe = info.permissions.contains(fpUserExec)
           let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:exe)
-          if exe: exefiles.add(qf)
+          if exe: execs.add(qf)
           else: files.add(qf)
   
   proc sort_list(list: var seq[QFile]) =
@@ -278,7 +278,7 @@ proc list_dir*(path:string, level=0) =
   proc sort_lists() =
     sort_list(dirs)
     sort_list(files)
-    sort_list(exefiles)
+    sort_list(execs)
   
   proc do_dirs(last=false) =
     if not conf().just_files and not conf().just_execs:
@@ -296,17 +296,17 @@ proc list_dir*(path:string, level=0) =
           if conf().list: toke()
         show_files(files, path, level, last)
       
-  proc do_exefiles(last=false) =
+  proc do_execs(last=false) =
     if not conf().just_dirs and not conf().just_files: 
-      if exefiles.len > 0:
-        print_title("Execs", exefiles.len, level)
+      if execs.len > 0:
+        print_title("Execs", execs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(exefiles, path, level, last)
+        show_files(execs, path, level, last)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
-    var all = dirs & files & exefiles
+    var all = dirs & files & execs
     if conf().mix:
       sort_list(all)
       show_files(all, path, level, last)
@@ -315,7 +315,7 @@ proc list_dir*(path:string, level=0) =
       
   proc do_all_reverse(last=false) =
     if not conf().mix: sort_lists()
-    var all = files & dirs & exefiles
+    var all = files & dirs & execs
     if conf().mix:
       sort_list(all)
       show_files(all, path, level, last)
@@ -323,7 +323,7 @@ proc list_dir*(path:string, level=0) =
       show_files(all, path, level, last)
       
   proc total_files(): int =
-    dirs.len + files.len + exefiles.len
+    dirs.len + files.len + execs.len
       
   proc show_header() =
     let c1 = get_ansi(conf().colors["header"])
@@ -343,11 +343,11 @@ proc list_dir*(path:string, level=0) =
   else:
     sort_lists()
     if not conf().reverse:
-      do_dirs(files.len == 0 and exefiles.len == 0)
-      do_files(exefiles.len == 0)
-      do_exefiles(true)
+      do_dirs(files.len == 0 and execs.len == 0)
+      do_files(execs.len == 0)
+      do_execs(true)
     else:
-      do_exefiles(files.len == 0 and dirs.len == 0)
+      do_execs(files.len == 0 and dirs.len == 0)
       do_files(dirs.len == 0)
       do_dirs(true)
 
