@@ -133,7 +133,7 @@ proc get_config*() =
     ignore_dots: ignore_dots.used,
     reverse_sort: reverse_sort.used,
     snippets: snippets.used,
-    snippets_length: snippets_length.getInt(300),
+    snippets_length: snippets_length.getInt(0),
   )
 
   if salad.used:
@@ -199,22 +199,53 @@ proc check_config_file() =
   # Read and parse the file
   let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
   let table = tom.getTable()
-  
+
   # Get excludes
-  let exs = table["exclude"]
-  for i in 0..<exs.len:
-    let e = exs[i].getStr()
-    if not oconf.exclude.contains(e):
-      oconf.exclude.add(e)
+  try:
+    let exs = table["exclude"]
+    for i in 0..<exs.len:
+      let e = exs[i].getStr()
+      if not oconf.exclude.contains(e):
+        oconf.exclude.add(e)
+  except: discard
+  
+  # Other settings
+
+  try:
+    if oconf.max_width == 0:
+      oconf.max_width = table["max-width"].getInt()
+  except: discard
+
+  try:
+    if oconf.snippets_length == 0:
+      oconf.snippets_length = table["snippets-length"].getInt()
+  except: discard
+
+  try:    
+    if not oconf.no_titles:
+      oconf.no_titles = table["no-titles"].getBool()
+  except: discard
+
+  try:
+    if not oconf.header:
+      oconf.header = table["header"].getBool()
+  except: discard
+
+  try:
+    if not oconf.absolute:
+      oconf.absolute = table["absolute"].getBool()
+  except: discard
   
   # Get colors
-  let colors = table["colors"]
-  for key in oconf.colors.keys:
-    try:
-      let c = colors[key]
-      oconf.colors[key] = c.getStr().split(" ")
-        .map(s => s.strip())
-    except: discard
+  try:
+    let colors = table["colors"]
+    for key in oconf.colors.keys:
+      try:
+        let c = colors[key]
+        oconf.colors[key] = c.getStr().split(" ")
+          .map(s => s.strip())
+      except: discard
+  except: discard
 
 proc fix_path(path:string): string =
   var path = expandTilde(path)
