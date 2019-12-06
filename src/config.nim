@@ -39,9 +39,10 @@ type Config* = ref object
   reverse_sort*: bool
   snippets*: bool
   snippets_length*: int
-
+  
   # Set automatically
   piped*: bool
+  snippets_length_used*: bool
 
   # These get specified in the config file
   colors*: Table[string, seq[string]]
@@ -134,6 +135,7 @@ proc get_config*() =
     reverse_sort: reverse_sort.used,
     snippets: snippets.used,
     snippets_length: snippets_length.getInt(300),
+    snippets_length_used: snippets_length.used
   )
 
   if salad.used:
@@ -222,7 +224,7 @@ proc check_config_file() =
   except: discard
 
   try:
-    if oconf.snippets_length == 0:
+    if not oconf.snippets_length_used:
       oconf.snippets_length = table["snippets-length"].getInt()
   except: discard
 
