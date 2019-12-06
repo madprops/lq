@@ -73,17 +73,21 @@ Here's using:
 
 `--prefix` (-p) (Show a prefix like [D] or [F])
 
-`--dsize` (-D) (Show dir size)
+`--permissions` (-P) (Show item's permissions)
+
+`--date` (-k) (Show the last time files were modified) 
+
+`--dirdate` (-K) (Show the last time directories were modified)
 
 `--size` (-z) (Show file size)
 
-`--header` (-h) (Show some context above)
+`--dirsize` (-Z) (Show dir size)
 
-`--permissions` (-P) (Show item's permissions)
+`--header` (-h) (Show some context above)
 
 `--count` (-c) (Count items inside directories)
 
-![](http://i.imgur.com/pnOeg6x.jpg)
+![](http://i.imgur.com/JUWnqGm.jph)
 
 ## Sorting
 

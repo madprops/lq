@@ -20,6 +20,7 @@ type QFile* = object
 var levspace* = "    "
 var levspace_2* = "\\s\\s\\s\\s"
 var levlines* = initTable[int, bool]()
+var rightnow* = getTime().toUnix()
 
 # This stores file info to be recycled
 # instead of it getting fetched again
@@ -74,6 +75,15 @@ proc format_size*(file:QFile): string =
     elif kb >= 1.0: &"{int(kb)} KB"
     else: &"{int(fsize)} B"
   return &" ({size})"
+
+proc format_date*(file:QFile): string =
+  let days = int( float( rightnow - file.date ) / 3600.0 / 24.0 )
+  if days == 0:
+    return " (Today)"
+  if days == 1:
+    return &" ({days} day)"
+  else:
+    return &" ({days} days)"
 
 proc get_kind_color*(kind:PathComponent): string =
   case kind
@@ -159,14 +169,21 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
 
   let dosize = case file.kind
   of pcDir, pcLinkToDir:
-    conf().dsize
+    conf().dirsize
   of pcFile, pcLinkToFile:
     conf().size
+
+  let dodate = case file.kind
+  of pcDir, pcLinkToDir:
+    conf().dirdate
+  of pcFile, pcLinkToFile:
+    conf().date
         
   let size = if dosize: format_size(file) else: ""
+  let date = if dodate: format_date(file) else: ""
   var pth = if is_label: label
   elif conf().absolute: full_path else: file.path
-  let clen = prefix.len + pth.len + size.len + scount.len + perms.len
+  let clen = prefix.len + pth.len + size.len + date.len + scount.len + perms.len
 
   if conf().filter != "" and conf().colors["filtermatch"].filter(x => x.len > 0).len > 0:
     let lc = pth.toLower()
@@ -177,7 +194,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
       pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
         &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
   
-  let s = &"{levs}{c1}{c2}{prefix}{reset()}{c1}{pth}{reset()}{c2}{size}{perms}{scount}{reset()}"
+  let s = &"{levs}{c1}{c2}{prefix}{reset()}{c1}{pth}{reset()}{c2}{size}{date}{perms}{scount}{reset()}"
   return (s, clen)
 
 proc show_label*(msg:string, level:int) =

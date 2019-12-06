@@ -234,7 +234,7 @@ proc list_dir*(path:string, level=0) =
           var date: int64 = 0
           var perms = ""
           let info = get_info(full_path)
-          if conf().datesort or conf().dsize or conf().sizesort:
+          if conf().datesort or conf().dirsize or conf().sizesort or conf().dirdate:
             let calc = calculate_dir(full_path)
             size = calc.size
             date = calc.date
@@ -249,10 +249,10 @@ proc list_dir*(path:string, level=0) =
           var date: int64 = 0
           var perms = ""
           let info = get_info(full_path)
-          if conf().size or conf().sizesort or conf().datesort or conf().permissions:
+          if conf().size or conf().sizesort or conf().datesort or conf().permissions or conf().date:
             if conf().size or conf().sizesort:
               size = info.size
-            if conf().datesort:
+            if conf().datesort or conf().date:
               date = info.lastWriteTime.toUnix()
             if conf().permissions:
               perms = posix_perms(info)

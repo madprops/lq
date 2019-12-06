@@ -23,7 +23,9 @@ type Config* = ref object
   mix*: bool
   abc*: bool
   size*: bool
-  dsize*: bool
+  date*: bool
+  dirdate*: bool
+  dirsize*: bool
   sizesort*: bool
   datesort*: bool
   header*: bool
@@ -65,7 +67,9 @@ proc get_config*() =
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
   let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
-  let dsize = use_arg(name="dsize", kind="flag", help="Show the size directories", alt="D")
+  let dirsize = use_arg(name="dirsize", kind="flag", help="Show the size directories", alt="Z")
+  let date = use_arg(name="date", kind="flag", help="Show the last modification date on files", alt="k")
+  let dirdate = use_arg(name="dirdate", kind="flag", help="Show the last modification date on directories", alt="K")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort by file size", alt="i")
   let datesort = use_arg(name="datesort", kind="flag", help="Sort by file modification date", alt="d")
   let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
@@ -109,11 +113,13 @@ proc get_config*() =
     mix: mix.used,
     abc: abc.used,
     size: size.used,
+    dirsize: dirsize.used,
+    date: date.used,
+    dirdate: dirdate.used,
     sizesort: sizesort.used,
     datesort: datesort.used,
     header: header.used,
     permissions: permissions.used,
-    dsize: dsize.used,
     tree: tree.used,
     exclude: exclude.values,
     ignore_config: ignore_config.used,
