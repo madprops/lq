@@ -52,7 +52,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     sline = defsline
     slen = 0
     if has_snippet(current_file):
-      show_snippet(path.joinPath(current_file.path), level + 1)
+      let lvl = if conf().tree: level + 1 else: level
+      show_snippet(path.joinPath(current_file.path), lvl)
   
   proc add_to_line(s:string, clen:int) =
     if use_abc and not conf().fluid and not conf().list:

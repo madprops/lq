@@ -172,7 +172,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
         if last: "└── "
         else: "├── "
       else: "├── "
-    else: pipe = " "
+    else: pipe = ""
 
     levs.add(pipe)
     levs.add(reset())
