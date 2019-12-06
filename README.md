@@ -19,8 +19,6 @@ Symlinks are underlined.
 
 Executables are bold.
 
-Details are italic.
-
 ![](http://i.imgur.com/SpBLu0V.jpg)
 
 ### Salad Mode
