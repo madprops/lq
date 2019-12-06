@@ -283,7 +283,7 @@ proc list_dir*(path:string, level=0) =
   proc do_dirs(last=false) =
     if not conf().just_files and not conf().just_execs:
       if dirs.len > 0:
-        print_title("Dircs", dirs.len, level)
+        print_title("Directories", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(dirs, path, level, last)
@@ -299,7 +299,7 @@ proc list_dir*(path:string, level=0) =
   proc do_execs(last=false) =
     if not conf().just_dirs and not conf().just_files: 
       if execs.len > 0:
-        print_title("Execs", execs.len, level)
+        print_title("Executables", execs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
         show_files(execs, path, level, last)

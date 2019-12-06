@@ -21,7 +21,7 @@ Executables are bold.
 
 Details are italic.
 
-![](http://i.imgur.com/Qit4sab.jpg)
+![](http://i.imgur.com/SpBLu0V.jpg)
 
 ### Salad Mode
 This is a preset that turns on certain options to make it look like this.
@@ -44,12 +44,12 @@ It enables --fluid, --mix, and --no-titles.
 ### List Mode
 Show items in a vertical list.
 
-![](http://i.imgur.com/FZ6nMh7.jpg)
+![](http://i.imgur.com/VYrZRy9.jpg)
 
 ## ABC Mode
 Categorize results by letters.
 
-![](http://i.imgur.com/sOFVbss.jpg)
+![](http://i.imgur.com/svvsAoK.jpg)
 
 ## Tree Mode
 
@@ -66,7 +66,7 @@ Just add re: to the filter.
 
 Of course you can just use a non regex string to do so.
 
-![](http://i.imgur.com/yQBCI1Z.jpg)
+![](http://i.imgur.com/Vc1NdLg.jpg)
 
 ## Extra information
 Here's using:
@@ -87,7 +87,7 @@ Here's using:
 
 `--count` (-c) (Count items inside directories)
 
-![](http://i.imgur.com/JUWnqGm.jpg)
+![](http://i.imgur.com/zteReJV.jpg)
 
 ## Sorting
 
