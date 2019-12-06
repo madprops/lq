@@ -65,9 +65,11 @@ This shows directory content in a tree view:
 
 Show previews of text files.
 
-![](http://i.imgur.com/860r4Fp.jpg)
+`--snippets-length` or `-n` can be used to control the snippet size.
 
-![](http://i.imgur.com/ak3SY2T.jpg)
+![](http://i.imgur.com/tatP5m9.jpg)
+
+![](http://i.imgur.com/cWhuZrp.jpg)
 
 ## Filtering with regex
 You can use regex to filter results.
