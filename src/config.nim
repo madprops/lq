@@ -197,8 +197,13 @@ proc check_config_file() =
   if oconf.ignore_config: return
   
   # Read and parse the file
-  let tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
-  let table = tom.getTable()
+  var tom: TomlValueRef
+  var table: TomlTableRef
+
+  try:
+    tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
+    table = tom.getTable()
+  except: return
 
   # Get excludes
   try:
