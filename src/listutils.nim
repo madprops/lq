@@ -64,7 +64,6 @@ proc format_perms*(perms:string): string =
     &" ({perms})"
 
 proc format_size*(size: int64): string =
-  if size == 0: return ""
   let fsize = float(size)
   let divider: float64 = 1024.0
   let kb: float64 = fsize / divider
