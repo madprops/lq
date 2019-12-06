@@ -33,6 +33,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   let use_abc = conf().abc and not conf().mix
   var abci = -1
   var arroba_placed = false
+  var current_file = QFile()
+  var current_index = 0
 
   proc space_item(s:string): string =
     return &"{s}{space}"
@@ -49,6 +51,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     log(line, check_last())
     sline = defsline
     slen = 0
+    if has_snippet(current_file):
+      show_snippet(path.joinPath(current_file.path), level + 1)
   
   proc add_to_line(s:string, clen:int) =
     if use_abc and not conf().fluid and not conf().list:
@@ -76,6 +80,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     return false
 
   for i, file in files:
+    current_index = i
+    current_file = file
     let fmt = format_item(file, path, level, i, files.len, last)
     let s = fmt[0]
     let clen = fmt[1]

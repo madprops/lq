@@ -7,6 +7,7 @@ import times
 import tables
 import sugar
 import sequtils
+import nre
 
 type QFile* = object
   kind*: PathComponent
@@ -118,7 +119,7 @@ proc get_level_space*(level:int): string =
     levs.add(levspace)
   return levs
 
-proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, label=""): (string, int) =
+proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, label="", is_snippet=false): (string, int) =
   var scount = ""
   var is_label = label != ""
   var full_path = path.joinPath(file.path)
@@ -134,7 +135,9 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
 
   var c1 = get_kind_color(file.kind)
   
-  if is_label: c1 = get_ansi(conf().colors["labels"]) else:
+  if is_snippet: c1 = get_ansi(conf().colors["snippets"])
+  elif is_label: c1 = get_ansi(conf().colors["labels"])
+  else:
     if file.kind == pcFile or file.kind == pcLinkToFile:
       if file.exe:
         if file.kind == pcFile:
@@ -145,14 +148,14 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   var c2 = ""
   var prefix = ""
   var perms = ""
+  var pipe = ""
+  var levs = ""
   
   if not is_label:
     c2 = get_ansi(conf().colors["details"])
     prefix = if conf().prefix: get_prefix(file) else: ""
     perms = if conf().permissions: format_perms(file.perms) else: ""
     levlines[level] = last and index == (len - 1)
-
-  var levs = ""
 
   if conf().tree and level > 0:
     levs = get_ansi(conf().colors["pipes"])
@@ -162,14 +165,16 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
         levs.add(levspace)
       else:
         levs.add("│   ")
-
-    let icon = if is_label: "└── "
-    elif index == (len - 1):
-      if last: "└── "
+    
+    if not is_snippet:
+      pipe = if is_label: "└── "
+      elif index == (len - 1):
+        if last: "└── "
+        else: "├── "
       else: "├── "
-    else: "├── "
+    else: pipe = " "
 
-    levs.add(icon)
+    levs.add(pipe)
     levs.add(reset())
   else:
     levs = get_level_space(level)
@@ -204,5 +209,21 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   let s = &"{levs}{c1}{c2}{prefix}{reset()}{c1}{pth}{reset()}{c2}{size}{date}{perms}{scount}{reset()}"
   return (s, clen)
 
-proc show_label*(msg:string, level:int) =
-  log format_item(label=msg, level=level)[0]
+proc show_label*(msg:string, level:int, is_snippet=false) =
+  log format_item(label=msg, level=level, is_snippet=is_snippet)[0]
+
+proc has_snippet*(file:QFile): bool =
+  conf().snippets and not file.exe and (file.kind == pcFile or file.kind == pcLinkToFile)
+
+proc show_snippet*(full_path:string, level:int) =
+  try:
+    let content = readFile(full_path)
+    if content.strip() != "":
+      let lines = content.substr(0, conf().snippets_length).splitLines()
+      .filter(line => line.strip() != "")
+      .filter(line => line.strip().len > 5)
+
+      for line in lines:
+        show_label(line, level, true)
+  except:
+    discard

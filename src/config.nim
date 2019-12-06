@@ -37,6 +37,8 @@ type Config* = ref object
   output*: string
   ignore_dots*: bool
   reverse_sort*: bool
+  snippets*: bool
+  snippets_length*: int
 
   # Set automatically
   piped*: bool
@@ -81,11 +83,13 @@ proc get_config*() =
   let output = use_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
   let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
   let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
-  let info = use_arg(name="info", kind="flag", help="Reverse sorting", alt="?")
+  let snippets = use_arg(name="snippets", kind="flag", help="Show text file snippets", alt="S")
+  let snippets_length = use_arg(name="snippets_length", kind="value", help="Max length of the snippets", alt="n")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
   let blender = use_arg(name="blender", kind="flag", help="Preset to really mix all", alt="b")
+  let info = use_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
   
   # Dev
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
@@ -128,6 +132,8 @@ proc get_config*() =
     output: output.value,
     ignore_dots: ignore_dots.used,
     reverse_sort: reverse_sort.used,
+    snippets: snippets.used,
+    snippets_length: snippets_length.getInt(300),
   )
 
   if salad.used:
@@ -150,6 +156,9 @@ proc get_config*() =
     oconf.dirsize = true
     oconf.date = true
     oconf.dirdate = true
+  
+  if snippets.used:
+    oconf.list = true
   
   check_config_file()
 
@@ -182,6 +191,7 @@ proc check_config_file() =
   oconf.colors["filtermatch"] = @[""]
   oconf.colors["pipes"] = @["cyan", "dim"]
   oconf.colors["details"] = @["italic", "cyan", "dim"]
+  oconf.colors["snippets"] = @["green"]
   
   # CONFIG FILE 
   if oconf.ignore_config: return
