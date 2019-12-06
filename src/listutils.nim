@@ -79,10 +79,17 @@ proc format_date*(date:int64): string =
   let days = int( float( rightnow - date ) / 3600.0 / 24.0 )
   if days == 0:
     return " (Today)"
-  if days == 1:
-    return &" ({days} day)"
+  if days < 365:
+    if days == 1:
+      return &" ({days} day)"
+    else:
+      return &" ({days} days)"
   else:
-    return &" ({days} days)"
+    let years = int( float(days) / 365.0 )
+    if years == 1:
+      return &" ({years} year)"
+    else:
+      return &" ({years} years)"
 
 proc get_kind_color*(kind:PathComponent): string =
   case kind
