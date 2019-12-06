@@ -192,7 +192,7 @@ proc check_config_file() =
   oconf.colors["labels"] = @[""]
   oconf.colors["filtermatch"] = @[""]
   oconf.colors["pipes"] = @["cyan", "dim"]
-  oconf.colors["details"] = @["italic", "cyan", "dim"]
+  oconf.colors["details"] = @["cyan", "dim"]
   oconf.colors["snippets"] = @["green"]
   
   # CONFIG FILE 
