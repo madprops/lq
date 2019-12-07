@@ -39,10 +39,10 @@ type Config* = ref object
   reverse_sort*: bool
   snippets*: bool
   snippets_length*: int
+  mix_files*: bool
   
   # Set automatically
   piped*: bool
-  snippets_length_used*: bool
 
   # These get specified in the config file
   colors*: Table[string, seq[string]]
@@ -85,7 +85,8 @@ proc get_config*() =
   let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
   let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
   let snippets = use_arg(name="snippets", kind="flag", help="Show text file snippets", alt="S")
-  let snippets_length = use_arg(name="snippets-length", kind="value", help="Max length of the snippets", alt="n")
+  let snippets_length = use_arg(name="snippets-length", kind="value", help="Max length of snippets", alt="n")
+  let mix_files = use_arg(name="mix_files", kind="flag", help="Mix files and executables", alt="M")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -134,8 +135,8 @@ proc get_config*() =
     ignore_dots: ignore_dots.used,
     reverse_sort: reverse_sort.used,
     snippets: snippets.used,
-    snippets_length: snippets_length.getInt(300),
-    snippets_length_used: snippets_length.used
+    snippets_length: snippets_length.getInt(0),
+    mix_files: mix_files.used,
   )
 
   if salad.used:
@@ -224,7 +225,7 @@ proc check_config_file() =
   except: discard
 
   try:
-    if not oconf.snippets_length_used:
+    if oconf.snippets_length == 0:
       oconf.snippets_length = table["snippets-length"].getInt()
   except: discard
 

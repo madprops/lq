@@ -266,7 +266,9 @@ proc list_dir*(path:string, level=0) =
               perms = posix_perms(info)
           let exe = info.permissions.contains(fpUserExec)
           let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:exe)
-          if exe: execs.add(qf)
+          if exe:
+            if conf().mix_files: files.add(qf)
+            else: execs.add(qf)
           else: files.add(qf)
   
   proc sort_list(list: var seq[QFile]) =

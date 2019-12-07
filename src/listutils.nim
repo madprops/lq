@@ -221,7 +221,9 @@ proc show_snippet*(full_path:string, level:int) =
   try:
     let content = readFile(full_path)
     if content.strip() == "": return
-    let sample = content.substr(0, conf().snippets_length - 1)
+    var len = conf().snippets_length
+    if len == 0: len = 300
+    let sample = content.substr(0, len - 1)
 
     # Check if it's a binary file
     var num_null = 0
