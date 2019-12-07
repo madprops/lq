@@ -86,7 +86,7 @@ proc get_config*() =
   let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
   let snippets = use_arg(name="snippets", kind="flag", help="Show text file snippets", alt="S")
   let snippets_length = use_arg(name="snippets-length", kind="value", help="Max length of snippets", alt="n")
-  let mix_files = use_arg(name="mix_files", kind="flag", help="Mix files and executables", alt="M")
+  let mix_files = use_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
   
   # Presets
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
@@ -242,6 +242,11 @@ proc check_config_file() =
   try:
     if not oconf.absolute:
       oconf.absolute = table["absolute"].getBool()
+  except: discard
+
+  try:
+    if not oconf.mix_files:
+      oconf.mix_files = table["mix-files"].getBool()
   except: discard
   
   # Get colors
