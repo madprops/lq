@@ -215,7 +215,7 @@ proc show_label*(msg:string, level:int, is_snippet=false) =
   log format_item(label=msg, level=level, is_snippet=is_snippet)[0]
 
 proc has_snippet*(file:QFile): bool =
-  conf().snippets and not file.exe and (file.kind == pcFile or file.kind == pcLinkToFile)
+  conf().snippets and (file.kind == pcFile or file.kind == pcLinkToFile)
 
 proc show_snippet*(full_path:string, level:int) =
   try:
