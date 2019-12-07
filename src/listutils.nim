@@ -220,12 +220,25 @@ proc has_snippet*(file:QFile): bool =
 proc show_snippet*(full_path:string, level:int) =
   try:
     let content = readFile(full_path)
-    if content.strip() != "":
-      let lines = content.substr(0, conf().snippets_length - 1).splitLines()
-      .filter(line => line.strip() != "")
-      .filter(line => line.strip().len >= 5)
+    if content.strip() == "": return
+    let sample = content.substr(0, conf().snippets_length - 1)
 
-      for line in lines:
-        show_label(line, level, true)
+    # Check if it's a binary file
+    var num_null = 0
+
+    for c in sample.substr(0, 512):
+      if c == '\0': inc(num_null)
+    
+    if num_null >= 4:
+      return
+    
+    # Apply some filters
+    let lines = sample.splitLines()
+    .filter(line => line.strip() != "")
+    .filter(line => line.strip().len >= 5)
+    
+    # Print each line
+    for line in lines:
+      show_label(line, level, true)
   except:
     discard
