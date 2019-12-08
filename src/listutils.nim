@@ -237,7 +237,6 @@ proc show_snippet*(full_path:string, level:int) =
     # Apply some filters
     let lines = sample.splitLines()
     .filter(line => line.strip() != "")
-    .filter(line => line.strip().len >= 5)
     
     # Print each line
     for line in lines:
