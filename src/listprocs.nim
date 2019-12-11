@@ -153,6 +153,8 @@ proc list_dir*(path:string, level=0) =
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
   else: filter = conf().filter.toLower()
+  let do_calculate_dirs = conf().dirdatesort or conf().dirsize or 
+    conf().dirsizesort or conf().dirdate
 
   proc check_exclude(short_path:string): bool =
     for e in conf().exclude:
@@ -242,7 +244,7 @@ proc list_dir*(path:string, level=0) =
           var date: int64 = 0
           var perms = ""
           let info = get_info(full_path)
-          if conf().datesort or conf().dirsize or conf().sizesort or conf().dirdate:
+          if do_calculate_dirs:
             let calc = calculate_dir(full_path)
             size = calc.size
             date = calc.date
@@ -272,11 +274,15 @@ proc list_dir*(path:string, level=0) =
           else: files.add(qf)
   
   proc sort_list(list: var seq[QFile]) =
-    if conf().sizesort:
+    if list.len == 0: return
+    let kind = list[0].kind
+    if ((kind == pcFile or kind == pcLinkToFile) and conf().sizesort) or
+    (kind == pcDir and conf().dirsizesort):
       list = list.sortedByIt(it.size)
       if not conf().reverse_sort:
         list.reverse()
-    elif conf().datesort:
+    elif ((kind == pcFile or kind == pcLinkToFile) and conf().sizesort) or
+    (kind == pcDir and conf().dirdatesort):
       list = list.sortedByIt(it.date)
       if not conf().reverse_sort:
         list.reverse()
