@@ -96,6 +96,8 @@ proc get_config*() =
   let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
   let blender = use_arg(name="blender", kind="flag", help="Preset to really mix all", alt="b")
   let info = use_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
+  let allsizesort = use_arg(name="allsizesort", kind="flag", help="Sort files and directories by size", alt="9")
+  let alldatesort = use_arg(name="alldatesort", kind="flag", help="Sort files and directories by date", alt="0")
   
   # Dev
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
@@ -165,6 +167,14 @@ proc get_config*() =
     oconf.dirsize = true
     oconf.date = true
     oconf.dirdate = true
+  
+  if allsizesort.used:
+    oconf.sizesort = true
+    oconf.dirsizesort = true
+    
+  if alldatesort.used:
+    oconf.datesort = true
+    oconf.dirdatesort = true
   
   if snippets.used:
     oconf.list = true

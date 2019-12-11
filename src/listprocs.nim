@@ -281,7 +281,7 @@ proc list_dir*(path:string, level=0) =
       list = list.sortedByIt(it.size)
       if not conf().reverse_sort:
         list.reverse()
-    elif ((kind == pcFile or kind == pcLinkToFile) and conf().sizesort) or
+    elif ((kind == pcFile or kind == pcLinkToFile) and conf().datesort) or
     (kind == pcDir and conf().dirdatesort):
       list = list.sortedByIt(it.date)
       if not conf().reverse_sort:
