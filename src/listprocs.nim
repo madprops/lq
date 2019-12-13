@@ -12,7 +12,7 @@ import tables
 
 var og_path* = ""
 var aotfilter* = false
-var filts* = newSeq[string]()
+var filts*: Table[string, bool]
 proc list_dir*(path:string, level=0)
 
 var space_level = 2
@@ -163,6 +163,13 @@ proc list_dir*(path:string, level=0) =
         return true
     return false
   
+  proc add_filt(short_path:string) =
+    var sp = short_path
+    filts[sp] = true
+    while sp != "":
+      sp = sp.splitPath[0]
+      filts[sp] = true
+  
   let info = get_info(path, level == 0)
   
   # Check files ahead of time if filtering a tree
@@ -184,10 +191,10 @@ proc list_dir*(path:string, level=0) =
       if do_regex_filter:
         let m = short_path.find(res)
         if m.isSome:
-          filts.add(short_path)
+          add_filt(short_path)
       else:
         if short_path.toLower().contains(filter):
-          filts.add(short_path)
+          add_filt(short_path)
 
   if info.kind == pcFile or
   info.kind == pcLinkToFile:
@@ -218,14 +225,8 @@ proc list_dir*(path:string, level=0) =
 
         # Filter
         if aotfilter:
-          var cont = true
-          for filt in filts:
-            let rs = re(&"{short_path}(/|$)")
-            let m = filt.match(rs)
-            if m.isSome:
-              cont = false
-              break
-          if cont: continue
+          if not filts.hasKey(short_path):
+            continue
         else:
           if do_filter:
             if do_regex_filter:
