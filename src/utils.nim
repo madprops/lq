@@ -110,7 +110,7 @@ proc log*(s:string, last=false) =
   if conf().output != "":
     all_output.add(&"{line}\n")
 
-  spaced = (s == "") or s.endsWith("\n")
+  spaced = s == "" or s.endsWith("\n")
 
 proc dbg*[T](s:T) =
   if conf().dev: echo s

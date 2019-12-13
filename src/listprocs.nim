@@ -125,6 +125,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
+        elif file.kind == pcLinkToDir:
+          if level == 0 and not spaced: toke()
 
   if slen > 0:
     print_line()
