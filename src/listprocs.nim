@@ -195,6 +195,9 @@ proc list_dir*(path:string, level=0) =
       else:
         if short_path.toLower().contains(filter):
           add_filt(short_path)
+    
+    if filts.len == 0:
+      quit(0)
 
   if info.kind == pcFile or
   info.kind == pcLinkToFile:
