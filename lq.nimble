@@ -12,5 +12,5 @@ bin           = @["lq"]
 # Dependencies
 
 requires "nim >= 1.0.0"
-requires "nap >= 1.4.2"
+requires "nap >= 1.5.1"
 requires "parsetoml >= 0.5.0"

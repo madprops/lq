@@ -250,6 +250,10 @@ proc list_dir*(path:string, level=0) =
             date = calc.date
           if conf().permissions:
             perms = posix_perms(info)
+          if conf().datesort2:
+            date = info.lastWriteTime.toUnix()
+          if conf().sizesort2:
+            size = info.size
           let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:false)
           dirs.add(qf)
             
@@ -276,16 +280,21 @@ proc list_dir*(path:string, level=0) =
   proc sort_list(list: var seq[QFile]) =
     if list.len == 0: return
     let kind = list[0].kind
-    if ((kind == pcFile or kind == pcLinkToFile) and conf().sizesort) or
-    (kind == pcDir and conf().dirsizesort):
-      list = list.sortedByIt(it.size)
-      if not conf().reverse_sort:
-        list.reverse()
-    elif ((kind == pcFile or kind == pcLinkToFile) and conf().datesort) or
-    (kind == pcDir and conf().dirdatesort):
-      list = list.sortedByIt(it.date)
-      if not conf().reverse_sort:
-        list.reverse()
+    
+    if conf().sizesort and
+      (kind == pcFile or kind == pcLinkToFile) or
+      ((kind == pcDir or kind == pcLinkToDir) and conf().sizesort2):
+        list = list.sortedByIt(it.size)
+        if not conf().reverse_sort:
+          list.reverse()
+
+    elif conf().datesort and
+      (kind == pcFile or kind == pcLinkToFile) or
+      ((kind == pcDir or kind == pcLinkToDir) and conf().datesort2):
+        list = list.sortedByIt(it.date)
+        if not conf().reverse_sort:
+          list.reverse()
+
     else:
       list = list.sortedByIt(it.path.toLower())
       if conf().reverse_sort:

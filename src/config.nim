@@ -27,8 +27,10 @@ type Config* = ref object
   dirdate*: bool
   dirsize*: bool
   sizesort*: bool
+  sizesort2*: bool
   dirsizesort*: bool
   datesort*: bool
+  datesort2*: bool
   dirdatesort*: bool
   header*: bool
   permissions*: bool
@@ -75,9 +77,9 @@ proc get_config*() =
   let dirsize = use_arg(name="dirsize", kind="flag", help="Show the size directories", alt="Z")
   let date = use_arg(name="date", kind="flag", help="Show the last modification date on files", alt="k")
   let dirdate = use_arg(name="dirdate", kind="flag", help="Show the last modification date on directories", alt="K")
-  let sizesort = use_arg(name="sizesort", kind="flag", help="Sort files by size", alt="i")
+  let sizesort = use_arg(name="sizesort", kind="flag", help="Sort files by size. Repeat, like '-ii', to semi-sort directories too", alt="i")
   let dirsizesort = use_arg(name="dirsizesort", kind="flag", help="Sort directories by size", alt="I")
-  let datesort = use_arg(name="datesort", kind="flag", help="Sort files by modification date", alt="d")
+  let datesort = use_arg(name="datesort", kind="flag", help="Sort files by modification date. Repeat, like '-dd', to semi-sort directories too", alt="d")
   let dirdatesort = use_arg(name="dirdatesort", kind="flag", help="Sort directories by modification date", alt="D")
   let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
   let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
@@ -178,6 +180,9 @@ proc get_config*() =
   
   if snippets.used:
     oconf.list = true
+  
+  oconf.sizesort2 = sizesort.used and sizesort.count >= 2
+  oconf.datesort2 = datesort.used and datesort.count >= 2
   
   check_config_file()
 
