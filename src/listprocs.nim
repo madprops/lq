@@ -178,7 +178,7 @@ proc list_dir*(path:string, level=0) =
   if do_filter and level == 0 and conf().tree:
     aotfilter = true
 
-    for full_path in walkDirRec(path):
+    for full_path in walkDirRec(path, yieldFilter={pcFile, pcLinkToFile, pcDir, pcLinkToDir}):
       let short_path = full_path.replace(&"{og_path}/", "")
 
       if conf().ignore_dots and short_path
