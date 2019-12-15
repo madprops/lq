@@ -288,14 +288,14 @@ proc list_dir*(path:string, level=0) =
     
     if conf().sizesort and
       (kind == pcFile or kind == pcLinkToFile) or
-      ((kind == pcDir or kind == pcLinkToDir) and conf().sizesort2):
+      ((kind == pcDir or kind == pcLinkToDir) and (conf().dirsizesort or conf().sizesort2)):
         list = list.sortedByIt(it.size)
         if not conf().reverse_sort:
           list.reverse()
 
     elif conf().datesort and
       (kind == pcFile or kind == pcLinkToFile) or
-      ((kind == pcDir or kind == pcLinkToDir) and conf().datesort2):
+      ((kind == pcDir or kind == pcLinkToDir) and (conf().dirdatesort or conf().datesort2)):
         list = list.sortedByIt(it.date)
         if not conf().reverse_sort:
           list.reverse()
