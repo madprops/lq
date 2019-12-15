@@ -360,7 +360,9 @@ proc list_dir*(path:string, level=0) =
     let c1 = get_ansi(conf().colors["header"])
     let c2 = get_ansi(conf().colors["details"])
     let sp = if conf().no_titles and not conf().list: space else: ""
-    log &"\n{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()})"
+    let brk = if conf().tree: "" else: "\n"
+    let brk2 = if conf().tree: "\n" else: ""
+    log &"{brk}{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){brk2}"
       
   if level == 0 and conf().header:
     show_header()
