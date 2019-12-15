@@ -74,7 +74,7 @@ proc get_config*() =
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
   let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
-  let dirsize = use_arg(name="dirsize", kind="flag", help="Show the size directories", alt="Z")
+  let dirsize = use_arg(name="dirsize", kind="flag", help="Show the size of directories", alt="Z")
   let date = use_arg(name="date", kind="flag", help="Show the last modification date on files", alt="k")
   let dirdate = use_arg(name="dirdate", kind="flag", help="Show the last modification date on directories", alt="K")
   let sizesort = use_arg(name="sizesort", kind="flag", help="Sort files by size. Repeat, like '-ii', to semi-sort directories too", alt="i")
