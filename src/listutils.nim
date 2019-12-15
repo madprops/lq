@@ -135,7 +135,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
     else: ""
 
   var c1 = get_kind_color(file.kind)
-  
+
   if is_snippet: c1 = get_ansi(conf().colors["snippets"])
   elif is_label: c1 = get_ansi(conf().colors["labels"])
   else:
@@ -194,20 +194,18 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
         
   let size = if dosize: format_size(file.size) else: ""
   let date = if dodate: format_date(file.date) else: ""
-  var pth = if is_label: label
+  var path2 = if is_label: label
   elif conf().absolute: full_path else: file.path
-  let clen = prefix.len + pth.len + size.len + date.len + scount.len + perms.len
+  let clen = prefix.len + path2.len + size.len + date.len + scount.len + perms.len
 
   if conf().filter != "" and conf().colors["filtermatch"].filter(x => x.len > 0).len > 0:
-    let lc = pth.toLower()
-    let f = conf().filter.toLower()
-    let i = lc.find(f)
+    let i = path2.find(conf().filter)
     if i != -1:
       let cm = get_ansi(conf().colors["filtermatch"])
-      pth = &"{pth.substr(0, i - 1)}{cm}{pth.substr(i, i + f.len - 1)}" &
-        &"{reset()}{pth.substr(i + f.len, pth.len - 1)}"
+      path2 = &"{path2.substr(0, i - 1)}{cm}{path2.substr(i, i + conf().filter.len - 1)}" &
+        &"{reset()}{path2.substr(i + conf().filter.len, path2.len - 1)}"
   
-  let s = &"{levs}{c1}{c2}{prefix}{reset()}{c1}{pth}{reset()}{c2}{size}{date}{perms}{scount}{reset()}"
+  let s = &"{levs}{c1}{c2}{prefix}{reset()}{c1}{path2}{reset()}{c2}{size}{date}{perms}{scount}{reset()}"
   return (s, clen)
 
 proc show_label*(msg:string, level:int, is_snippet=false) =

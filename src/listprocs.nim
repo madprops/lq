@@ -154,14 +154,13 @@ proc list_dir*(path:string, level=0) =
   var res: Regex
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
-  else: filter = conf().filter.toLower()
+  else: filter = conf().filter
   let do_calculate_dirs = conf().dirdatesort or conf().dirsize or 
     conf().dirsizesort or conf().dirdate
 
   proc check_exclude(short_path:string): bool =
     for e in conf().exclude:
-      let rs = re(&"{e}/.*")
-      if short_path.find(rs).isSome:
+      if short_path.contains(&"{e}{os.DirSep}"):
         return true
     return false
   
@@ -195,7 +194,7 @@ proc list_dir*(path:string, level=0) =
         if m.isSome:
           add_filt(short_path)
       else:
-        if short_path.toLower().contains(filter):
+        if short_path.contains(filter):
           add_filt(short_path)
     
     if filts.len == 0:
@@ -238,7 +237,7 @@ proc list_dir*(path:string, level=0) =
               let m = file.path.find(res)
               if m.isNone: continue
             else:
-              if not file.path.toLower().contains(filter):
+              if not file.path.contains(filter):
                 continue
     
         # Add to proper list
@@ -302,7 +301,7 @@ proc list_dir*(path:string, level=0) =
           list.reverse()
 
     else:
-      list = list.sortedByIt(it.path.toLower())
+      list = list.sortedByIt(it.path)
       if conf().reverse_sort:
         list.reverse()
         
