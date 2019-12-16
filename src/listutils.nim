@@ -125,7 +125,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   var is_label = label != ""
   var full_path = path.joinPath(file.path)
 
-  if not is_label and conf().dircount:
+  if path != "" and conf().dircount:
     scount = case file.kind
     of pcDir, pcLinkToDir:
       var ni = 0
@@ -152,7 +152,7 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   var pipe = ""
   var levs = ""
   
-  if not is_label:
+  if path != "":
     c2 = get_ansi(conf().colors["details"])
     prefix = if conf().prefix: get_prefix(file) else: ""
     perms = if conf().permissions: format_perms(file.perms) else: ""
@@ -180,17 +180,17 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   else:
     levs = get_level_space(level)
 
-  let dosize = case file.kind
+  let dosize = path != "" and (case file.kind
   of pcDir, pcLinkToDir:
     conf().dirsize
   of pcFile, pcLinkToFile:
-    conf().size
+    conf().size)
 
-  let dodate = case file.kind
+  let dodate = path != "" and (case file.kind
   of pcDir, pcLinkToDir:
     conf().dirdate
   of pcFile, pcLinkToFile:
-    conf().date
+    conf().date)
         
   let size = if dosize: format_size(file.size) else: ""
   let date = if dodate: format_date(file.date) else: ""

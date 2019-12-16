@@ -144,6 +144,7 @@ proc print_title*(title:string, n:int, level:int) =
   log(s)
 
 proc list_dir*(path:string, level=0) =
+  var path = path
   if level == 0: og_path = path
   var dirs: seq[QFile]
   var files: seq[QFile]
@@ -157,6 +158,7 @@ proc list_dir*(path:string, level=0) =
   else: filter = conf().filter
   let do_calculate_dirs = conf().dirdatesort or conf().dirsize or 
     conf().dirsizesort or conf().dirdate
+  let info = get_info(path, level == 0)
 
   proc check_exclude(short_path:string): bool =
     for e in conf().exclude:
@@ -171,116 +173,74 @@ proc list_dir*(path:string, level=0) =
       sp = sp.splitPath[0]
       filts[sp] = true
   
-  let info = get_info(path, level == 0)
+  proc process_file(fpath:string): bool =
+    let full_path = path.joinPath(fpath)
+    let short_path = full_path.replace(&"{og_path}{os.DirSep}", "")
+    let info = get_info(full_path)
   
-  # Check files ahead of time if filtering a tree
-  if do_filter and level == 0 and conf().tree:
-    aotfilter = true
-
-    for full_path in walkDirRec(path, yieldFilter={pcFile, pcLinkToFile, pcDir, pcLinkToDir}):
-      let short_path = full_path.replace(&"{og_path}/", "")
-
-      if conf().ignore_dots and short_path
+    if conf().ignore_dots and short_path
       .extractFileName().startsWith("."):
-        continue
-
-      # Exclude
-      if check_exclude(short_path):
-        continue
-      
-      # Add to filts on matches
-      if do_regex_filter:
-        let m = short_path.find(res)
-        if m.isSome:
-          add_filt(short_path)
-      else:
-        if short_path.contains(filter):
-          add_filt(short_path)
-    
-    if filts.len == 0:
-      quit(0)
-
-  if info.kind == pcFile or
-  info.kind == pcLinkToFile:
-    let size = info.size
-    let date = info.lastWriteTime.toUnix()
-    let perms = posix_perms(info)
-    let qf = QFile(kind:info.kind, path:path, size:size, date:date, perms:perms)
-    files.add(qf)
-    conf().prefix = true
-    conf().size = true
-    conf().no_titles = true
-    conf().permissions = true
+        return false
   
-  else: # If it's a directory check every file in it
-    block filesblock: 
-      for file in walkDir(path, relative=true):
-        let full_path = path.joinPath(file.path)
-        let short_path = full_path.replace(&"{og_path}/", "")
-
-        if conf().ignore_dots and short_path
-          .extractFileName().startsWith("."):
-            continue
-
-        if not aotfilter:
-          if check_exclude(short_path):
-            show_label("(Excluded)", level)
-            break filesblock
-
-        # Filter
-        if aotfilter:
-          if not filts.hasKey(short_path):
-            continue
+    if not aotfilter:
+      if check_exclude(short_path):
+        show_label("(Excluded)", level)
+        return true
+  
+    # Filter
+    if aotfilter:
+      if not filts.hasKey(short_path):
+        return false
+    else:
+      if do_filter:
+        if do_regex_filter:
+          let m = fpath.find(res)
+          if m.isNone: return false
         else:
-          if do_filter:
-            if do_regex_filter:
-              let m = file.path.find(res)
-              if m.isNone: continue
-            else:
-              if not file.path.contains(filter):
-                continue
+          if not fpath.contains(filter):
+            return false
+      
+    # Add to proper list
+    case info.kind
+      
+    # If directory
+    of pcDir, pcLinkToDir:
+      var size: int64 = 0
+      var date: int64 = 0
+      var perms = ""
+      if do_calculate_dirs:
+        let calc = calculate_dir(full_path)
+        size = calc.size
+        date = calc.date
+      if conf().permissions:
+        perms = posix_perms(info)
+      if conf().datesort2:
+        date = info.lastWriteTime.toUnix()
+      if conf().sizesort2:
+        size = info.size
+      let qf = QFile(kind:info.kind, path:fpath, size:size, date:date, perms:perms, exe:false)
+      dirs.add(qf)
+              
+    # If file
+    of pcFile, pcLinkToFile:
+      var size: int64 = 0
+      var date: int64 = 0
+      var perms = ""
+      if conf().size or conf().sizesort or conf().datesort or conf().permissions or conf().date:
+        if conf().size or conf().sizesort:
+          size = info.size
+        if conf().datesort or conf().date:
+          date = info.lastWriteTime.toUnix()
+        if conf().permissions:
+          perms = posix_perms(info)
+      let exe = info.permissions.contains(fpUserExec)
+      let qf = QFile(kind:info.kind, path:fpath, size:size, date:date, perms:perms, exe:exe)
+      if exe:
+        if conf().mix_files: files.add(qf)
+        else: execs.add(qf)
+      else: files.add(qf)
     
-        # Add to proper list
-        case file.kind
-    
-        # If directory
-        of pcDir, pcLinkToDir:
-          var size: int64 = 0
-          var date: int64 = 0
-          var perms = ""
-          let info = get_info(full_path)
-          if do_calculate_dirs:
-            let calc = calculate_dir(full_path)
-            size = calc.size
-            date = calc.date
-          if conf().permissions:
-            perms = posix_perms(info)
-          if conf().datesort2:
-            date = info.lastWriteTime.toUnix()
-          if conf().sizesort2:
-            size = info.size
-          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:false)
-          dirs.add(qf)
-            
-        # If file
-        of pcFile, pcLinkToFile:
-          var size: int64 = 0
-          var date: int64 = 0
-          var perms = ""
-          let info = get_info(full_path)
-          if conf().size or conf().sizesort or conf().datesort or conf().permissions or conf().date:
-            if conf().size or conf().sizesort:
-              size = info.size
-            if conf().datesort or conf().date:
-              date = info.lastWriteTime.toUnix()
-            if conf().permissions:
-              perms = posix_perms(info)
-          let exe = info.permissions.contains(fpUserExec)
-          let qf = QFile(kind:file.kind, path:file.path, size:size, date:date, perms:perms, exe:exe)
-          if exe:
-            if conf().mix_files: files.add(qf)
-            else: execs.add(qf)
-          else: files.add(qf)
+    return false
   
   proc sort_list(list: var seq[QFile]) =
     if list.len == 0: return
@@ -362,6 +322,50 @@ proc list_dir*(path:string, level=0) =
     let brk = if conf().tree: "" else: "\n"
     let brk2 = if conf().tree: "\n" else: ""
     log &"{brk}{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){brk2}"
+
+  # Check files ahead of time if filtering a tree
+  if do_filter and level == 0 and conf().tree:
+    aotfilter = true
+
+    for full_path in walkDirRec(path, yieldFilter={pcFile, pcLinkToFile, pcDir, pcLinkToDir}):
+      let short_path = full_path.replace(&"{og_path}/", "")
+
+      if conf().ignore_dots and short_path
+      .extractFileName().startsWith("."):
+        continue
+
+      # Exclude
+      if check_exclude(short_path):
+        continue
+      
+      # Add to filts on matches
+      if do_regex_filter:
+        let m = short_path.find(res)
+        if m.isSome:
+          add_filt(short_path)
+      else:
+        if short_path.contains(filter):
+          add_filt(short_path)
+    
+    if filts.len == 0:
+      quit(0)    
+
+  if info.kind == pcFile or
+  info.kind == pcLinkToFile:
+    conf().no_titles = true
+    conf().prefix = true
+    conf().permissions = true
+    conf().size = true
+    conf().date = true
+    let split = path.splitPath()
+    og_path = split[0]
+    path = split[0]
+    discard process_file(split[1])
+  
+  else: # If it's a directory check every file in it
+    block filesblock: 
+      for file in walkDir(path, relative=true):
+        if process_file(file.path): break filesblock    
   
   if level == 0 and total_files() == 0:
     show_header(true)
