@@ -223,13 +223,8 @@ proc show_snippet*(full_path:string, level:int) =
     let sample = content.substr(0, len - 1)
 
     # Check if it's a binary file
-    var num_null = 0
-
     for c in sample.substr(0, 512):
-      if c == '\0': inc(num_null)
-    
-    if num_null >= 4:
-      return
+      if c == '\0': return
     
     # Apply some filters
     let lines = sample.splitLines()
