@@ -5,6 +5,9 @@ import strutils
 import terminal
 import sugar
 import sequtils
+import strformat
+
+let version = "1.0.0"
 
 type Config* = ref object
   path*: string
@@ -105,6 +108,7 @@ proc get_config*() =
   let dev = use_arg(name="dev", kind="flag", help="Used for development")
 
   add_header("List directories")
+  add_header(&"Version: {version}")
   add_note("A config file should be in ~/.config/lq")
   add_note("Git Repo: https://github.com/madprops/lq")
 
