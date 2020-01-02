@@ -261,7 +261,7 @@ proc list_dir*(path:string, level=0) =
           list.reverse()
 
     else:
-      list = list.sortedByIt(it.path)
+      list = list.sortedByIt(it.path.toLowerAscii)
       if conf().reverse_sort:
         list.reverse()
         
