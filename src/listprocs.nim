@@ -13,6 +13,7 @@ import tables
 var og_path* = ""
 var aotfilter* = false
 var filts*: Table[string, bool]
+var title_printed_len* = 0
 proc list_dir*(path:string, level=0)
 
 var space_level = 2
@@ -24,8 +25,16 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   var slen = 0
   var cfiles = 0
   let termwidth = terminalWidth()
-  let defsline = if conf().list: "" else: "\n  "
-  var sline = defsline
+  let defsline = if conf().list: "" else: &"\n  "
+  var sline = ""
+
+  if title_printed_len == 0:
+    sline = defsline
+  else:
+    sline = "  "
+    slen = title_printed_len
+    title_printed_len = 0
+
   let limit = if conf().max_width > 0 and conf().max_width <= termwidth:
     (conf().max_width - 4) else: (termwidth - 4)
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
@@ -141,7 +150,9 @@ proc print_title*(title:string, n:int, level:int) =
   let c1 = get_ansi(conf().colors["titles"])
   let c2 = get_ansi(conf().colors["details"])
   let s = &"{brk}{c1}{title}{reset()} {c2}({n})"
-  log(s)
+  log(s, false, not conf().fluid2)
+  if conf().fluid2:
+    title_printed_len = title.len + n.intToStr.len + 3
 
 proc list_dir*(path:string, level=0) =
   var path = path

@@ -23,6 +23,7 @@ type Config* = ref object
   no_titles*: bool
   reverse*: bool
   fluid*: bool
+  fluid2*: bool
   mix*: bool
   abc*: bool
   size*: bool
@@ -74,6 +75,7 @@ proc get_config*() =
   let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="x")
   let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
   let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
+  let fluid2 = use_arg(name="fluid2", kind="flag", help="Don't put linebreaks between sections but keep titles", alt="U")
   let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
   let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
   let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
@@ -129,6 +131,7 @@ proc get_config*() =
     no_titles: no_titles.used,
     reverse: reverse.used,
     fluid: fluid.used,
+    fluid2: fluid2.used,
     mix: mix.used,
     abc: abc.used,
     size: size.used,

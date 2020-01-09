@@ -103,12 +103,15 @@ proc get_ansi*(list:seq[string]): string =
 proc reset*(): string =
   get_ansi("reset")
 
-proc log*(s:string, last=false) =
+proc log*(s:string, last=false, linebreak=true) =
   let line = &"{reset()}{s}"
-  stdout.writeLine(line)
+  let lbrk = if linebreak: "\n" else: ""
+  let line2 = &"{line}{lbrk}"
+
+  stdout.write(line2)
 
   if conf().output != "":
-    all_output.add(&"{line}\n")
+    all_output.add(line2)
 
   spaced = s == "" or s.endsWith("\n")
 
