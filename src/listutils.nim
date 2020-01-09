@@ -209,7 +209,8 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
   return (s, clen)
 
 proc show_label*(msg:string, level:int, is_snippet=false) =
-  log format_item(label=msg, level=level, is_snippet=is_snippet)[0]
+  let msg2 = if is_snippet: &"  {msg}" else: msg
+  log format_item(label=msg2, level=level, is_snippet=is_snippet)[0]
 
 proc has_snippet*(file:QFile): bool =
   conf().snippets and (file.kind == pcFile or file.kind == pcLinkToFile)
