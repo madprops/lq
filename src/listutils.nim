@@ -234,7 +234,7 @@ proc show_snippet*(full_path:string, size:int64, level:int) =
     for c in bytes:
       if c == 0: return
     
-    let sample = cast[string](bytes)
+    let sample = cast[string](bytes).substr(0, len - 1)
     
     # Apply some filters
     let lines = sample.splitLines()
