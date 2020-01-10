@@ -330,7 +330,7 @@ proc list_dir*(path:string, level=0) =
   proc show_header(force_space=false) =
     let c1 = get_ansi(conf().colors["header"])
     let c2 = get_ansi(conf().colors["details"])
-    let sp = if force_space or (conf().no_titles and not conf().list): space else: ""
+    let sp = if force_space or (conf().no_titles and not conf().list) or conf().fluid2: space else: ""
     let brk = if conf().tree: "" else: "\n"
     let brk2 = if conf().tree: "\n" else: ""
     log &"{brk}{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){brk2}"
