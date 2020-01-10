@@ -100,8 +100,6 @@ proc get_config*() =
   let mix_files = use_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
   
   # Presets
-  let salad = use_arg(name="salad", kind="flag", help="Preset to mix all", alt="s")
-  let blender = use_arg(name="blender", kind="flag", help="Preset to really mix all", alt="b")
   let info = use_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
   let allsizesort = use_arg(name="allsizesort", kind="flag", help="Sort files and directories by size", alt="9")
   let alldatesort = use_arg(name="alldatesort", kind="flag", help="Sort files and directories by date", alt="0")
@@ -155,15 +153,6 @@ proc get_config*() =
     snippets_length: snippets_length.getInt(0),
     mix_files: mix_files.used,
   )
-
-  if salad.used:
-    oconf.no_titles = true
-    oconf.fluid = true
-  
-  elif blender.used:
-    oconf.no_titles = true
-    oconf.fluid = true
-    oconf.mix = true
   
   if tree.used:
     oconf.list = true

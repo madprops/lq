@@ -21,23 +21,21 @@ Executables are bold.
 
 ![](http://i.imgur.com/SpBLu0V.jpg)
 
-### Salad Mode
-This is a preset that turns on certain options to make it look like this.
+### Fluid Mode 1
 
-It enables --fluid, meaning files, directories, are not in their own block.
+Show all items in a single block.
 
-Also removes titles with --no-titles.
+`--fluid` or `-u`
 
-![](http://i.imgur.com/MrDNwMt.jpg)
+![](http://i.imgur.com/3STTzwp.jpg)
 
-### Blender Mode
-This is a preset that turns on certain options to make it look like this.
+### Fluid Mode 2
 
-It enables --fluid, --mix, and --no-titles.
+Some fluidity with included titles.
 
---mix means sort everything in a single list, disregarding type.
+`--fluid2` or `-U`
 
-![](http://i.imgur.com/AYRpdgO.jpg)
+![](http://i.imgur.com/IGQUqg0.jpg)
 
 ### List Mode
 Show items in a vertical list.
