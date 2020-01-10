@@ -215,17 +215,26 @@ proc show_label*(msg:string, level:int, is_snippet=false) =
 proc has_snippet*(file:QFile): bool =
   conf().snippets and (file.kind == pcFile or file.kind == pcLinkToFile)
 
-proc show_snippet*(full_path:string, level:int) =
+proc show_snippet*(full_path:string, size:int64, level:int) =
   try:
-    let content = readFile(full_path)
-    if content.strip() == "": return
     var len = conf().snippets_length
     if len == 0: len = 300
-    let sample = content.substr(0, len - 1)
+    let blen = min(size, max(512, len))
+    if blen == 0: return
+    let f = open(full_path)
+
+    var bytes: seq[uint8]
+    for x in 0..<blen:
+      bytes.add(0)
+
+    discard f.readBytes(bytes, 0, blen)
+    f.close()
 
     # Check if it's a binary file
-    for c in sample.substr(0, 512):
-      if c == '\0': return
+    for c in bytes:
+      if c == 0: return
+    
+    let sample = cast[string](bytes)
     
     # Apply some filters
     let lines = sample.splitLines()

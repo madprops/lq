@@ -62,7 +62,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
     slen = 0
     if has_snippet(current_file):
       let lvl = if conf().tree: level + 1 else: level
-      show_snippet(path.joinPath(current_file.path), lvl)
+      show_snippet(path.joinPath(current_file.path), current_file.size, lvl)
   
   proc add_to_line(s:string, clen:int) =
     if use_abc and not conf().fluid and not conf().list:
@@ -235,12 +235,10 @@ proc list_dir*(path:string, level=0) =
               
     # If file
     of pcFile, pcLinkToFile:
-      var size: int64 = 0
+      var size = info.size
       var date: int64 = 0
       var perms = ""
       if conf().size or conf().sizesort or conf().datesort or conf().permissions or conf().date:
-        if conf().size or conf().sizesort:
-          size = info.size
         if conf().datesort or conf().date:
           date = info.lastWriteTime.toUnix()
         if conf().permissions:
