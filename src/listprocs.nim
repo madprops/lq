@@ -147,6 +147,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
 proc print_title*(title:string, n:int, level:int) =
   if conf().no_titles: return
   var brk = "\n"
+  if conf().fluid2: brk.add("  ")
   let c1 = get_ansi(conf().colors["titles"])
   let c2 = get_ansi(conf().colors["details"])
   let s = &"{brk}{c1}{title}{reset()} {c2}({n})"
