@@ -57,7 +57,7 @@ This shows directory content in a tree view:
 
 ## Snippets Mode
 
-`--snippets` or `-S`
+`--snippets` or `-s`
 
 Show previews of text files.
 
