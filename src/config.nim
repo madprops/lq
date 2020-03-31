@@ -7,7 +7,7 @@ import sugar
 import sequtils
 import strformat
 
-let version = "1.0.0"
+let version = "2.0.0"
 
 type Config* = ref object
   path*: string
