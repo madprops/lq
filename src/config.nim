@@ -2,10 +2,10 @@ import os
 import nap
 import parsetoml
 import strutils
-import terminal
 import sugar
 import sequtils
 import strformat
+import posix
 
 let version = "2.0.0"
 
@@ -114,8 +114,12 @@ proc get_config*() =
 
   parse_args()
 
+  var st: posix.Stat
+  discard posix.fstat(0, st)
+  echo st.st_mode.S_ISFIFO()
+
   oconf = Config(
-    piped: not isatty(stdout),
+    piped: st.st_mode.S_ISFIFO(),
     path: path.value,
     just_dirs: just_dirs.used, 
     just_files: just_files.used,
