@@ -63,49 +63,49 @@ proc fix_path(path:string): string
 proc fix_path_2(path:string): string
 
 proc get_config*() =
-  let path = use_arg(name="path", kind="argument", value="", help="Path to a directory")
-  let just_dirs = use_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
-  let just_files = use_arg(name="files", kind="flag", help="Just show files", alt="2")
-  let just_execs = use_arg(name="execs", kind="flag", help="Just show executables", alt="3")
-  let absolute = use_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
-  let filter = use_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
-  let prefix = use_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
-  let list = use_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
-  let dircount = use_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
-  let no_titles = use_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="x")
-  let reverse = use_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
-  let fluid = use_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
-  let fluid2 = use_arg(name="fluid2", kind="flag", help="Don't put linebreaks between sections but keep titles", alt="U")
-  let mix = use_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
-  let abc = use_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
-  let size = use_arg(name="size", kind="flag", help="Show the size of files", alt="z")
-  let dirsize = use_arg(name="dirsize", kind="flag", help="Show the size of directories", alt="Z")
-  let date = use_arg(name="date", kind="flag", help="Show the last modification date on files", alt="k")
-  let dirdate = use_arg(name="dirdate", kind="flag", help="Show the last modification date on directories", alt="K")
-  let sizesort = use_arg(name="sizesort", kind="flag", help="Sort files by size. Repeat, like '-ii', to semi-sort directories too", alt="i")
-  let dirsizesort = use_arg(name="dirsizesort", kind="flag", help="Sort directories by size", alt="I")
-  let datesort = use_arg(name="datesort", kind="flag", help="Sort files by modification date. Repeat, like '-dd', to semi-sort directories too", alt="d")
-  let dirdatesort = use_arg(name="dirdatesort", kind="flag", help="Sort directories by modification date", alt="D")
-  let header = use_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
-  let permissions = use_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
-  let tree = use_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
-  let exclude = use_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
-  let max_width = use_arg(name="max-width", kind="value", help="Maximum horizontal size", alt="w")
-  let ignore_config = use_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
-  let output = use_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
-  let ignore_dots = use_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
-  let reverse_sort = use_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
-  let snippets = use_arg(name="snippets", kind="flag", help="Show text file snippets", alt="s")
-  let snippets_length = use_arg(name="snippets-length", kind="value", help="Max length of snippets", alt="n")
-  let mix_files = use_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
+  let path = add_arg(name="path", kind="argument", value="", help="Path to a directory")
+  let just_dirs = add_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
+  let just_files = add_arg(name="files", kind="flag", help="Just show files", alt="2")
+  let just_execs = add_arg(name="execs", kind="flag", help="Just show executables", alt="3")
+  let absolute = add_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
+  let filter = add_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
+  let prefix = add_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
+  let list = add_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
+  let dircount = add_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
+  let no_titles = add_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="x")
+  let reverse = add_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
+  let fluid = add_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
+  let fluid2 = add_arg(name="fluid2", kind="flag", help="Don't put linebreaks between sections but keep titles", alt="U")
+  let mix = add_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
+  let abc = add_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
+  let size = add_arg(name="size", kind="flag", help="Show the size of files", alt="z")
+  let dirsize = add_arg(name="dirsize", kind="flag", help="Show the size of directories", alt="Z")
+  let date = add_arg(name="date", kind="flag", help="Show the last modification date on files", alt="k")
+  let dirdate = add_arg(name="dirdate", kind="flag", help="Show the last modification date on directories", alt="K")
+  let sizesort = add_arg(name="sizesort", kind="flag", help="Sort files by size. Repeat, like '-ii', to semi-sort directories too", alt="i")
+  let dirsizesort = add_arg(name="dirsizesort", kind="flag", help="Sort directories by size", alt="I")
+  let datesort = add_arg(name="datesort", kind="flag", help="Sort files by modification date. Repeat, like '-dd', to semi-sort directories too", alt="d")
+  let dirdatesort = add_arg(name="dirdatesort", kind="flag", help="Sort directories by modification date", alt="D")
+  let header = add_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
+  let permissions = add_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
+  let tree = add_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
+  let exclude = add_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
+  let max_width = add_arg(name="max-width", kind="value", value="0", help="Maximum horizontal size", alt="w")
+  let ignore_config = add_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
+  let output = add_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
+  let ignore_dots = add_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
+  let reverse_sort = add_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
+  let snippets = add_arg(name="snippets", kind="flag", help="Show text file snippets", alt="s")
+  let snippets_length = add_arg(name="snippets-length", kind="value", value="0", help="Max length of snippets", alt="n")
+  let mix_files = add_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
   
   # Presets
-  let info = use_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
-  let allsizesort = use_arg(name="allsizesort", kind="flag", help="Sort files and directories by size", alt="9")
-  let alldatesort = use_arg(name="alldatesort", kind="flag", help="Sort files and directories by date", alt="0")
+  let info = add_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
+  let allsizesort = add_arg(name="allsizesort", kind="flag", help="Sort files and directories by size", alt="9")
+  let alldatesort = add_arg(name="alldatesort", kind="flag", help="Sort files and directories by date", alt="0")
   
   # Dev
-  let dev = use_arg(name="dev", kind="flag", help="Used for development")
+  let dev = add_arg(name="dev", kind="flag", help="Used for development")
 
   add_header("List directories")
   add_header(&"Version: {version}")
@@ -149,12 +149,12 @@ proc get_config*() =
     tree: tree.used,
     exclude: exclude.values,
     ignore_config: ignore_config.used,
-    max_width: max_width.getInt(0),
+    max_width: max_width.getInt(),
     output: output.value,
     ignore_dots: ignore_dots.used,
     reverse_sort: reverse_sort.used,
     snippets: snippets.used,
-    snippets_length: snippets_length.getInt(0),
+    snippets_length: snippets_length.getInt(),
     mix_files: mix_files.used,
   )
   
