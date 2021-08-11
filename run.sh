@@ -1,2 +1,2 @@
 #!/bin/bash
-nim compile --run -o:bin/lq src/lq.nim $@
+nim compile --run -o:bin/lq-debug src/lq.nim $@
