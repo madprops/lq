@@ -116,7 +116,6 @@ proc get_config*() =
 
   var st: posix.Stat
   discard posix.fstat(0, st)
-  echo st.st_mode.S_ISFIFO()
 
   oconf = Config(
     piped: st.st_mode.S_ISFIFO(),
