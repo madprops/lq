@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo cp bin/lq-release-linux /bin/lq
 echo "Binary placed in /bin"
 

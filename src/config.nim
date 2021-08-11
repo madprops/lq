@@ -7,7 +7,7 @@ import sequtils
 import strformat
 import posix
 
-let version = "2.0.0"
+let version = "2.1.0"
 
 type Config* = ref object
   path*: string
