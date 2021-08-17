@@ -1,14 +1,14 @@
-import utils
-import listutils
+import std/os
+import std/nre
+import std/strformat
+import std/strutils
+import std/algorithm
+import std/terminal
+import std/times
+import std/tables
 import config
-import os
-import nre
-import strformat
-import strutils
-import algorithm
-import terminal
-import times
-import tables
+import listutils
+import utils
 
 var og_path* = ""
 var aotfilter* = false

@@ -1,12 +1,12 @@
+import std/os
+import std/strformat
+import std/strutils
+import std/times
+import std/tables
+import std/sugar
+import std/sequtils
 import config
 import utils
-import os
-import strformat
-import strutils
-import times
-import tables
-import sugar
-import sequtils
 
 type QFile* = object
   kind*: PathComponent

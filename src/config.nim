@@ -1,11 +1,11 @@
-import os
+import std/os
+import std/strutils
+import std/sugar
+import std/sequtils
+import std/strformat
+import std/posix
+import pkg/parsetoml
 import nap
-import parsetoml
-import strutils
-import sugar
-import sequtils
-import strformat
-import posix
 
 let version = "2.1.0"
 
