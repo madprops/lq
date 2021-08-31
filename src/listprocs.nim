@@ -1,31 +1,32 @@
-import std/os
-import std/nre
-import std/strformat
-import std/strutils
-import std/algorithm
-import std/terminal
-import std/times
-import std/tables
+import std/[os, nre, strformat, strutils, algorithm, terminal, times, tables]
 import config
 import listutils
 import utils
 
-var og_path* = ""
-var aotfilter* = false
-var filts*: Table[string, bool]
-var title_printed_len* = 0
+var
+ og_path* = ""
+ aotfilter* = false
+ filts*: Table[string, bool]
+ title_printed_len* = 0
+
 proc list_dir*(path:string, level=0)
 
-var space_level = 2
-var space = ""
+var
+  space_level = 2
+  space = ""
+
 for x in 0..<space_level:
   space.add(" ")
 
 proc show_files(files:seq[QFile], path:string, level=0, last=false) =
-  var slen = 0
-  var cfiles = 0
-  let termwidth = terminalWidth()
-  let defsline = if conf().list: "" else: &"\n  "
+  var
+    slen = 0
+    cfiles = 0
+  
+  let
+    termwidth = terminalWidth()
+    defsline = if conf().list: "" else: &"\n  "
+
   var sline = ""
 
   if title_printed_len == 0:
@@ -40,10 +41,12 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   let use_abc = conf().abc and not conf().mix
-  var abci = -1
-  var arroba_placed = false
-  var current_file = QFile()
-  var current_index = 0
+
+  var
+    abci = -1
+    arroba_placed = false
+    current_file = QFile()
+    current_index = 0
 
   proc space_item(s:string): string =
     return &"{s}{space}"
@@ -92,13 +95,16 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   for i, file in files:
     current_index = i
     current_file = file
-    let fmt = format_item(file, path, level, i, files.len, last)
-    let s = fmt[0]
-    let clen = fmt[1]
+
+    let 
+      fmt = format_item(file, path, level, i, files.len, last)
+      s = fmt[0]
+      clen = fmt[1]
 
     if use_abc:
-      let sc = file.path[0].toLowerAscii()
-      let ib = abc.find(sc)
+      let
+        sc = file.path[0].toLowerAscii()
+        ib = abc.find(sc)
 
       # First @ lines
       if ib == -1:
@@ -148,9 +154,12 @@ proc print_title*(title:string, n:int, level:int) =
   if conf().no_titles: return
   var brk = "\n"
   if conf().fluid2: brk.add("  ")
-  let c1 = get_ansi(conf().colors["titles"])
-  let c2 = get_ansi(conf().colors["details"])
-  let s = &"{brk}{c1}{title}{reset()} {c2}({n})"
+
+  let 
+    c1 = get_ansi(conf().colors["titles"])
+    c2 = get_ansi(conf().colors["details"])
+    s = &"{brk}{c1}{title}{reset()} {c2}({n})"
+
   log(s, false, not conf().fluid2)
   if conf().fluid2:
     title_printed_len = title.len + n.intToStr.len + 3
@@ -158,13 +167,20 @@ proc print_title*(title:string, n:int, level:int) =
 proc list_dir*(path:string, level=0) =
   var path = path
   if level == 0: og_path = path
-  var dirs: seq[QFile]
-  var files: seq[QFile]
-  var execs: seq[QFile]
-  let do_filter = conf().filter != ""
-  let do_regex_filter = conf().filter.startsWith("re:")
-  var filter = ""
-  var res: Regex
+
+  var
+    dirs: seq[QFile]
+    files: seq[QFile]
+    execs: seq[QFile]
+  
+  let
+    do_filter = conf().filter != ""
+    do_regex_filter = conf().filter.startsWith("re:")
+  
+  var
+    filter = ""
+    res: Regex
+
   if do_regex_filter:
     res = re(conf().filter.replace(re"^re\:", ""))
   else: filter = conf().filter
@@ -186,9 +202,10 @@ proc list_dir*(path:string, level=0) =
       filts[sp] = true
   
   proc process_file(fpath:string): bool =
-    let full_path = path.joinPath(fpath)
-    let short_path = full_path.replace(&"{og_path}{os.DirSep}", "")
-    let info = get_info(full_path)
+    let
+      full_path = path.joinPath(fpath)
+      short_path = full_path.replace(&"{og_path}{os.DirSep}", "")
+      info = get_info(full_path)
   
     if conf().ignore_dots and short_path
       .extractFileName().startsWith("."):
@@ -217,9 +234,11 @@ proc list_dir*(path:string, level=0) =
       
     # If directory
     of pcDir, pcLinkToDir:
-      var size: int64 = 0
-      var date: int64 = 0
-      var perms = ""
+      var
+         size: int64 = 0
+         date: int64 = 0
+         perms = ""
+
       if do_calculate_dirs:
         let calc = calculate_dir(full_path)
         size = calc.size
@@ -235,16 +254,21 @@ proc list_dir*(path:string, level=0) =
               
     # If file
     of pcFile, pcLinkToFile:
-      var size = info.size
-      var date: int64 = 0
-      var perms = ""
+      var
+        size = info.size
+        date: int64 = 0
+        perms = ""
+
       if conf().size or conf().sizesort or conf().datesort or conf().permissions or conf().date:
         if conf().datesort or conf().date:
           date = info.lastWriteTime.toUnix()
         if conf().permissions:
           perms = posix_perms(info)
-      let exe = info.permissions.contains(fpUserExec)
-      let qf = QFile(kind:info.kind, path:fpath, size:size, date:date, perms:perms, exe:exe)
+      
+      let
+        exe = info.permissions.contains(fpUserExec)
+        qf = QFile(kind:info.kind, path:fpath, size:size, date:date, perms:perms, exe:exe)
+
       if exe:
         if conf().mix_files: files.add(qf)
         else: execs.add(qf)

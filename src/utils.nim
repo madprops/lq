@@ -1,8 +1,5 @@
+import std/[os, terminal, strutils, strformat]
 import config
-import os
-import terminal
-import strutils
-import strformat
 
 type AnsiKind* = enum
   ansi_green
@@ -24,8 +21,9 @@ type AnsiKind* = enum
   ansi_strikethrough
   ansi_reset
 
-var all_output* = ""
-var spaced* = false
+var
+  all_output* = ""
+  spaced* = false
 
 proc get_ansi*(kind:string): string =
   if conf().piped: return ""
@@ -104,9 +102,10 @@ proc reset*(): string =
   get_ansi("reset")
 
 proc log*(s:string, last=false, linebreak=true) =
-  let line = &"{reset()}{s}"
-  let lbrk = if linebreak: "\n" else: ""
-  let line2 = &"{line}{lbrk}"
+  let
+    line = &"{reset()}{s}"
+    lbrk = if linebreak: "\n" else: ""
+    line2 = &"{line}{lbrk}"
 
   stdout.write(line2)
 

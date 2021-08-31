@@ -1,10 +1,4 @@
-import std/os
-import std/strformat
-import std/strutils
-import std/times
-import std/tables
-import std/sugar
-import std/sequtils
+import std/[os, strformat, strutils, times, tables, sugar, sequtils]
 import config
 import utils
 
@@ -16,15 +10,16 @@ type QFile* = object
   perms*: string
   exe*: bool
 
-# Used to create spaces on levels
-var levspace* = "    "
-var levspace_2* = "\\s\\s\\s\\s"
-var levlines* = initTable[int, bool]()
-var rightnow* = getTime().toUnix()
+var
+  # Used to create spaces on levels
+  levspace* = "    "
+  levspace_2* = "\\s\\s\\s\\s"
+  levlines* = initTable[int, bool]()
+  rightnow* = getTime().toUnix()
 
-# This stores file info to be recycled
-# instead of it getting fetched again
-var info_cache = initTable[string, FileInfo]()
+  # This stores file info to be recycled
+  # instead of it getting fetched again
+  info_cache = initTable[string, FileInfo]()
 
 proc get_info*(path:string, canfail=false): FileInfo =
   try:
@@ -49,9 +44,12 @@ proc posix_perms*(info:FileInfo): string =
 
 proc calculate_dir*(path:string): QFile =
   let info = get_info(path)
-  var size: int64 = 0
-  var date: int64 = 0
-  var path = fix_path_2(path)
+
+  var
+    size: int64 = 0
+    date: int64 = 0
+    path = fix_path_2(path)
+
   for file in walkDirRec(&"{path}"):
     let info2 = get_info(file)
     size += info2.size
@@ -67,15 +65,18 @@ proc format_perms*(perms:string): string =
 
 proc format_size*(size: int64): string =
   if size == 0: return " (Empty)"
-  let fsize = float(size)
-  let divider: float64 = 1024.0
-  let kb: float64 = fsize / divider
-  let mb: float64 = kb / divider
-  let gb: float64 = mb / divider
-  let size = if gb >= 1.0: &"{gb.formatFloat(ffDecimal, 1)} GB"
-    elif mb >= 1.0: &"{mb.formatFloat(ffDecimal, 1)} MB"
-    elif kb >= 1.0: &"{int(kb)} KB"
-    else: &"{int(fsize)} B"
+
+  let
+    fsize = float(size)
+    divider: float64 = 1024.0
+    kb: float64 = fsize / divider
+    mb: float64 = kb / divider
+    gb: float64 = mb / divider
+    size = if gb >= 1.0: &"{gb.formatFloat(ffDecimal, 1)} GB"
+      elif mb >= 1.0: &"{mb.formatFloat(ffDecimal, 1)} MB"
+      elif kb >= 1.0: &"{int(kb)} KB"
+      else: &"{int(fsize)} B"
+
   return &" ({size})"
 
 proc format_date*(date:int64): string =
@@ -121,9 +122,10 @@ proc get_level_space*(level:int): string =
   return levs
 
 proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, label="", is_snippet=false): (string, int) =
-  var scount = ""
-  var is_label = label != ""
-  var full_path = path.joinPath(file.path)
+  var
+    scount = ""
+    is_label = label != ""
+    full_path = path.joinPath(file.path)
 
   if path != "" and conf().dircount:
     scount = case file.kind
@@ -146,11 +148,12 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
         if file.kind == pcLinkToFile:
           c1 = get_ansi(conf().colors["exefilelinks"])
 
-  var c2 = ""
-  var prefix = ""
-  var perms = ""
-  var pipe = ""
-  var levs = ""
+  var
+    c2 = ""
+    prefix = ""
+    perms = ""
+    pipe = ""
+    levs = ""
   
   if path != "":
     c2 = get_ansi(conf().colors["details"])
@@ -191,10 +194,13 @@ proc format_item*(file=QFile(), path="", level=0, index=0, len=0, last=false, la
     conf().dirdate
   of pcFile, pcLinkToFile:
     conf().date)
-        
-  let size = if dosize: format_size(file.size) else: ""
-  let date = if dodate: format_date(file.date) else: ""
+  
+  let
+    size = if dosize: format_size(file.size) else: ""
+    date = if dodate: format_date(file.date) else: ""
+
   var path2 = if is_label: label
+
   elif conf().absolute: full_path else: file.path
   let clen = prefix.len + path2.len + size.len + date.len + scount.len + perms.len
 
