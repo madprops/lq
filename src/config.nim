@@ -180,6 +180,13 @@ proc get_config*() =
   if snippets.used:
     oconf.list = true
   
+  if tree.used:
+    oconf.fluid = false
+    oconf.fluid2 = false
+  
+  if fluid.used:
+    oconf.no_titles = true
+
   oconf.sizesort2 = sizesort.used and sizesort.count >= 2
   oconf.datesort2 = datesort.used and datesort.count >= 2
   
