@@ -2,7 +2,7 @@ import std/[os, strutils, sugar, sequtils, strformat, posix]
 import pkg/parsetoml
 import nap
 
-let version = "2.1.0"
+let version = "2.2.0"
 
 type Config* = ref object
   path*: string
