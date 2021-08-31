@@ -329,8 +329,18 @@ proc list_dir*(path:string, level=0) =
     let c1 = get_ansi(conf().colors["header"])
     let c2 = get_ansi(conf().colors["details"])
     let sp = if force_space or (conf().no_titles and not conf().list) or conf().fluid2: space else: ""
-    let brk = if conf().tree: "" else: "\n"
-    let brk2 = if conf().tree: "\n" else: ""
+
+    var
+      brk = ""
+      brk2 = ""
+
+    if conf().list and conf().no_titles:
+      brk = ""
+      brk2 = "\n"
+    else:
+      brk = if conf().tree: "" else: "\n"
+      brk2 = if conf().tree: "\n" else: ""
+
     log &"{brk}{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){brk2}"
 
   # Check files ahead of time if filtering a tree
