@@ -353,19 +353,12 @@ proc list_dir*(path:string, level=0) =
     let c1 = get_ansi(conf().colors["header"])
     let c2 = get_ansi(conf().colors["details"])
 
-    var sp = ""
-
-    if force_space:
-      sp = space
-
-    elif conf().abc and conf().fluid:
-      sp = space
-
-    elif conf().no_titles and not conf().list:
-      sp = space
-    
-    elif conf().fluid2:
-      sp = space
+    let sp =
+      if force_space: space
+      elif conf().abc and conf().fluid: space
+      elif conf().no_titles and not conf().list: space
+      elif conf().fluid2: space
+      else: ""
     
     var
       brk = ""
