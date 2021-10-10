@@ -1,6 +1,6 @@
 # Package
 
-version       = "2.2.0"
+version       = "2.2.1"
 author        = "madprops"
 description   = "Directory listing tool"
 license       = "GPL-2.0"

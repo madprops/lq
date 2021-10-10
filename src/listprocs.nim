@@ -310,7 +310,8 @@ proc list_dir*(path:string, level=0) =
         print_title("Directories", dirs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(dirs, path, level, last)
+        if not conf().only_titles:
+          show_files(dirs, path, level, last)
       
   proc do_files(last=false) =
     if not conf().just_dirs and not conf().just_execs:
@@ -318,7 +319,8 @@ proc list_dir*(path:string, level=0) =
         print_title("NormalFiles", files.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(files, path, level, last)
+        if not conf().only_titles:  
+          show_files(files, path, level, last)
       
   proc do_execs(last=false) =
     if not conf().just_dirs and not conf().just_files: 
@@ -326,7 +328,8 @@ proc list_dir*(path:string, level=0) =
         print_title("Executables", execs.len, level)
         if level == 0 and first_print and not spaced:
           if conf().list: toke()
-        show_files(execs, path, level, last)
+        if not conf().only_titles:
+          show_files(execs, path, level, last)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()

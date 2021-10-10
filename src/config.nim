@@ -2,7 +2,7 @@ import std/[os, strutils, sugar, sequtils, strformat, posix]
 import pkg/parsetoml
 import nap
 
-let version = "2.2.0"
+let version = "2.2.1"
 
 type Config* = ref object
   path*: string
@@ -16,6 +16,7 @@ type Config* = ref object
   prefix*: bool
   dircount*: bool
   no_titles*: bool
+  only_titles*: bool
   reverse*: bool
   fluid*: bool
   fluid2*: bool
@@ -70,6 +71,7 @@ proc get_config*() =
     list = add_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
     dircount = add_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
     no_titles = add_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="x")
+    only_titles = add_arg(name="only-titles", kind="flag", help="Only show titles, no files", alt="T")
     reverse = add_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
     fluid = add_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
     fluid2 = add_arg(name="fluid2", kind="flag", help="Don't put linebreaks between sections but keep titles", alt="U")
@@ -127,6 +129,7 @@ proc get_config*() =
     prefix: prefix.used,
     dircount: dircount.used,
     no_titles: no_titles.used,
+    only_titles: only_titles.used,
     reverse: reverse.used,
     fluid: fluid.used,
     fluid2: fluid2.used,
@@ -180,6 +183,11 @@ proc get_config*() =
   if tree.used or list.used:
     oconf.fluid = false
     oconf.fluid2 = false
+  
+  if only_titles.used:
+    oconf.fluid = false
+    oconf.fluid2 = false
+    oconf.no_titles = false
 
   oconf.sizesort2 = sizesort.used and sizesort.count >= 2
   oconf.datesort2 = datesort.used and datesort.count >= 2
