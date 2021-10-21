@@ -1,6 +1,6 @@
-#!/bin/bash
-sudo cp bin/lq-release-linux /bin/lq
-echo "Binary placed in /bin"
+#!/usr/bin/env bash
+sudo cp bin/lq-release-linux /usr/bin/lq
+echo "Binary placed in /usr/bin"
 
 if [[ -d ~/.config/lq ]]
 then
