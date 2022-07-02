@@ -11,13 +11,7 @@ Most item styles are customizable, you can set for instance that directories sho
 ### Normal View
 This is how it normally looks.
 
-Items are separated in Directories, Files, and Executables.
-
-Symlinks are underlined.
-
-Executables are bold.
-
-![](http://i.imgur.com/SpBLu0V.jpg)
+![](https://i.imgur.com/svq0FJk.jpg)
 
 ### List Mode
 Show items in a vertical list.
