@@ -1,5 +1,4 @@
-import std/[os, strutils, sugar, sequtils, strformat, posix]
-import pkg/parsetoml
+import std/[os, strutils, strformat, posix, tables]
 import nap
 
 let version = "3.0.0"
@@ -27,7 +26,6 @@ type Config* = ref object
   permissions*: bool
   tree*: bool
   exclude*: seq[string]
-  ignore_config*: bool
   max_width*: int
   output*: string
   ignore_dots*: bool
@@ -39,14 +37,13 @@ type Config* = ref object
   # Set automatically
   piped*: bool
 
-  # These get specified in the config file
+  # Table to map colors
   colors*: Table[string, seq[string]]
 
 var
   oconf*: Config
   first_print* = false
 
-proc check_config_file()
 proc fix_path(path:string): string
 proc fix_path_2(path:string): string
 
@@ -73,7 +70,6 @@ proc get_config*() =
     tree = add_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
     exclude = add_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
     max_width = add_arg(name="max-width", kind="value", value="0", help="Maximum horizontal size", alt="w")
-    ignore_config = add_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
     output = add_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
     ignore_dots = add_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
     reverse = add_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="r")
@@ -88,7 +84,6 @@ proc get_config*() =
 
   add_header("List directories")
   add_header(&"Version: {version}")
-  add_note("A config file should be in ~/.config/lq")
   add_note("Git Repo: https://github.com/madprops/lq")
 
   parse_args()
@@ -118,7 +113,6 @@ proc get_config*() =
     permissions: permissions.used,
     tree: tree.used,
     exclude: exclude.values,
-    ignore_config: ignore_config.used,
     max_width: max_width.getInt(),
     output: output.value,
     ignore_dots: ignore_dots.used,
@@ -127,6 +121,9 @@ proc get_config*() =
     snippets_length: snippets_length.getInt(),
     mix_files: mix_files.used,
   )
+
+  # Path
+  oconf.path = fix_path(oconf.path)
   
   if tree.used:
     oconf.list = true
@@ -151,24 +148,8 @@ proc get_config*() =
 
   oconf.sizesort2 = sizesort.used and sizesort.count >= 2
   oconf.datesort2 = datesort.used and datesort.count >= 2
-  
-  check_config_file()
 
-proc conf*(): Config =
-  return oconf
-
-proc check_config_file() =
-  # Path
-  oconf.path = fix_path(oconf.path)
-
-  # Output
-  if oconf.output != "":
-    oconf.output = fix_path_2(oconf.output)
-    if not dirExists(oconf.output.parentDir()):
-      echo "Invalid output path."
-      quit(0)  
-  
-  # Default colors
+  # Table of colors to use
   oconf.colors = initTable[string, seq[string]]()
   oconf.colors["header"] = @["bright"]
   oconf.colors["titles"] = @["green", "bright"]
@@ -184,66 +165,15 @@ proc check_config_file() =
   oconf.colors["pipes"] = @["cyan", "dim"]
   oconf.colors["details"] = @["cyan", "dim"]
   oconf.colors["snippets"] = @["green"]
-  
-  # CONFIG FILE 
-  if oconf.ignore_config: return
-  
-  # Read and parse the file
-  var
-    tom: TomlValueRef
-    table: TomlTableRef
 
-  try:
-    tom = parsetoml.parseFile(getConfigDir().joinPath("lq/lq.conf"))
-    table = tom.getTable()
-  except: return
+  # Default directories to exclude
+  oconf.exclude.add(".git")
+  oconf.exclude.add(".svn")
+  oconf.exclude.add(".mypy_cache")
+  oconf.exclude.add("node_modules")
 
-  # Get excludes
-  try:
-    let exs = table["exclude"]
-    for i in 0..<exs.len:
-      let e = exs[i].getStr()
-      if not oconf.exclude.contains(e):
-        oconf.exclude.add(e)
-  except: discard
-  
-  # Other settings
-
-  try:
-    if oconf.max_width == 0:
-      oconf.max_width = table["max-width"].getInt()
-  except: discard
-
-  try:
-    if oconf.snippets_length == 0:
-      oconf.snippets_length = table["snippets-length"].getInt()
-  except: discard
-
-  try:
-    if not oconf.header:
-      oconf.header = table["header"].getBool()
-  except: discard
-
-  try:
-    if not oconf.absolute:
-      oconf.absolute = table["absolute"].getBool()
-  except: discard
-
-  try:
-    if not oconf.mix_files:
-      oconf.mix_files = table["mix-files"].getBool()
-  except: discard
-  
-  # Get colors
-  try:
-    let colors = table["colors"]
-    for key in oconf.colors.keys:
-      try:
-        let c = colors[key]
-        oconf.colors[key] = c.getStr().split(" ")
-          .map(s => s.strip())
-      except: discard
-  except: discard
+proc conf*(): Config =
+  return oconf
 
 proc fix_path(path:string): string =
   var path = expandTilde(path)

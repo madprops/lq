@@ -13,4 +13,3 @@ skipExt       = @["nim"]
 
 requires "nim >= 1.0.0"
 requires "nap >= 3.0.0"
-requires "parsetoml >= 0.5.0"
