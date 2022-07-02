@@ -7,8 +7,8 @@ when isMainModule:
   get_config()
 
   # First line
-  if conf().no_titles and conf().list and 
-    not conf().abc: toke()
+  if conf().list and not conf().abc: 
+    toke()
   
   # The meat
   list_dir(conf().path)

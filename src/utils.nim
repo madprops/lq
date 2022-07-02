@@ -113,9 +113,6 @@ proc log*(s:string, last=false, linebreak=true) =
     all_output.add(line2)
 
   spaced = s == "" or s.endsWith("\n")
-
-proc dbg*[T](s:T) =
-  if conf().dev: echo s
   
 proc toke*() =
   log ""
@@ -125,9 +122,7 @@ proc fix_path*(path:string): string =
   var path = expandTilde(path)
   normalizePath(path)
   if not path.startsWith("/"):
-    path = if conf().dev:
-      getCurrentDir().parentDir().joinPath(path)
-      else: getCurrentDir().joinPath(path)
+    path = getCurrentDir().joinPath(path)
   return path
 
 proc fix_path_2*(path:string): string =

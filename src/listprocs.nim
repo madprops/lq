@@ -68,7 +68,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       show_snippet(path.joinPath(current_file.path), current_file.size, lvl)
   
   proc add_to_line(s:string, clen:int) =
-    if use_abc and not conf().fluid and not conf().list:
+    if use_abc and not conf().list:
       if sline == defsline:
         sline.add("   ")
         slen += 3
@@ -84,10 +84,9 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       log &"\n{format_abc(letter)}"
     else:
       let cs = &"{format_abc(letter)}{space}"
-      if conf().fluid:
-        if slen + clen + 3 > limit:
-          print_line()
-          return true
+      if slen + clen + 3 > limit:
+        print_line()
+        return true
       sline.add(cs)
       slen += 3
     return false
@@ -117,9 +116,6 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
         if ib != abci:
           abci = ib
           arroba_placed = false
-          if not conf().fluid:
-            if slen > 0:
-              print_line()
           if add_abc(abc[ib], clen): 
             continue
 
@@ -145,24 +141,16 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
 
   if slen > 0:
     print_line()
-  
-  if level == 0:
-    if conf().no_titles and conf().list and not conf().abc:
-      if not spaced: toke()
 
 proc print_title*(title:string, n:int, level:int) =
-  if conf().no_titles: return
   var brk = "\n"
-  if conf().fluid2: brk.add("  ")
 
   let 
     c1 = get_ansi(conf().colors["titles"])
     c2 = get_ansi(conf().colors["details"])
     s = &"{brk}{c1}{title}{reset()} {c2}({n})"
 
-  log(s, false, not conf().fluid2)
-  if conf().fluid2:
-    title_printed_len = title.len + n.intToStr.len + 3
+  log(s, false, false)
 
 proc list_dir*(path:string, level=0) =
   var path = path
@@ -284,19 +272,19 @@ proc list_dir*(path:string, level=0) =
       (kind == pcFile or kind == pcLinkToFile) or
       ((kind == pcDir or kind == pcLinkToDir) and (conf().dirsizesort or conf().sizesort2)):
         list = list.sortedByIt(it.size)
-        if not conf().reverse_sort:
+        if not conf().reverse:
           list.reverse()
 
     elif conf().datesort and
       (kind == pcFile or kind == pcLinkToFile) or
       ((kind == pcDir or kind == pcLinkToDir) and (conf().dirdatesort or conf().datesort2)):
         list = list.sortedByIt(it.date)
-        if not conf().reverse_sort:
+        if not conf().reverse:
           list.reverse()
 
     else:
       list = list.sortedByIt(it.path.toLowerAscii)
-      if conf().reverse_sort:
+      if conf().reverse:
         list.reverse()
         
   proc sort_lists() =
@@ -305,44 +293,29 @@ proc list_dir*(path:string, level=0) =
     sort_list(execs)
   
   proc do_dirs(last=false) =
-    if not conf().just_files and not conf().just_execs:
-      if dirs.len > 0:
-        print_title("Directories", dirs.len, level)
-        if level == 0 and first_print and not spaced:
-          if conf().list: toke()
-        if not conf().only_titles:
-          show_files(dirs, path, level, last)
+    if dirs.len > 0:
+      print_title("Directories", dirs.len, level)
+      if level == 0 and first_print and not spaced:
+        if conf().list: toke()
+      show_files(dirs, path, level, last)
       
   proc do_files(last=false) =
-    if not conf().just_dirs and not conf().just_execs:
-      if files.len > 0:
-        print_title("NormalFiles", files.len, level)
-        if level == 0 and first_print and not spaced:
-          if conf().list: toke()
-        if not conf().only_titles:  
-          show_files(files, path, level, last)
+    if files.len > 0:
+      print_title("NormalFiles", files.len, level)
+      if level == 0 and first_print and not spaced:
+        if conf().list: toke()
+      show_files(files, path, level, last)
       
   proc do_execs(last=false) =
-    if not conf().just_dirs and not conf().just_files: 
-      if execs.len > 0:
-        print_title("Executables", execs.len, level)
-        if level == 0 and first_print and not spaced:
-          if conf().list: toke()
-        if not conf().only_titles:
-          show_files(execs, path, level, last)
+    if execs.len > 0:
+      print_title("Executables", execs.len, level)
+      if level == 0 and first_print and not spaced:
+        if conf().list: toke()
+      show_files(execs, path, level, last)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
     var all = dirs & files & execs
-    if conf().mix:
-      sort_list(all)
-      show_files(all, path, level, last)
-    else:
-      show_files(all, path, level, last)
-      
-  proc do_all_reverse(last=false) =
-    if not conf().mix: sort_lists()
-    var all = files & dirs & execs
     if conf().mix:
       sort_list(all)
       show_files(all, path, level, last)
@@ -358,21 +331,15 @@ proc list_dir*(path:string, level=0) =
 
     let sp =
       if force_space: space
-      elif conf().abc and conf().fluid: space
-      elif conf().no_titles and not conf().list: space
-      elif conf().fluid2: space
+      elif conf().abc: space
       else: ""
     
     var
       brk = ""
       brk2 = ""
 
-    if conf().list and conf().no_titles:
-      brk = ""
-      brk2 = "\n"
-    else:
-      brk = if conf().tree: "" else: "\n"
-      brk2 = if conf().tree: "\n" else: ""
+    brk = if conf().tree: "" else: "\n"
+    brk2 = if conf().tree: "\n" else: ""
 
     log &"{brk}{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){brk2}"
 
@@ -405,7 +372,6 @@ proc list_dir*(path:string, level=0) =
 
   if info.kind == pcFile or
   info.kind == pcLinkToFile:
-    conf().no_titles = true
     conf().prefix = true
     conf().permissions = true
     conf().size = true
@@ -428,21 +394,7 @@ proc list_dir*(path:string, level=0) =
   if level == 0 and conf().header:
     show_header()
       
-  if conf().fluid:
-    if conf().reverse:
-      do_all_reverse(true)
-    else: do_all(true)
-      
-  else:
-    sort_lists()
-    if not conf().reverse:
-      do_dirs(files.len == 0 and execs.len == 0)
-      do_files(execs.len == 0)
-      do_execs(true)
-    else:
-      do_execs(files.len == 0 and dirs.len == 0)
-      do_files(dirs.len == 0)
-      do_dirs(true)
+  do_all(true)
 
   if level == 1:
     toke()

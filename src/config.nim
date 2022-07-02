@@ -2,24 +2,15 @@ import std/[os, strutils, sugar, sequtils, strformat, posix]
 import pkg/parsetoml
 import nap
 
-let version = "2.2.1"
+let version = "3.0.0"
 
 type Config* = ref object
   path*: string
-  just_dirs*: bool
-  just_files*: bool
-  just_execs*: bool
   absolute*: bool
   filter*: string
-  dev*: bool
   list*: bool
   prefix*: bool
   dircount*: bool
-  no_titles*: bool
-  only_titles*: bool
-  reverse*: bool
-  fluid*: bool
-  fluid2*: bool
   mix*: bool
   abc*: bool
   size*: bool
@@ -40,7 +31,7 @@ type Config* = ref object
   max_width*: int
   output*: string
   ignore_dots*: bool
-  reverse_sort*: bool
+  reverse*: bool
   snippets*: bool
   snippets_length*: int
   mix_files*: bool
@@ -62,19 +53,11 @@ proc fix_path_2(path:string): string
 proc get_config*() =
   let
     path = add_arg(name="path", kind="argument", value="", help="Path to a directory")
-    just_dirs = add_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
-    just_files = add_arg(name="files", kind="flag", help="Just show files", alt="2")
-    just_execs = add_arg(name="execs", kind="flag", help="Just show executables", alt="3")
     absolute = add_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
     filter = add_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
     prefix = add_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
     list = add_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
     dircount = add_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
-    no_titles = add_arg(name="no-titles", kind="flag", help="Don't show titles like 'Files'", alt="x")
-    only_titles = add_arg(name="only-titles", kind="flag", help="Only show titles, no files", alt="T")
-    reverse = add_arg(name="reverse", kind="flag", help="Put files above directories", alt="r")
-    fluid = add_arg(name="fluid", kind="flag", help="Don't put linebreaks between sections", alt="u")
-    fluid2 = add_arg(name="fluid2", kind="flag", help="Don't put linebreaks between sections but keep titles", alt="U")
     mix = add_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
     abc = add_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
     size = add_arg(name="size", kind="flag", help="Show the size of files", alt="z")
@@ -93,7 +76,7 @@ proc get_config*() =
     ignore_config = add_arg(name="ignore-config", kind="flag", help="Don't read the config file", alt="!")
     output = add_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
     ignore_dots = add_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
-    reverse_sort = add_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="R")
+    reverse = add_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="r")
     snippets = add_arg(name="snippets", kind="flag", help="Show text file snippets", alt="s")
     snippets_length = add_arg(name="snippets-length", kind="value", value="0", help="Max length of snippets", alt="n")
     mix_files = add_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
@@ -102,9 +85,6 @@ proc get_config*() =
     info = add_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
     allsizesort = add_arg(name="allsizesort", kind="flag", help="Sort files and directories by size", alt="9")
     alldatesort = add_arg(name="alldatesort", kind="flag", help="Sort files and directories by date", alt="0")
-  
-    # Dev
-    dev = add_arg(name="dev", kind="flag", help="Used for development")
 
   add_header("List directories")
   add_header(&"Version: {version}")
@@ -119,20 +99,11 @@ proc get_config*() =
   oconf = Config(
     piped: st.st_mode.S_ISFIFO(),
     path: path.value,
-    just_dirs: just_dirs.used, 
-    just_files: just_files.used,
-    just_execs: just_execs.used,
     absolute: absolute.used,
     filter: filter.value,
-    dev: dev.used,
     list: list.used,
     prefix: prefix.used,
     dircount: dircount.used,
-    no_titles: no_titles.used,
-    only_titles: only_titles.used,
-    reverse: reverse.used,
-    fluid: fluid.used,
-    fluid2: fluid2.used,
     mix: mix.used,
     abc: abc.used,
     size: size.used,
@@ -151,7 +122,7 @@ proc get_config*() =
     max_width: max_width.getInt(),
     output: output.value,
     ignore_dots: ignore_dots.used,
-    reverse_sort: reverse_sort.used,
+    reverse: reverse.used,
     snippets: snippets.used,
     snippets_length: snippets_length.getInt(),
     mix_files: mix_files.used,
@@ -159,8 +130,6 @@ proc get_config*() =
   
   if tree.used:
     oconf.list = true
-    oconf.no_titles = true
-    oconf.reverse = true
     oconf.abc = false
   
   if info.used:
@@ -179,15 +148,6 @@ proc get_config*() =
   
   if snippets.used:
     oconf.list = true
-  
-  if tree.used or list.used:
-    oconf.fluid = false
-    oconf.fluid2 = false
-  
-  if only_titles.used:
-    oconf.fluid = false
-    oconf.fluid2 = false
-    oconf.no_titles = false
 
   oconf.sizesort2 = sizesort.used and sizesort.count >= 2
   oconf.datesort2 = datesort.used and datesort.count >= 2
@@ -259,11 +219,6 @@ proc check_config_file() =
       oconf.snippets_length = table["snippets-length"].getInt()
   except: discard
 
-  try:    
-    if not oconf.no_titles:
-      oconf.no_titles = table["no-titles"].getBool()
-  except: discard
-
   try:
     if not oconf.header:
       oconf.header = table["header"].getBool()
@@ -293,9 +248,7 @@ proc check_config_file() =
 proc fix_path(path:string): string =
   var path = expandTilde(path)
   if not path.startsWith("/"):
-    path = if oconf.dev:
-      getCurrentDir().parentDir().joinPath(path)
-      else: getCurrentDir().joinPath(path)
+    path = getCurrentDir().joinPath(path)
   normalizePath(path)
   return path
 

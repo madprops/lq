@@ -27,7 +27,7 @@ proc get_info*(path:string, canfail=false): FileInfo =
       return info_cache[path]
     else:
       let info = getFileInfo(path)
-      info_cache.add(path, info)
+      info_cache[path] = info
       return info
   except:
     if canfail:

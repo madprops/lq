@@ -8,8 +8,6 @@ It has different modes to list the contents of a directory.
 
 Most item styles are customizable, you can set for instance that directories should be "bright red" in the config file.
 
-[Click here to see all available flags](https://madprops.github.io/lq/)
-
 ### Normal View
 This is how it normally looks.
 
@@ -20,22 +18,6 @@ Symlinks are underlined.
 Executables are bold.
 
 ![](http://i.imgur.com/SpBLu0V.jpg)
-
-### Fluid Mode 1
-
-Show all items in a single block.
-
-`--fluid` or `-u`
-
-![](http://i.imgur.com/3STTzwp.jpg)
-
-### Fluid Mode 2
-
-Some fluidity with included titles.
-
-`--fluid2` or `-U`
-
-![](http://i.imgur.com/IGQUqg0.jpg)
 
 ### List Mode
 Show items in a vertical list.
