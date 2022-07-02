@@ -5,6 +5,9 @@ let version = "3.0.0"
 
 type Config* = ref object
   path*: string
+  just_dirs*: bool
+  just_files*: bool
+  just_execs*: bool  
   absolute*: bool
   filter*: string
   list*: bool
@@ -50,6 +53,9 @@ proc fix_path_2(path:string): string
 proc get_config*() =
   let
     path = add_arg(name="path", kind="argument", value="", help="Path to a directory")
+    just_dirs = add_arg(name="dirs", kind="flag", help="Just show directories", alt="1")
+    just_files = add_arg(name="files", kind="flag", help="Just show files", alt="2")
+    just_execs = add_arg(name="execs", kind="flag", help="Just show executables", alt="3")    
     absolute = add_arg(name="absolute", kind="flag", help="Use absolute paths", alt="a")
     filter = add_arg(name="filter", kind="value", help="Filter the list.\nStart with re: to use regex.\nFor instance --filter=re:\\\\d+", alt="f")
     prefix = add_arg(name="prefix", kind="flag", help="Use prefixes like '[F]'", alt="p")
@@ -94,6 +100,9 @@ proc get_config*() =
   oconf = Config(
     piped: st.st_mode.S_ISFIFO(),
     path: path.value,
+    just_dirs: just_dirs.used, 
+    just_files: just_files.used,
+    just_execs: just_execs.used,    
     absolute: absolute.used,
     filter: filter.value,
     list: list.used,

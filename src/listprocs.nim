@@ -142,16 +142,6 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   if slen > 0:
     print_line()
 
-proc print_title*(title:string, n:int, level:int) =
-  var brk = "\n"
-
-  let 
-    c1 = get_ansi(conf().colors["titles"])
-    c2 = get_ansi(conf().colors["details"])
-    s = &"{brk}{c1}{title}{reset()} {c2}({n})"
-
-  log(s, false, false)
-
 proc list_dir*(path:string, level=0) =
   var path = path
   if level == 0: og_path = path
@@ -222,6 +212,8 @@ proc list_dir*(path:string, level=0) =
       
     # If directory
     of pcDir, pcLinkToDir:
+      if conf().just_files or conf().just_execs: return false
+
       var
          size: int64 = 0
          date: int64 = 0
@@ -257,6 +249,10 @@ proc list_dir*(path:string, level=0) =
         exe = info.permissions.contains(fpUserExec)
         qf = QFile(kind:info.kind, path:fpath, size:size, date:date, perms:perms, exe:exe)
 
+      if conf().just_dirs: return false
+      if conf().just_files and exe: return false
+      if conf().just_execs and not exe: return false
+
       if exe:
         if conf().mix_files: files.add(qf)
         else: execs.add(qf)
@@ -291,27 +287,6 @@ proc list_dir*(path:string, level=0) =
     sort_list(dirs)
     sort_list(files)
     sort_list(execs)
-  
-  proc do_dirs(last=false) =
-    if dirs.len > 0:
-      print_title("Directories", dirs.len, level)
-      if level == 0 and first_print and not spaced:
-        if conf().list: toke()
-      show_files(dirs, path, level, last)
-      
-  proc do_files(last=false) =
-    if files.len > 0:
-      print_title("NormalFiles", files.len, level)
-      if level == 0 and first_print and not spaced:
-        if conf().list: toke()
-      show_files(files, path, level, last)
-      
-  proc do_execs(last=false) =
-    if execs.len > 0:
-      print_title("Executables", execs.len, level)
-      if level == 0 and first_print and not spaced:
-        if conf().list: toke()
-      show_files(execs, path, level, last)
       
   proc do_all(last=false) =
     if not conf().mix: sort_lists()
