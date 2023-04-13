@@ -1,7 +1,7 @@
 import std/[os, strutils, strformat, posix, tables]
 import nap
 
-let version = "4.0.0"
+let version = "5.0.0"
 
 type Config* = ref object
   path*: string
@@ -24,7 +24,6 @@ type Config* = ref object
   datesort*: bool
   datesort2*: bool
   dirdatesort*: bool
-  header*: bool
   permissions*: bool
   tree*: bool
   exclude*: seq[string]
@@ -47,7 +46,6 @@ var
   first_print* = false
 
 proc fix_path(path:string): string
-proc fix_path_2(path:string): string
 
 proc get_config*() =
   let
@@ -69,7 +67,6 @@ proc get_config*() =
     dirsizesort = add_arg(name="dirsizesort", kind="flag", help="Sort directories by size", alt="I")
     datesort = add_arg(name="datesort", kind="flag", help="Sort files by modification date. Repeat, like '-dd', to semi-sort directories too", alt="d")
     dirdatesort = add_arg(name="dirdatesort", kind="flag", help="Sort directories by modification date", alt="D")
-    header = add_arg(name="header", kind="flag", help="Show a header with some information", alt="h")
     permissions = add_arg(name="permissions", kind="flag", help="Show posix permissions", alt="P")
     tree = add_arg(name="tree", kind="flag", help="Show directories in a tree structure", alt="t")
     exclude = add_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
@@ -115,7 +112,6 @@ proc get_config*() =
     dirsizesort: dirsizesort.used,
     datesort: datesort.used,
     dirdatesort: dirdatesort.used,
-    header: header.used,
     permissions: permissions.used,
     tree: tree.used,
     exclude: exclude.values,
@@ -131,9 +127,6 @@ proc get_config*() =
   # Path
   oconf.path = fix_path(oconf.path)
   
-  if tree.used:
-    oconf.list = true
-  
   if info.used:
     oconf.size = true
     oconf.dirsize = true
@@ -147,16 +140,12 @@ proc get_config*() =
   if alldatesort.used:
     oconf.datesort = true
     oconf.dirdatesort = true
-  
-  if snippets.used:
-    oconf.list = true
 
   oconf.sizesort2 = sizesort.used and sizesort.count >= 2
   oconf.datesort2 = datesort.used and datesort.count >= 2
 
   # Table of colors to use
   oconf.colors = initTable[string, seq[string]]()
-  oconf.colors["header"] = @["bright"]
   oconf.colors["titles"] = @["green", "bright"]
   oconf.colors["dirs"] = @["blue"]
   oconf.colors["dirlinks"] = @["blue", "underscore"]
@@ -183,12 +172,5 @@ proc fix_path(path:string): string =
   var path = expandTilde(path)
   if not path.startsWith("/"):
     path = getCurrentDir().joinPath(path)
-  normalizePath(path)
-  return path
-
-proc fix_path_2(path:string): string =
-  var path = expandTilde(path)
-  if not path.startsWith("/"):
-    path = fix_path(oconf.path).joinPath(path)
   normalizePath(path)
   return path

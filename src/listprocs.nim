@@ -8,6 +8,8 @@ var
  aotfilter* = false
  filts*: Table[string, bool]
  title_printed_len* = 0
+ listed = false
+ first_line = false
 
 proc list_dir*(path:string, level=0)
 
@@ -18,19 +20,22 @@ var
 for x in 0..<space_level:
   space.add(" ")
 
+proc get_defsline(): string =
+  return if first_line:
+    if listed: "" else: "\n  "
+  else:
+    if listed: "" else: "  "  
+
 proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   var
     slen = 0
     cfiles = 0
   
-  let
-    termwidth = terminalWidth()
-    defsline = if conf().list: "" else: &"\n  "
-
+  let termwidth = terminalWidth()
   var sline = ""
 
   if title_printed_len == 0:
-    sline = defsline
+    sline = get_defsline()
   else:
     sline = "  "
     slen = title_printed_len
@@ -52,7 +57,8 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   proc print_line() =
     let line = sline.strip(leading=false, trailing=true)
     log(line, check_last())
-    sline = defsline
+    first_line = true  
+    sline = get_defsline()
     slen = 0
     if has_snippet(current_file):
       let lvl = if conf().tree: level + 1 else: level
@@ -61,9 +67,9 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
   proc add_to_line(s:string, clen:int) =
     sline.add(space_item(s))
     slen += clen + space_level
-    inc(cfiles)
+    inc(cfiles) 
 
-    if conf().list: print_line()
+    if listed: print_line()
 
   for i, file in files:
     current_index = i
@@ -74,7 +80,7 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       s = fmt[0]
       clen = fmt[1]
 
-    if not conf().list:
+    if not listed:
       let tots = slen + clen
       # Add to line
       if tots <= limit:
@@ -91,8 +97,6 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       if conf().tree:
         if file.kind == pcDir:
           list_dir(path.joinPath(file.path), level + 1)
-        elif file.kind == pcLinkToDir:
-          if level == 0 and not spaced: toke()
 
   if slen > 0:
     print_line()
@@ -254,23 +258,10 @@ proc list_dir*(path:string, level=0) =
       
   proc total_files(): int =
     dirs.len + files.len + execs.len
-      
-  proc show_header(force_space=false) =
-    let c1 = get_ansi(conf().colors["header"])
-    let c2 = get_ansi(conf().colors["details"])
+  
+  # # # - M A I N - # # #
 
-    let sp =
-      if force_space: space
-      else: ""
-    
-    var
-      brk = ""
-      brk2 = ""
-
-    brk = if conf().tree: "" else: "\n"
-    brk2 = if conf().tree: "\n" else: ""
-
-    log &"{brk}{sp}{c1}{path} {reset()}{c2}({posix_perms(info)}) ({total_files()}){brk2}"
+  listed = conf().list or conf().tree or conf().snippets
 
   # Check files ahead of time if filtering a tree
   if do_filter and level == 0 and conf().tree:
@@ -316,17 +307,8 @@ proc list_dir*(path:string, level=0) =
         if process_file(file.path): break filesblock    
   
   if level == 0 and total_files() == 0:
-    show_header(true)
-    toke()
     quit(0)
-      
-  if level == 0 and conf().header:
-    show_header()
-      
-  do_all(true)
+  
+  # Only tree mode gets spaced
 
-  if level == 1:
-    toke()
-  elif level == 0:
-    if not spaced:
-      toke()
+  do_all(true)

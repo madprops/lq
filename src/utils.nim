@@ -23,7 +23,6 @@ type AnsiKind* = enum
 
 var
   all_output* = ""
-  spaced* = false
 
 proc get_ansi*(kind:string): string =
   if conf().piped: return ""
@@ -111,12 +110,10 @@ proc log*(s:string, last=false, linebreak=true) =
 
   if conf().output != "":
     all_output.add(line2)
-
-  spaced = s == "" or s.endsWith("\n")
   
 proc toke*() =
-  log ""
-  spaced = true
+  let spaced = not conf().list
+  if spaced: log ""
 
 proc fix_path*(path:string): string =
   var path = expandTilde(path)
