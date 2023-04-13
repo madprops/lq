@@ -38,22 +38,13 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
 
   let limit = if conf().max_width > 0 and conf().max_width <= termwidth:
     (conf().max_width - 4) else: (termwidth - 4)
-  let abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-  let use_abc = conf().abc and not conf().mix
 
   var
-    abci = -1
-    arroba_placed = false
     current_file = QFile()
     current_index = 0
 
   proc space_item(s:string): string =
     return &"{s}{space}"
-  
-  proc format_abc(letter:char): string =
-    let c = get_ansi(conf().colors["abc"])
-    &"{c}{$letter}{reset()}"
   
   proc check_last(): bool = 
     last and cfiles == files.len
@@ -68,28 +59,11 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       show_snippet(path.joinPath(current_file.path), current_file.size, lvl)
   
   proc add_to_line(s:string, clen:int) =
-    if use_abc and not conf().list:
-      if sline == defsline:
-        sline.add("   ")
-        slen += 3
-
     sline.add(space_item(s))
     slen += clen + space_level
     inc(cfiles)
 
     if conf().list: print_line()
-  
-  proc add_abc(letter:char, clen:int): bool =
-    if conf().list:
-      log &"\n{format_abc(letter)}"
-    else:
-      let cs = &"{format_abc(letter)}{space}"
-      if slen + clen + 3 > limit:
-        print_line()
-        return true
-      sline.add(cs)
-      slen += 3
-    return false
 
   for i, file in files:
     current_index = i
@@ -99,25 +73,6 @@ proc show_files(files:seq[QFile], path:string, level=0, last=false) =
       fmt = format_item(file, path, level, i, files.len, last)
       s = fmt[0]
       clen = fmt[1]
-
-    if use_abc:
-      let
-        sc = file.path[0].toLowerAscii()
-        ib = abc.find(sc)
-
-      # First @ lines
-      if ib == -1:
-        if not arroba_placed:
-          arroba_placed = true
-          if add_abc('@', clen): 
-            continue
-      else:
-        # On letter change
-        if ib != abci:
-          abci = ib
-          arroba_placed = false
-          if add_abc(abc[ib], clen): 
-            continue
 
     if not conf().list:
       let tots = slen + clen
@@ -306,7 +261,6 @@ proc list_dir*(path:string, level=0) =
 
     let sp =
       if force_space: space
-      elif conf().abc: space
       else: ""
     
     var

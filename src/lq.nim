@@ -7,7 +7,7 @@ when isMainModule:
   get_config()
 
   # First line
-  if conf().list and not conf().abc: 
+  if conf().list: 
     toke()
   
   # The meat

@@ -16,11 +16,6 @@ Show items in a vertical list.
 
 ![](http://i.imgur.com/VYrZRy9.jpg)
 
-## ABC Mode
-Categorize results by letters.
-
-![](http://i.imgur.com/svvsAoK.jpg)
-
 ## Tree Mode
 
 `--tree` or `-t`

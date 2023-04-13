@@ -1,7 +1,7 @@
 import std/[os, strutils, strformat, posix, tables]
 import nap
 
-let version = "3.0.0"
+let version = "4.0.0"
 
 type Config* = ref object
   path*: string
@@ -14,7 +14,6 @@ type Config* = ref object
   prefix*: bool
   dircount*: bool
   mix*: bool
-  abc*: bool
   size*: bool
   date*: bool
   dirdate*: bool
@@ -62,7 +61,6 @@ proc get_config*() =
     list = add_arg(name="list", kind="flag", help="Show in a vertical list", alt="l")
     dircount = add_arg(name="count", kind="flag", help="Count items inside directories", alt="c")
     mix = add_arg(name="mix", kind="flag", help="Mix and sort everything", alt="m")
-    abc = add_arg(name="abc", kind="flag", help="Categorize by letters", alt="@")
     size = add_arg(name="size", kind="flag", help="Show the size of files", alt="z")
     dirsize = add_arg(name="dirsize", kind="flag", help="Show the size of directories", alt="Z")
     date = add_arg(name="date", kind="flag", help="Show the last modification date on files", alt="k")
@@ -109,7 +107,6 @@ proc get_config*() =
     prefix: prefix.used,
     dircount: dircount.used,
     mix: mix.used,
-    abc: abc.used,
     size: size.used,
     dirsize: dirsize.used,
     date: date.used,
@@ -136,7 +133,6 @@ proc get_config*() =
   
   if tree.used:
     oconf.list = true
-    oconf.abc = false
   
   if info.used:
     oconf.size = true
@@ -168,7 +164,6 @@ proc get_config*() =
   oconf.colors["filelinks"] = @["underscore"]
   oconf.colors["exefiles"] = @["bright"]
   oconf.colors["exefilelinks"] = @["bright", "underscore"]
-  oconf.colors["abc"] = @["yellow"]
   oconf.colors["labels"] = @[""]
   oconf.colors["filtermatch"] = @[""]
   oconf.colors["pipes"] = @["cyan", "dim"]
