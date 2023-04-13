@@ -1,7 +1,7 @@
 import std/[os, strutils, strformat, posix, tables]
 import nap
 
-let version = "5.0.0"
+let version = "5.0.1"
 
 type Config* = ref object
   path*: string
@@ -34,6 +34,7 @@ type Config* = ref object
   snippets*: bool
   snippets_length*: int
   mix_files*: bool
+  no_format*: bool
   
   # Set automatically
   piped*: bool
@@ -77,6 +78,7 @@ proc get_config*() =
     snippets = add_arg(name="snippets", kind="flag", help="Show text file snippets", alt="s")
     snippets_length = add_arg(name="snippets-length", kind="value", value="0", help="Max length of snippets", alt="n")
     mix_files = add_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
+    no_format = add_arg(name="no-format", kind="flag", help="Don't color the text", alt="F")
   
     # Presets
     info = add_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
@@ -122,6 +124,7 @@ proc get_config*() =
     snippets: snippets.used,
     snippets_length: snippets_length.getInt(),
     mix_files: mix_files.used,
+    no_format: no_format.used,
   )
 
   # Path

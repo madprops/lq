@@ -25,7 +25,7 @@ var
   all_output* = ""
 
 proc get_ansi*(kind:string): string =
-  if conf().piped: return ""
+  if conf().piped or conf().no_format: return ""
   
   case kind
   of "green": ansiForegroundColorCode(fgGreen)
