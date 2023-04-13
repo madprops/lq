@@ -8,6 +8,4 @@ It has different modes to list the contents of a directory.
 
 It's in the [AUR](https://aur.archlinux.org/packages/lq-git).
 
-![](https://i.imgur.com/ina96j5.jpg)
-
-![](https://i.imgur.com/lN45lR5.jpg)
+![](https://i.imgur.com/j2C1s4z.jpg)
