@@ -1,7 +1,7 @@
 import std/[os, strutils, strformat, posix, tables]
 import nap
 
-let version = "5.0.1"
+let version = "5.1.0"
 
 type Config* = ref object
   path*: string
@@ -29,12 +29,12 @@ type Config* = ref object
   exclude*: seq[string]
   max_width*: int
   output*: string
-  ignore_dots*: bool
   reverse*: bool
   snippets*: bool
   snippets_length*: int
   mix_files*: bool
   no_format*: bool
+  no_hidden*: bool
   
   # Set automatically
   piped*: bool
@@ -73,12 +73,12 @@ proc get_config*() =
     exclude = add_arg(name="exclude", kind="value", multiple=true, help="Directories to exclude", alt="e")
     max_width = add_arg(name="max-width", kind="value", value="0", help="Maximum horizontal size", alt="w")
     output = add_arg(name="output", kind="value", help="Path to a file to save the output", alt="o")
-    ignore_dots = add_arg(name="ignore-dots", kind="flag", help="Don't show dot dirs/files", alt="#")
     reverse = add_arg(name="reverse-sort", kind="flag", help="Reverse sorting", alt="r")
     snippets = add_arg(name="snippets", kind="flag", help="Show text file snippets", alt="s")
     snippets_length = add_arg(name="snippets-length", kind="value", value="0", help="Max length of snippets", alt="n")
     mix_files = add_arg(name="mix-files", kind="flag", help="Mix files and executables", alt="M")
     no_format = add_arg(name="no-format", kind="flag", help="Don't color the text", alt="F")
+    no_hidden = add_arg(name="no-hidden", kind="flag", help="Don't show hidden files", alt="h")
   
     # Presets
     info = add_arg(name="info", kind="flag", help="Preset to show some information", alt="?")
@@ -119,12 +119,12 @@ proc get_config*() =
     exclude: exclude.values,
     max_width: max_width.getInt(),
     output: output.value,
-    ignore_dots: ignore_dots.used,
     reverse: reverse.used,
     snippets: snippets.used,
     snippets_length: snippets_length.getInt(),
     mix_files: mix_files.used,
     no_format: no_format.used,
+    no_hidden: no_hidden.used,
   )
 
   # Path

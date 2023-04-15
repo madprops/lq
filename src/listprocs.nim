@@ -144,7 +144,7 @@ proc list_dir*(path:string, level=0) =
       short_path = full_path.replace(&"{og_path}{os.DirSep}", "")
       info = get_info(full_path)
   
-    if conf().ignore_dots and short_path
+    if conf().no_hidden and short_path
       .extractFileName().startsWith("."):
         return false
   
@@ -270,7 +270,7 @@ proc list_dir*(path:string, level=0) =
     for full_path in walkDirRec(path, yieldFilter={pcFile, pcLinkToFile, pcDir, pcLinkToDir}):
       let short_path = full_path.replace(&"{og_path}/", "")
 
-      if conf().ignore_dots and short_path
+      if conf().no_hidden and short_path
       .extractFileName().startsWith("."):
         continue
 
