@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = {self, nixpkgs}:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -14,33 +14,27 @@
         "aarch64-darwin"
       ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
+      nixpkgsFor = forAllSystems (system: import nixpkgs {inherit system;});
     in {
       packages = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
 
-          nap = pkgs.buildNimPackage {
-            pname = "nap";
-            version = "3.0.0";
-            src = pkgs.fetchFromGitHub {
-              owner = "madprops";
-              repo = "nap";
-              rev = "v3.0.0";
-              hash = "sha256-78hzV2izyFz/asyqaoPV+VDDOZU/mxN1WMP5uuXOORE=";
-            };
-
-            # Tell Nix to skip running `nimble test` for this dependency
-            doCheck = false;
+          # Just fetch the library source.
+          # buildNimPackage will find the .nimble file and link it automatically.
+          nap = pkgs.fetchFromGitHub {
+            owner = "madprops";
+            repo = "nap";
+            rev = "v3.0.0";
+            hash = "sha256-78hzV2izyFz/asyqaoPV+VDDOZU/mxN1WMP5uuXOORE=";
           };
 
         in {
-          # 2. Build the main package and provide the dependency
           default = pkgs.buildNimPackage {
             pname = "lq";
             version = "5.1.0";
             src = ./.;
-            buildInputs = [ nap ];
+            buildInputs = [nap];
           };
         });
 
