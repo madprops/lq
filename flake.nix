@@ -29,6 +29,9 @@
               rev = "v3.0.0";
               hash = "sha256-78hzV2izyFz/asyqaoPV+VDDOZU/mxN1WMP5uuXOORE=";
             };
+
+            # Tell Nix to skip running `nimble test` for this dependency
+            doCheck = false;
           };
 
         in {
