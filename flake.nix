@@ -54,8 +54,7 @@
             ];
             nimFlags = [
               "-d:usePcre"
-              "-d:usePcreHeader"
-              "--passL:-lpcre"
+              "--define:pcreDll:${pcre}/lib/libpcre.so"
             ];
           };
         });
