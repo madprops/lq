@@ -34,7 +34,13 @@
             pname = "lq";
             version = "5.1.0";
             src = ./.;
-            buildInputs = [nap];
+            buildInputs = [
+              nap
+              pkgs.pcre
+            ];
+            nimFlags = [
+              "-d:usePcre"
+            ];
           };
         });
 
@@ -46,6 +52,7 @@
             packages = [
               pkgs.nim
               pkgs.nimble
+              pkgs.pcre
             ];
           };
         });
